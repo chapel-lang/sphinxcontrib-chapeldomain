@@ -14,7 +14,6 @@
 
 """
 
-from sphinx.locale import l_
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain
 from sphinx.roles import XRefRole
@@ -60,7 +59,7 @@ class ChapelDomain(Domain):
     labels = 'Chapel'
 
     object_types = {
-        # FIXME: 
+        # FIXME:
     }
 
     directives = {
@@ -81,10 +80,12 @@ class ChapelDomain(Domain):
     def merge_domaindata(self, docnames, otherdata):
         """FIXME"""
 
-    def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+    def resolve_xref(self, env, fromdocname, builder, typ, target,
+                     node, contnode):
         """FIXME"""
 
-    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
         """FIXME"""
 
     def get_object(self):
