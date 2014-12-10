@@ -1,11 +1,18 @@
+import os.path
+import re
 from setuptools import setup, find_packages
 
-with open('README.rst') as fp:
+with open('README.rst', 'r') as fp:
     long_desc = fp.read()
+
+# Grab the version from chapeldomain module.
+with open(os.path.join('sphinxcontrib', 'chapeldomain.py'), 'r') as fp:
+    version_pattern = re.compile(r'^VERSION\s*=\s*\'(?P<version>\d+\.\d+\.\d+)\'$', re.MULTILINE)
+    version = version_pattern.search(fp.read()).group('version')
 
 setup(
     name='sphinxcontrib-chapeldomain',
-    version='0.0.1',
+    version=version,
     url='',
     download_url='',
     license='Apache License v2.0',
