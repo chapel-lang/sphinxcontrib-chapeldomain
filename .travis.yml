@@ -6,6 +6,7 @@ python:
 install:
   - pip install -r requirements.txt -r test-requirements.txt
 script:
+  - flake8
   - nosetests --verbose --with-cov --cov-report xml --cover-package=sphinxcontrib.chapeldomain
 after_success:
   - coveralls
