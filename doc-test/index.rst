@@ -23,6 +23,17 @@ Module 'Foo'
     This is some variable. Use :var:`varTest` for everyday needs. Otherwise,
     use :const:`constTest`...
 
+CPP tests...
+------------
+
+.. cpp:class:: myclass
+
+    My class here!
+
+.. cpp:function:: module::myclass::operator std::vector<std::string>(myclass x, int y)
+
+    Some function that does some c++ thing...
+
 
 Python tests...
 ---------------
