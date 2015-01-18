@@ -12,6 +12,10 @@ Chapel language
 Module 'Foo'
 ~~~~~~~~~~~~
 
+.. toctree::
+
+   BitOps
+
 .. default-domain:: chpl
 
 .. const:: constTest
