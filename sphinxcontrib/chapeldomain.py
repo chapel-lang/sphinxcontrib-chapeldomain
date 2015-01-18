@@ -6,7 +6,7 @@
 
     The Chapel language domain.
 
-    :copyright: Copyright 2014 by Chapel Team
+    :copyright: Copyright 2015 by Chapel Team
     :license: Apache v2.0, see LICENSE for details.
 
     Chapel website: http://chapel.cray.com/
