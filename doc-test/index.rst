@@ -38,6 +38,10 @@ CPP tests...
 
     Some function that does some c++ thing... See also :cpp:class:`myclass`.
 
+.. cpp:function:: inline hello(std::string x)
+
+    Inline hello world function...
+
 
 Python tests...
 ---------------
