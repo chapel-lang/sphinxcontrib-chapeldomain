@@ -6,71 +6,84 @@ Module: BitOps
 
 Bit Manipulation Functions
  
-.. function:: inline proc clz(x: uint(64)(<DefExprType>))
+.. function:: inline clz(x)
 
     count leading zeros
 
-    :arg x: unsigned integer of size `bits`
-    :arg bits: 8, 16, 32, 64
+    :arg x: unsigned integer of size `bits`; `bits` can be: 8, 16, 32, 64
 
     :returns: the number of 0 bits before the most significant 1 bit in `x` as
               `x.type`
-   
 
-.. function:: inline proc clz(x: int(64)(<DefExprType>))
+    :type x: uint(?bits)
+    :rtype: uint(bits)
+
+
+.. function:: inline clz(x)
       
     count leading zeros
 
-    :arg x: integer of size `bits`
-    :arg bits: 8, 16, 32, 64
+    :arg x: integer of size `bits`; `bits` can be: 8, 16, 32, 64
 
     :returns: the number of 0 bits before the most significant 1 bit in `x` as
               `x.type`
-   
 
-.. function:: inline proc ctz(x: uint(64)(<DefExprType>))
+    :type x: int(?bits)
+
+
+.. function:: inline ctz(x)
       
     count trailing zeros
 
-    :arg x: unsigned integer of size `bits`
-    :arg bits: 8, 16, 32, 64
+    :arg x: unsigned integer of size `bits`; `bits` can be: 8, 16, 32, 64
+
+    :returns: the number of 0 bits after the least significant 1 bit in `x` as
+              `x.type`
+
+    :type x: uint(?bits)
+   
+
+.. function:: inline ctz(x)
+      
+    count trailing zeros
+
+    :arg x: integer of size `bits`; `bits` can be: 8, 16, 32, 64
 
     :returns: the number of 0 bits after the least significant 1 bit in `x` as
               `x.type`
    
+    :type x: int(?bits)
 
-.. function:: inline proc ctz(x: int(64)(<DefExprType>))
-      
-    count trailing zeros
 
-    :arg x: integer of size `bits`
-    :arg bits: 8, 16, 32, 64
-
-    :arg returns: the number of 0 bits after the least significant 1 bit in `x` as
-             `x.type`
-   
-
-.. function:: inline proc popcount(x: uint(64)(<DefExprType>))
+.. function:: inline popcount(x)
       
     population count
 
-    :arg x: unsigned integer of size `bits`
-    :arg bits: 8, 16, 32, 64
+    :arg x: unsigned integer of size `bits`; `bits` can be: 8, 16, 32, 64
 
-    :arg returns: the number of 1 bits set in `x` as `x.type`
+    :returns: the number of 1 bits set in `x` as `x.type`
+
+    :type: uint(?bits)
+    :rtype: uint(bits)
    
 
-.. function:: inline proc popcount(x: int(64)(<DefExprType>))
+.. function:: inline popcount(x)
       
     population count
 
-    :arg x: integer of size `bits`
-    :arg bits: 8, 16, 32, 64
+    :arg x: integer of size `bits`; `bits` can be: 8, 16, 32, 64
 
-    :arg returns: the number of 1 bits set in `x` as `x.type`
+    :returns: the number of 1 bits set in `x` as `x.type`
+
+    :type x: int(?bits)
+    :rtype: int(bits)
    
 
-.. function:: proc bitMatMultOr(x: uint(64)(64), y: uint(64)(64)): uint(64)(64)
+.. function:: proc bitMatMultOr(x, y)
+
+    :type x: uint(64)
+    :type y: uint(64)
+    :rtype: uint(64)
 
 .. function:: inline proc bitRotLeft(x, shift)
 
