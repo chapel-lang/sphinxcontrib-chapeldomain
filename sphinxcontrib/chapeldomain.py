@@ -50,6 +50,7 @@ class ChapelObject(ObjectDescription):
 
         FIXME
         """
+        # FIXME: Get these parts by properly parsing the signature...
         name_prefix, name, arglist, retann = None, sig, None, None
         modname = self.options.get(
             'module', None)  # self.env.ref_context.get('chpl:module'))
