@@ -1,6 +1,8 @@
 .. generated with `chpldoc --docs-text-only modules/standard/BitOps.chpl` and
    then modified to include rst directives...
 
+.. default-domain:: chpl
+
 Module: BitOps
 ==============
 
@@ -79,12 +81,12 @@ Bit Manipulation Functions
     :rtype: int(bits)
    
 
-.. function:: proc bitMatMultOr(x, y)
+.. function:: bitMatMultOr(x, y)
 
     :type x: uint(64)
     :type y: uint(64)
     :rtype: uint(64)
 
-.. function:: inline proc bitRotLeft(x, shift)
+.. function:: inline bitRotLeft(x, shift)
 
-.. function:: inline proc bitRotRight(x: uint(64)(64), shift)
+.. function:: inline bitRotRight(x: uint(64)(64), shift)

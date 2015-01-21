@@ -15,6 +15,7 @@ Module 'Foo'
 .. toctree::
 
    BitOps
+   functions
 
 .. default-domain:: chpl
 
