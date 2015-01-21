@@ -14,7 +14,10 @@
 
 """
 
+import re
+
 from docutils import nodes
+from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
@@ -22,18 +25,109 @@ from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
 from sphinx.util.compat import Directive
+from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.nodes import make_refnode
 
 
 VERSION = '0.0.1'
 
 
+chpl_sig_pattern = re.compile(
+    r"""^ (inline\s+)?          # prefixes
+          ([\w.]*\.)?           # class name(s)
+          (\w+)  \s*            # function or method name
+          (?: \((.*)\)          # optional: arguments
+           (?:\s* : \s* (.*))?  #           return type
+          )? $""", re.VERBOSE)
+
+
+# FIXME: This might be needed to support something other than the -> for return
+#        annotations. (thomasvandoren, 2015-01-20)
+#
+# class chapel_desc_returns(addnodes.desc_returns):
+#     """Node for a "returns" annotation."""
+#     def astext(self):
+#         return ' : ' + nodes.TextElement.astext(self)
+# nodes._add_node_class_names([chapel_desc_returns.__name__])
+
+
+class ChapelField(Field):
+    pass
+
+
+class ChapelTypedField(TypedField):
+    pass
+
+
 class ChapelObject(ObjectDescription):
     """FIXME"""
 
+    option_spec = {
+        'noindex': directives.flag,
+        'module': directives.unchanged,
+        'annotation': directives.unchanged,
+    }
+
+    doc_field_types = [
+        TypedField('parameter', label=l_('Parameters'),
+                   names=('param', 'parameter', 'arg', 'argument'),
+                   typerolename='obj', typenames=('paramtype', 'type'),
+                   can_collapse=True),
+        Field('returnvalue', label=l_('Returns'), has_arg=False,
+              names=('returns', 'return')),
+        Field('returntype', label=l_('Return type'), has_arg=False,
+              names=('rtype',)),
+    ]
+
     stopwords = set((
-        'config', 'const', 'var',
+        'const', 'var',
     ))
+
+    @staticmethod
+    def _pseudo_parse_arglist(signode, arglist):
+        """Parse list of comma separated arguments.
+
+        Arguments can have optional types.
+        """
+        paramlist = addnodes.desc_parameterlist()
+        stack = [paramlist]
+        try:
+            for argument in arglist.split(','):
+                argument = argument.strip()
+                ends_open = 0
+                ends_close = 0
+                while argument.startswith('['):
+                    stack.append(addnodes.desc_optional())
+                    stack[-2] += stack[-1]
+                    argument = argument[1:].strip()
+                while argument.startswith(']'):
+                    stack.pop()
+                    argument = argument[1:].strip()
+                while argument.endswith(']') and not argument.endswith('[]'):
+                    ends_close += 1
+                    argument = argument[:-1].strip()
+                while argument.endswith('['):
+                    ends_open += 1
+                    argument = argument[:-1].strip()
+                if argument:
+                    stack[-1] += addnodes.desc_parameter(argument, argument)
+                while ends_open:
+                    stack.append(addnodes.desc_optional())
+                    stack[-2] += stack[-1]
+                    ends_open -= 1
+                while ends_close:
+                    stack.pop()
+                    ends_close -= 1
+            if len(stack) != 1:
+                raise IndexError
+        except IndexError:
+            # If there are too few or too many elements on the stack, just give
+            # up and treat the whole argument list as one argument, discarding
+            # the already partially populated paramlist node.
+            signode += addnodes.desc_parameterlist()
+            signode[-1] += addnodes.desc_parameter(arglist, arglist)
+        else:
+            signode += paramlist
 
     def get_signature_prefix(self, sig):
         """May return a prefix to put before the object name in the signature."""
@@ -50,15 +144,16 @@ class ChapelObject(ObjectDescription):
 
         FIXME
         """
-        # FIXME: Get these parts by properly parsing the signature...
-        name_prefix, name, arglist, retann = None, sig, None, None
-        modname = self.options.get(
-            'module', None)  # self.env.ref_context.get('chpl:module'))
-        classname = None  # self.env.ref_context.get('py:class')
+        sig_match = chpl_sig_pattern.match(sig)
+        if sig_match is None:
+            raise ValueError('Signature does not parse: {0}'.format(sig))
 
-        # import ipdb
-        # ipdb.set_trace()
-        
+        func_prefix, name_prefix, name, arglist, retann = sig_match.groups()
+
+        modname = self.options.get(
+            'module', None)  # FIXME: self.env.ref_context.get('chpl:module'))
+        classname = None  # FIXME: self.env.ref_context.get('chpl:class')
+
         if classname:
             add_module = False
             if name_prefix and name_prefix.startswith(classname):
@@ -88,15 +183,30 @@ class ChapelObject(ObjectDescription):
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             sig_node += addnodes.desc_annotation(sig_prefix, sig_prefix)
-
+        if func_prefix:
+            signode += addnodes.desc_addname(func_prefix, func_prefix)
         if name_prefix:
             signode += addnodes.desc_addname(name_prefix, name_prefix)
 
+        anno = self.options.get('annotation')
+
         signode += addnodes.desc_name(name, name)
 
-        # import ipdb
-        # ipdb.set_trace()
+        if not arglist:
+            if self.needs_arglist():
+                # for callables, add an empty parameter list
+                signode += addnodes.desc_parameterlist()
+            if retann:
+                signode += addnodes.desc_returns(retann, retann)  # FIXME: ? chapel_desc_returns(retann, retann)
+            if anno:
+                signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
+            return fullname, name_prefix
 
+        self._pseudo_parse_arglist(signode, arglist)
+        if retann:
+            signode += addnodes.desc_returns(retann, retann)  # FIXME: ? chapel_desc_returns(retann, retann)
+        if anno:
+            signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
         return fullname, name_prefix
 
     def get_index_text(self, modname, name):
@@ -217,16 +327,19 @@ class ChapelDomain(Domain):
     object_types = {
         'const': ObjType(l_('const'), 'const'),
         'var': ObjType(l_('var'), 'var'),
+        'function': ObjType(l_('function'), 'func'),
     }
 
     directives = {
         'const': ChapelModuleLevel,
         'var': ChapelModuleLevel,
+        'function': ChapelModuleLevel,
     }
 
     roles = {
         'const': ChapelXRefRole(),
         'var': ChapelXRefRole(),
+        'func': ChapelXRefRole(),
     }
 
     initial_data = {
