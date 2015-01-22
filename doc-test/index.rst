@@ -14,8 +14,10 @@ Module 'Foo'
 
 .. toctree::
 
-   BitOps
    functions
+   classes
+   BitOps
+   Vector
 
 .. default-domain:: chpl
 
