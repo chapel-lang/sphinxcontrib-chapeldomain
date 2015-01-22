@@ -37,7 +37,9 @@ chpl_sig_pattern = re.compile(
           ([\w.]*\.)?           # class name(s)
           (\w+)  \s*            # function or method name
           (?: \((.*)\)          # optional: arguments
-           (?:\s* : \s* (.*))?  #           return type
+           (?:\s* : \s* (.*)    #           return type
+             |\s+(\w+)\s*       #           or ref FIXME!!! -- need to look at where arglist is starting (see optional line) -- actually, need to move this outside the the arglist grouping...
+           )?                   #
           )? $""", re.VERBOSE)
 
 
@@ -193,6 +195,10 @@ class ChapelObject(ObjectDescription):
         signode += addnodes.desc_name(name, name)
 
         if not arglist:
+            if False and self.needs_arglist and name in ('returnRef', 'noParens'):
+                import ipdb
+                ipdb.set_trace()
+
             if self.needs_arglist():
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
