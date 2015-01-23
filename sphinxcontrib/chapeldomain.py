@@ -152,8 +152,8 @@ class ChapelObject(ObjectDescription):
         func_prefix, name_prefix, name, arglist, retann = sig_match.groups()
 
         modname = self.options.get(
-            'module', None)  # FIXME: self.env.temp_data.get('chpl:module'))
-        classname = None  # FIXME: self.env.temp_data.get('chpl:class')
+            'module', self.env.temp_data.get('chpl:module'))
+        classname = self.env.temp_data.get('chpl:class')
 
         if classname:
             add_module = False
@@ -221,10 +221,8 @@ class ChapelObject(ObjectDescription):
 
     def add_target_and_index(self, name_cls, sig, signode):
         """FIXME"""
-        modname = None
-        # FIXME: is this module name stuff needed? (thomasvandoren, 2015-01-18)
-        # modname = self.options.get(
-        #     'module', self.env.temp_data.get('chpl:module'))
+        modname = self.options.get(
+            'module', self.env.temp_data.get('chpl:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -261,8 +259,43 @@ class ChapelTypeObject(ChapelObject):
     """FIXME"""
 
 
-class ChapelMemberObject(ChapelObject):
+class ChapelClassMember(ChapelObject):
     """FIXME"""
+
+    def needs_arglist(self):
+        """FIXME"""
+        return self.objtype == 'method'
+
+    def get_index_text(self, modname, name_cls):
+        """FIXME"""
+        name, cls = name_cls
+        add_modules = self.env.config.add_module_names
+        if self.objtype == 'method':
+            try:
+                clsname, methname = name.rsplit('.', 1)
+            except ValueError:
+                if modname:
+                    return _('%s() (in module %s)') % (name, modname)
+                else:
+                    return _('%s()') % name
+            if modname and add_modules:
+                return _('%s() (%s.%s method)') % (methname, modname, clsname)
+            else:
+                return _('%s() (%s method)') % (methname, clsname)
+        elif self.objtype == 'attribute':
+            try:
+                clsname, attrname = name.rsplit('.', 1)
+            except ValueError:
+                if modname:
+                    return _('%s (in module %s)') % (name, modname)
+                else:
+                    return name
+            if modname and add_modules:
+                return _('%s (%s.%s attribute)') % (attrname, modname, clsname)
+            else:
+                return _('%s (%s attribute)') % (attrname, clsname)
+        else:
+            return ''
 
 
 class ChapelClassObject(ChapelObject):
@@ -285,7 +318,7 @@ class ChapelClassObject(ChapelObject):
         """FIXME"""
         ChapelObject.before_content(self)
         if self.names:
-            self.env.temp_data['py:class'] = self.names[0][0]
+            self.env.temp_data['chpl:class'] = self.names[0][0]
             self.clsname_set = True
 
 
@@ -293,9 +326,11 @@ class ChapelModuleLevel(ChapelObject):
     """FIXME"""
 
     def needs_arglist(self):
+        """FIXME"""
         return self.objtype == 'function'
 
     def get_index_text(self, modname, name_cls):
+        """FIXME"""
         if self.objtype == 'function':
             if not modname:
                 return _('%s() (built-in function)') % name_cls[0]
@@ -341,6 +376,8 @@ class ChapelDomain(Domain):
         'function': ObjType(l_('function'), 'func'),
         'class': ObjType(l_('class'), 'class'),
         'record': ObjType(l_('record'), 'record'),
+        'method': ObjType(l_('method'), 'meth'),
+        #'attribute': ObjType(l_('attribute'), 'attr'),
     }
 
     directives = {
@@ -349,6 +386,8 @@ class ChapelDomain(Domain):
         'function': ChapelModuleLevel,
         'class': ChapelClassObject,
         'record': ChapelClassObject,
+        'method': ChapelClassMember,
+        #'attribute': ChapelClassMember,
     }
 
     roles = {
@@ -357,6 +396,8 @@ class ChapelDomain(Domain):
         'func': ChapelXRefRole(),
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
+        'meth': ChapelXRefRole(),
+        #'attr': ChapelXRefRole(),
     }
 
     initial_data = {

@@ -12,13 +12,37 @@ Chapel classes
 
     See also :chpl:record:`ChplBigNum`.
 
-    #.. method:: ChplVector(type eltType, cap=4, offset=0)
+    .. method:: ChplVector(type eltType, cap=4, offset=0)
+
+        Initialize new generic ChplVector of type eltType. See
+        :chpl:meth:`ChplBigNum.readWriteThis`...
+
+        :arg type eltType: generic type for new vector
+        :arg int cap: capacity of vector
+        :arg int offset: vector offset
+
+    .. method:: readWriteThis(f)
+
+        Implement generic reader/writer methods for ChplVector. blah blah
+        :chpl:meth:`ChplBigNum.fromInt`. to construct a ChplVector, see
+        :chpl:meth:`ChplVector.ChplVector`.
+
+        :arg Reader,Writer f: reader or writer
+        :returns: nothing
+        :rtype: nil
 
 .. record:: ChplBigNum
 
     See also :chpl:class:`ChplVector`...
 
-    #.. method:: fromInt(value: int): ChplBitNum
+    .. method:: fromInt(value: int): ChplBigNum
+
+        Initialize new ChplBigNum from integer. random
+        :chpl:meth:`ChplVector.readWriteThis`...
+
+        :arg int value: integer to intialize ChplBigNum with.
+        :returns: new instance of ChplBigNum
+        :rtype: ChplBigNum
 
 
 Python classes
