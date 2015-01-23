@@ -9,7 +9,7 @@ Module: BitOps
 .. module:: BitOps
     :synopsis: Bit Manipulation Functions
  
-.. function:: inline clz(x)
+.. function:: inline proc clz(x: uint(?bits))
 
     count leading zeros
 
@@ -22,17 +22,15 @@ Module: BitOps
     :rtype: uint(bits)
 
 
-.. function:: inline clz(x)
+.. function:: inline proc clz(x: int(?bits))
       
     count leading zeros
 
     :arg x: integer of size `bits`; `bits` can be: 8, 16, 32, 64
+    :type x: int(?bits)
 
     :returns: the number of 0 bits before the most significant 1 bit in `x` as
               `x.type`
-
-    :type x: int(?bits)
-
 
 .. function:: inline ctz(x)
       
