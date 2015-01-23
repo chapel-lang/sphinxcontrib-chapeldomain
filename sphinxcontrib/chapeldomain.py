@@ -255,7 +255,73 @@ class ChapelObject(ObjectDescription):
             self.env.temp_data.pop('chpl:class', None)
 
 
+class ChapelModule(Directive):
+    """Directive to makre description of a new module."""
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 1
+    final_argument_whitespace = False
+    option_spec = {
+        'platform': lambda x: x,
+        'synopsis': lambda x: x,
+        'noindex': directives.flag,
+        'deprecated': directives.flag,
+    }
+
+    def run(self):
+        """FIXME"""
+        env = self.state.document.settings.env
+        modname = self.arguments[0].strip()
+        noindex = 'noindex' in self.options
+        env.temp_data['chpl:module'] = modname
+        ret = []
+        if not noindex:
+            env.domaindata['chpl']['modules'][modname] = \
+                (env.docname, self.options.get('synopsis', ''),
+                 self.options.get('platform', ''), 'deprecated' in self.options)
+
+            # Make a duplicate entry in 'objects' to facilitate searching for
+            # the module in ChapelDomain.find_obj().
+            env.domaindata['chpl']['objects'][modname] = (env.docname, 'module')
+            targetnode = nodes.target('', '', ids=['module-' + modname],
+                                      ismod=True)
+            self.state.document.note_explicit_target(targetnode)
+
+            # The platform and synopsis are not printed. In fact, they are only
+            # used in the modindex currently.
+            ret.append(targetnode)
+            indextext = _('%s (module)') % modname
+            inode = addnodes.index(entries=[('single', indextext,
+                                             'module-' + modname, '')])
+            ret.append(inode)
+        return ret
+
+
+class ChapelCurrentModule(Directive):
+    """this directive is just to tell Sphinx that we're documenting stuff in module
+    foo, but links to module foo won't lead here.
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {}
+
+    def run(self):
+        """FIXME"""
+        env = self.state.document.settings.env
+        modname = self.arguments[0].strip()
+        if modname == 'None':
+            env.temp_data['chpl:module'] = None
+        else:
+            env.temp_data['chpl:module'] = modname
+        return []
+
+
 class ChapelTypeObject(ChapelObject):
+
     """FIXME"""
 
 
@@ -378,6 +444,7 @@ class ChapelDomain(Domain):
         'record': ObjType(l_('record'), 'record'),
         'method': ObjType(l_('method'), 'meth'),
         'attribute': ObjType(l_('attribute'), 'attr'),
+        'module': ObjType(l_('module'), 'mod'),
     }
 
     directives = {
@@ -388,6 +455,8 @@ class ChapelDomain(Domain):
         'record': ChapelClassObject,
         'method': ChapelClassMember,
         'attribute': ChapelClassMember,
+        'module': ChapelModule,
+        'currentmodule': ChapelCurrentModule,
     }
 
     roles = {
@@ -398,10 +467,12 @@ class ChapelDomain(Domain):
         'record': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
+        'mod': ChapelXRefRole(),
     }
 
     initial_data = {
         'objects': {},  # FIXME? fullname -> docname, objtype
+        'modules': {},  # FIXME? modname -> docname, synopsis, platform, deprecated
     }
 
     # def clear_doc(self, docname):

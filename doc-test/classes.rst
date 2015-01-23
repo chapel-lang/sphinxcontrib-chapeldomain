@@ -8,6 +8,9 @@ Chapel classes
 
 .. default-domain:: chpl
 
+.. module:: MyModuleFullOfClassesAndRecords
+    :synopsis: some random module...
+
 .. class:: ChplVector
 
     See also :chpl:record:`ChplBigNum`.
