@@ -12,6 +12,21 @@ Chapel classes
 
     See also :chpl:record:`ChplBigNum`.
 
+    .. attribute:: capacity
+
+        Integer capacity of vector. See also... random
+        :chpl:attr:`ChplBigNum.myAttr`
+
+    .. attribute:: dom
+
+        One dimensional domain for array elements. See also
+        :chpl:attr:`ChplVector.elements`...
+
+    .. attribute:: elements
+
+        One dimensional array that stores elements of vector. See also
+        :chpl:attr:`ChplVector.dom`.
+
     .. method:: ChplVector(type eltType, cap=4, offset=0)
 
         Initialize new generic ChplVector of type eltType. See
@@ -34,6 +49,10 @@ Chapel classes
 .. record:: ChplBigNum
 
     See also :chpl:class:`ChplVector`...
+
+    .. attribute:: myAttr
+
+        whatever, some random attr for fun!
 
     .. method:: fromInt(value: int): ChplBigNum
 

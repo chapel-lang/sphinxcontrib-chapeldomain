@@ -1,13 +1,14 @@
 .. generated with `chpldoc --docs-text-only modules/standard/Containers.chpl`
    and then modified to be rst
 
+.. default-domain:: chpl
+
 Module: Containers
 ==================
 
 .. #.. module:: Containers
 .. #    :synopsis: Container classes! Currently, just Vector
 
-.. Class: Vector
 .. class:: Vector
 
     `FIXME: <only copyright comment in file>`
@@ -32,6 +33,7 @@ Module: Containers
 
     .. method:: this(idx) ref
 
+    .. FIXME: should we represent iterators as function/methods or give them a special directive? If we give them a special directive, how do we distinguish an iterator that is part of a class/record and a general iterators? For example, Vector.these() vs. fib(n). (thomasvandoren, 2015-01-22)
     #.. iterator:: these() ref
 
     .. method:: size

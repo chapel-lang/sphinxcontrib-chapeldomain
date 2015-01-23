@@ -377,7 +377,7 @@ class ChapelDomain(Domain):
         'class': ObjType(l_('class'), 'class'),
         'record': ObjType(l_('record'), 'record'),
         'method': ObjType(l_('method'), 'meth'),
-        #'attribute': ObjType(l_('attribute'), 'attr'),
+        'attribute': ObjType(l_('attribute'), 'attr'),
     }
 
     directives = {
@@ -387,7 +387,7 @@ class ChapelDomain(Domain):
         'class': ChapelClassObject,
         'record': ChapelClassObject,
         'method': ChapelClassMember,
-        #'attribute': ChapelClassMember,
+        'attribute': ChapelClassMember,
     }
 
     roles = {
@@ -397,7 +397,7 @@ class ChapelDomain(Domain):
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
-        #'attr': ChapelXRefRole(),
+        'attr': ChapelXRefRole(),
     }
 
     initial_data = {
