@@ -39,7 +39,6 @@ Chapel Functions
     :returns: the message id
     :rtype: int
 
-.. FIXME: is this valid? (thomasvandoren, 2015-01-21)
 .. function:: takeAType(type someType)
 
     Takes a generic type of some sort... see also :chpl:func:`returnRef`.
@@ -47,7 +46,6 @@ Chapel Functions
     :arg type someType: the generic type
     :returns: new instance of someType
 
-.. FIXME: is this valid? (thomasvandoren, 2015-01-21)
 .. function:: returnRef() ref
 
     Returns reference to some value. See also :chpl:func:`takeAType`.
