@@ -6,7 +6,8 @@
 Module: BitOps
 ==============
 
-Bit Manipulation Functions
+.. module:: BitOps
+    :synopsis: Bit Manipulation Functions
  
 .. function:: inline clz(x)
 

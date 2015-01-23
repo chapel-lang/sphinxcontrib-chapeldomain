@@ -11,7 +11,10 @@ Module: Containers
 
 .. class:: Vector
 
-    `FIXME: <only copyright comment in file>`
+    .. FIXME: should ~ links display as hole value or just leaf value??? (thomasvandoren, 2015-01-22)
+    `FIXME: <only copyright comment in file>` blah blah
+    :chpl:class:`~BitOps.clz`... :chpl:attr:`~MyModule.ChplVector.elements`
+    blah blah :chpl:meth:`~MyModule.ChplBigNum.fromInt`.
 
     .. attribute:: eltType
     .. attribute:: capacity: int(64)

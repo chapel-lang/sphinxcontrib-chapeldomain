@@ -8,7 +8,7 @@ Chapel classes
 
 .. default-domain:: chpl
 
-.. module:: MyModuleFullOfClassesAndRecords
+.. module:: MyModule
     :synopsis: some random module...
 
 .. class:: ChplVector
