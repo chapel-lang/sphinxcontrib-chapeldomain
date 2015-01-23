@@ -6,11 +6,19 @@ Let's hope so...
 Chapel classes
 --------------
 
-#.. default-domain:: chpl
+.. default-domain:: chpl
 
 .. class:: ChplVector
 
-    .. method:: ChplVector(type eltType, cap=4, offset=0)
+    See also :chpl:record:`ChplBigNum`.
+
+    #.. method:: ChplVector(type eltType, cap=4, offset=0)
+
+.. record:: ChplBigNum
+
+    See also :chpl:class:`ChplVector`...
+
+    #.. method:: fromInt(value: int): ChplBitNum
 
 
 Python classes

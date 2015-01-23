@@ -59,6 +59,7 @@ class ChapelTypedField(TypedField):
     pass
 
 
+# FIXME: rename ChapelObject -> ChapelBase
 class ChapelObject(ObjectDescription):
     """FIXME"""
 
@@ -151,8 +152,8 @@ class ChapelObject(ObjectDescription):
         func_prefix, name_prefix, name, arglist, retann = sig_match.groups()
 
         modname = self.options.get(
-            'module', None)  # FIXME: self.env.ref_context.get('chpl:module'))
-        classname = None  # FIXME: self.env.ref_context.get('chpl:class')
+            'module', None)  # FIXME: self.env.temp_data.get('chpl:module'))
+        classname = None  # FIXME: self.env.temp_data.get('chpl:class')
 
         if classname:
             add_module = False
@@ -182,7 +183,7 @@ class ChapelObject(ObjectDescription):
 
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
-            sig_node += addnodes.desc_annotation(sig_prefix, sig_prefix)
+            signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
         if func_prefix:
             signode += addnodes.desc_addname(func_prefix, func_prefix)
         if name_prefix:
@@ -223,7 +224,7 @@ class ChapelObject(ObjectDescription):
         modname = None
         # FIXME: is this module name stuff needed? (thomasvandoren, 2015-01-18)
         # modname = self.options.get(
-        #     'module', self.env.ref_context.get('chpl:module'))
+        #     'module', self.env.temp_data.get('chpl:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -253,14 +254,7 @@ class ChapelObject(ObjectDescription):
     def after_content(self):
         """FIXME: is this needed/correct?"""
         if self.clsname_set:
-            self.env.ref_context.pop('chpl:class', None)
-
-    def _parse_type(self, node, chpl_type):
-        """FIXME"""
-        for part in [_f for _f in wsplit_re.split(chpl_type) if _f]:
-            tnode = nodes.Text(part, part)
-            if chpl_type not in self.stopwords:
-                node += tnode
+            self.env.temp_data.pop('chpl:class', None)
 
 
 class ChapelTypeObject(ChapelObject):
@@ -271,16 +265,28 @@ class ChapelMemberObject(ChapelObject):
     """FIXME"""
 
 
-class ChapelFunctionObject(ChapelObject):
-    """FIXME"""
-
-
 class ChapelClassObject(ChapelObject):
     """FIXME"""
 
+    def get_signature_prefix(self, sig):
+        """FIXME"""
+        return self.objtype + ' '
 
-class ChapelRecordObject(ChapelObject):
-    """FIXME"""
+    def get_index_text(self, modname, name_cls):
+        """FIXME"""
+        if self.objtype in ('class', 'record'):
+            if not modname:
+                return _('%s (built-in %s)') % (name_cls[0], self.objtype)
+            return _('%s (%s in %s)') % (name_cls[0], self.objtype, modname)
+        else:
+            return ''
+
+    def before_content(self):
+        """FIXME"""
+        ChapelObject.before_content(self)
+        if self.names:
+            self.env.temp_data['py:class'] = self.names[0][0]
+            self.clsname_set = True
 
 
 class ChapelModuleLevel(ChapelObject):
@@ -333,18 +339,24 @@ class ChapelDomain(Domain):
         'const': ObjType(l_('const'), 'const'),
         'var': ObjType(l_('var'), 'var'),
         'function': ObjType(l_('function'), 'func'),
+        'class': ObjType(l_('class'), 'class'),
+        'record': ObjType(l_('record'), 'record'),
     }
 
     directives = {
         'const': ChapelModuleLevel,
         'var': ChapelModuleLevel,
         'function': ChapelModuleLevel,
+        'class': ChapelClassObject,
+        'record': ChapelClassObject,
     }
 
     roles = {
         'const': ChapelXRefRole(),
         'var': ChapelXRefRole(),
         'func': ChapelXRefRole(),
+        'class': ChapelXRefRole(),
+        'record': ChapelXRefRole(),
     }
 
     initial_data = {
