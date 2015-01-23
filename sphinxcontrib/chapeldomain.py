@@ -80,10 +80,6 @@ class ChapelObject(ObjectDescription):
               names=('rtype',)),
     ]
 
-    stopwords = set((
-        'const', 'var',
-    ))
-
     @staticmethod
     def _pseudo_parse_arglist(signode, arglist):
         """Parse list of comma separated arguments.
@@ -471,52 +467,100 @@ class ChapelDomain(Domain):
     }
 
     initial_data = {
-        'objects': {},  # FIXME? fullname -> docname, objtype
-        'modules': {},  # FIXME? modname -> docname, synopsis, platform, deprecated
+        'objects': {},  # fullname -> docname, objtype
+        'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
 
-    # def clear_doc(self, docname):
-    #     """FIXME"""
+    def clear_doc(self, docname):
+        """FIXME"""
+        for fullname, (fn, _) in self.data['objects'].iteritems():
+            if fn == docname:
+                del self.data['objects'][fullname]
+        for modname, (fn, _, _, _) in self.data['modules'].iteritems():
+            if fn == docname:
+                del self.data['modules'][modname]
 
-    # def merge_domaindata(self, docnames, otherdata):
-    #     """FIXME"""
+    def find_obj(self, env, modname, classname, name, type_name, searchmode=0):
+        """Find a Chapel object for "name", possibly with module or class/record
+        name. Returns a list of (name, object entry) tuples.
 
-    # def process_doc(self, env, docname, document):
-    #     """FIXME"""
+        FIXME: fill in arg and returns docs (thomasvandoren, 2015-01-23)
+        """
+        if name[-2:] == '()':
+            name = name[:-2]
+
+        if not name:
+            return []
+
+        objects = self.data['objects']
+        matches = []
+
+        newname = None
+        if searchmode == 1:
+            if type_name is None:
+                objtypes = list(self.object_types)
+            else:
+                objtypes = self.objtypes_for_role(type_name)
+            if objtypes is not None:
+                if modname and classname:
+                    fullname = modname + '.' + classname + '.' + name
+                    if fullname in objects and objects[fullname][1] in objtypes:
+                        newname = fullname
+                if not newname:
+                    if (modname and modname + '.' + name in objects and
+                            objects[modname + '.' + name][1] in objtypes):
+                        newname = modname + '.' + name
+                    elif name in objects and objects[name][1] in objtypes:
+                        newname = name
+                    else:
+                        # "Fuzzy" search mode.
+                        searchname = '.' + name
+                        matches = [(oname, objects[oname]) for oname in objects
+                                   if oname.endswith(searchname)
+                                   and objects[oname][1] in objtypes]
+        else:
+            # NOTE: Search for exact match, object type is not considered.
+            if name in objects:
+                newname = name
+            elif type_name == 'mod':
+                # Only exact matches allowed for modules.
+                return []
+            elif classname and classname + '.' + name in objects:
+                newname = classname + '.' + name
+            elif modname and modname + '.' + name in objects:
+                newname = modname + '.' + name
+            elif (modname and classname and
+                      modname + '.' + classname + '.' + name in objects):
+                newname = modname + '.' + classname + '.' + name
+
+        if newname is not None:
+            matches.append((newname, objects[newname]))
+        return matches
 
     def resolve_xref(self, env, fromdocname, builder,
-                     type, target, node, contnode):
+                     type_name, target, node, contnode):
         """FIXME"""
-        # import ipdb
-        # ipdb.set_trace()
-        
-        if target not in self.data['objects']:
+        modname = node.get('chpl:module')
+        clsname = node.get('chpl:class')
+        searchmode = 1 if node.hasattr('refspecific') else 0
+        matches = self.find_obj(env, modname, clsname, target,
+                                type_name, searchmode)
+
+        if not matches:
             return None
-        obj = self.data['objects'][target]
-        return make_refnode(builder, fromdocname, obj[0], target,
-                            contnode, target)
+        elif len(matches) > 1:
+            env.warn_node(
+                'more than one target found for cross-reference '
+                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
+                node)
+        name, obj = matches[0]
 
-        # modname = node.get('chpl:module')
-        # clsname = node.get('chpl:class')
-        # searchmode = node.hasattr('refspecific') and 1 or 0
-        # matches = self.find_obj(env, modname, clsname, target,
-        #                         type, searchmode)
-
-        # if not matches:
-        #     return None
-        # elif len(matches) > 1:
-        #     env.warn_node(
-        #         'more than one target found for cross-reference '
-        #         '%r: %s' % (target, ', '.join(match[0] for match in matches)),
-        #         node)
-        # name, obj = matches[0]
-
-        # if obj[1] == 'module':
-        #     3 / 0
-        # else:
-        #     4 / 0
-        #     return make_refnode(builder, fromdocname, obj[0], name,
-        #                         contnode, name)
+        if obj[1] == 'module':
+            return self._make_module_refnode(
+                builder, fromdocname, name, contnode)
+        else:
+            return make_refnode(builder, fromdocname, obj[0], name,
+                                contnode, name)
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
@@ -525,21 +569,47 @@ class ChapelDomain(Domain):
         clsname = node.get('chpl:class')
         results = []
 
-        # always search in "refspecific" mode with the :any: role
+        # Always search in "refspecific" mode with the :any: role.
         matches = self.find_obj(env, modname, clsname, target, None, 1)
         for name, obj in matches:
             if obj[1] == 'module':
-                1 / 0
+                results.append(('chpl:mod',
+                                self._make_module_refnode(builder, fromdocname,
+                                                          name, contnode)))
             else:
-                2 / 0
                 results.append(('chpl:' + self.role_for_objtype(obj[1]),
                                 make_refnode(builder, fromdocname, obj[0], name,
                                              contnode, name)))
 
         return results
 
-    # def get_objects(self):
+    def _make_module_refnode(self, builder, fromdocname, name, contnode):
+        """FIXME"""
+        # Get additional info for modules.
+        docname, synopsis, platform, deprecated = self.data['modules'][name]
+        title = name
+        if synopsis:
+            title += ': ' + synopsis
+        if deprecated:
+            title += _(' (deprecated)')
+        if platform:
+            title += ' (' + platform + ')'
+        return make_refnode(builder, fromdocname, docname,
+                            'module-' + name, contnode, title)
+
+    def merge_domaindata(self, docnames, otherdata):
+        """FIXME"""
+
+    # def process_doc(self, env, docname, document):
     #     """FIXME"""
+
+    def get_objects(self):
+        """FIXME"""
+        for modname, info in self.data['modules'].iteritems():
+            yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
+        for refname, (docname, type_name) in self.data['objects'].iteritems():
+            if type_name != 'module':  # modules are already handled
+                yield (refname, refname, type_name, docname, refname, 1)
 
     # def get_type_name(self, type, primary=False):
     #     """FIXME"""
