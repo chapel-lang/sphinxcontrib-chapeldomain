@@ -10,7 +10,18 @@ Chapel Functions
 .. function:: noParens
 
     A function without parenthesis. What is the world coming to?
-    :chpl:func:`sendIt`.
+    :chpl:func:`sendIt`. See also :chpl:func:`noParensRet`.
+
+    :returns: something really, really interesting... jk
+
+.. function:: noParensRet: int
+
+    A function without parenthesis with a return type. See also
+    :chpl:func:`noParens`...
+
+    :rtype: int
+    :returns: integer value with invoking function (e.g. just call
+              ``noParensRet``)
 
 .. function:: send()
 

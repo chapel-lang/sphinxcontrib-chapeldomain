@@ -36,9 +36,9 @@ chpl_sig_pattern = re.compile(
     r"""^ (inline\s+)?             # prefixes
           ([\w.]*\.)?              # class name(s)
           (\w+)  \s*               # function or method name
-          (?: \((.*)\)             # optional: arguments
-           (?:\s* [:]? \s* (.*))?  #   or return type or ref intent
-          )? $""", re.VERBOSE)
+          (?:\((.*)\))?            # optional: arguments
+          (?:\s* [:\s] \s* (.*))?  #   or return type or ref intent
+          $""", re.VERBOSE)
 
 
 # FIXME: This might be needed to support something other than the -> for return
@@ -193,7 +193,12 @@ class ChapelObject(ObjectDescription):
         signode += addnodes.desc_name(name, name)
 
         if not arglist:
-            if self.needs_arglist():
+            # If this needs and arglist, and parens were provided in the
+            # signature, add a parameterlist. Chapel supports paren-less
+            # functions and methods, which can act as computed properties. If
+            # arglist is the empty string, the signature included parens. If
+            # arglist is None, it did not include parens.
+            if self.needs_arglist() and arglist is not None:
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if retann:
