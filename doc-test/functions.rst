@@ -90,11 +90,23 @@ Chapel Functions
 
 .. iterfunction:: fib(n)
 
-    Iterate through first ``n`` Fibonacci numbers. Can xref me? :chpl:iter:`fib` ?
+    Iterate through first ``n`` Fibonacci numbers. Can xref me with
+    ``:chpl:iter:``? :chpl:iter:`fib` ? How about ``:chpl:func:``?
+    :chpl:func:`fib` ? And ``:chpl:proc:``? :chpl:proc:`fib` ?
 
     :arg int n: Number of Fibonacci numbers to return.
     :ytype: int
     :yields: Fibonacci numbers, first through nth.
+
+Other stuff...
+--------------
+
+Do these xref work?
+
+* :chpl:func:`~Containers.Vector.push`
+* :chpl:proc:`~Containers.Vector.push`
+* :chpl:iter:`~Containers.Vector.push`
+* :chpl:meth:`~Containers.Vector.push`
 
 Python functions
 ----------------
