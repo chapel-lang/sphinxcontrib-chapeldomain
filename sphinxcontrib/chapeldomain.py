@@ -317,7 +317,6 @@ class ChapelCurrentModule(Directive):
 
 
 class ChapelTypeObject(ChapelObject):
-
     """FIXME"""
 
 
@@ -411,14 +410,27 @@ class ChapelXRefRole(XRefRole):
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
         """FIXME"""
+        refnode['chpl:module'] = env.temp_data.get('chpl:module')
+        refnode['chpl:class'] = env.temp_data.get('chpl:class')
         if not has_explicit_title:
-            title = title.lstrip('.')  ##
-            target = target.lstrip('~')  ##
+            # Only has a meaning for the target.
+            title = title.lstrip('.')
+
+            # Only has a meaning for the title.
+            target = target.lstrip('~')
+
             if title[0:1] == '~':
                 title = title[1:]
-                colon = title.rfind('.')
-                if colon != -1:
-                    title = title[colon+1:]
+                dot = title.rfind('.')
+                if dot != -1:
+                    title = title[dot+1:]
+
+        # IF the first character is a dot, search more specific names
+        # first. Else, search builtins first.
+        if target[0:1] == '.':
+            target = target[1:]
+            refnode['refspecific'] = True
+
         return title, target
 
 
@@ -599,6 +611,12 @@ class ChapelDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         """FIXME"""
+        for fullname, (fn, objtype) in otherdata['objects'].iteritems():
+            if fn in docnames:
+                self.data['objects'][fullname] = (fn, objtype)
+        for modname, data in otherdata['modules'].iteritems():
+            if data[0] in docname:
+                self.data['modules'][modname] = data
 
     # def process_doc(self, env, docname, document):
     #     """FIXME"""
