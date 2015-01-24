@@ -13,7 +13,8 @@ Chapel classes
 
 .. class:: ChplVector
 
-    See also :chpl:record:`ChplBigNum`.
+    See also :chpl:record:`ChplBigNum`. The :chpl:iter:`these` iterator can be
+    used to iterate over the elements of the vector.
 
     .. attribute:: capacity
 
@@ -48,6 +49,13 @@ Chapel classes
         :arg Reader,Writer f: reader or writer
         :returns: nothing
         :rtype: nil
+
+    .. itermethod:: these() ref
+
+        Iterate over elements in vector.
+
+        :ytype: eltType
+        :yields: Reference to element in vector.
 
 .. record:: ChplBigNum
 

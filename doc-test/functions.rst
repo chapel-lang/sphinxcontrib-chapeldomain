@@ -88,6 +88,14 @@ Chapel Functions
     :return: the message id
     :rtype: int
 
+.. iterfunction:: fib(n)
+
+    Iterate through first ``n`` Fibonacci numbers. Can xref me? :chpl:iter:`fib` ?
+
+    :arg int n: Number of Fibonacci numbers to return.
+    :ytype: int
+    :yields: Fibonacci numbers, first through nth.
+
 Python functions
 ----------------
 

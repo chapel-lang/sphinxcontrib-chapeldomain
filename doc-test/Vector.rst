@@ -37,9 +37,12 @@ Module: Containers
 
     .. method:: this(idx) ref
 
-    .. FIXME: should we represent iterators as function/methods or give them a special directive? If we give them a special directive, how do we distinguish an iterator that is part of a class/record and a general iterators? For example, Vector.these() vs. fib(n). (thomasvandoren, 2015-01-22)
+    .. itermethod:: these() ref
 
-    #.. iterator:: these() ref
+        Iterate over elements in vector.
+
+        :ytype: eltType
+        :yields: Reference to element in vector.
 
     .. method:: size
 

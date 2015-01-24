@@ -76,8 +76,12 @@ class ChapelObject(ObjectDescription):
                    can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
+        Field('yieldvalue', label=l_('Yields'), has_arg=False,
+              names=('yields', 'yield')),
         Field('returntype', label=l_('Return type'), has_arg=False,
               names=('rtype',)),
+        Field('yieldtype', label=l_('Yield type'), has_arg=False,
+              names=('ytype',)),
     ]
 
     @staticmethod
@@ -323,15 +327,27 @@ class ChapelTypeObject(ChapelObject):
 class ChapelClassMember(ChapelObject):
     """FIXME"""
 
+    @property
+    def chpl_type_name(self):
+        """Returns iterator or method or '' depending on object type."""
+        if not self.objtype.endswith('method'):
+            return ''
+        elif self.objtype.startswith('iter'):
+            return 'iterator'
+        elif self.objtype == 'method':
+            return 'method'
+        else:
+            pass  # FIXME: Raise error? Warn?
+
     def needs_arglist(self):
         """FIXME"""
-        return self.objtype == 'method'
+        return self.objtype.endswith('method')
 
     def get_index_text(self, modname, name_cls):
         """FIXME"""
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
-        if self.objtype == 'method':
+        if self.objtype.endswith('method'):
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -340,9 +356,9 @@ class ChapelClassMember(ChapelObject):
                 else:
                     return _('%s()') % name
             if modname and add_modules:
-                return _('%s() (%s.%s method)') % (methname, modname, clsname)
+                return _('%s() (%s.%s %s)') % (methname, modname, clsname, self.chpl_type_name)
             else:
-                return _('%s() (%s method)') % (methname, clsname)
+                return _('%s() (%s %s)') % (methname, clsname, self.chpl_type_name)
         elif self.objtype == 'attribute':
             try:
                 clsname, attrname = name.rsplit('.', 1)
@@ -386,15 +402,27 @@ class ChapelClassObject(ChapelObject):
 class ChapelModuleLevel(ChapelObject):
     """FIXME"""
 
+    @property
+    def chpl_type_name(self):
+        """Returns iterator or procedure or '' depending on object type."""
+        if not self.objtype.endswith('function'):
+            return ''
+        elif self.objtype.startswith('iter'):
+            return 'iterator'
+        elif self.objtype == 'function':
+            return 'procedure'
+        else:
+            pass  # FIXME: Raise error? Warn?
+
     def needs_arglist(self):
         """FIXME"""
-        return self.objtype == 'function'
+        return self.objtype.endswith('function')
 
     def get_index_text(self, modname, name_cls):
         """FIXME"""
-        if self.objtype == 'function':
+        if self.objtype.endswith('function'):
             if not modname:
-                return _('%s() (built-in function)') % name_cls[0]
+                return _('%s() (built-in %s)') % (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
         elif self.objtype in ('const', 'var'):  # FIXME: no data for chapel
             if not modname:
@@ -448,9 +476,11 @@ class ChapelDomain(Domain):
         'const': ObjType(l_('const'), 'const'),
         'var': ObjType(l_('var'), 'var'),
         'function': ObjType(l_('function'), 'func'),
+        'iterfunction': ObjType(l_('iterfunction'), 'func', 'iter'),
         'class': ObjType(l_('class'), 'class'),
         'record': ObjType(l_('record'), 'record'),
         'method': ObjType(l_('method'), 'meth'),
+        'itermethod': ObjType(l_('itermethod'), 'meth', 'iter'),
         'attribute': ObjType(l_('attribute'), 'attr'),
         'module': ObjType(l_('module'), 'mod'),
     }
@@ -459,9 +489,11 @@ class ChapelDomain(Domain):
         'const': ChapelModuleLevel,
         'var': ChapelModuleLevel,
         'function': ChapelModuleLevel,
+        'iterfunction': ChapelModuleLevel,
         'class': ChapelClassObject,
         'record': ChapelClassObject,
         'method': ChapelClassMember,
+        'itermethod': ChapelClassMember,
         'attribute': ChapelClassMember,
         'module': ChapelModule,
         'currentmodule': ChapelCurrentModule,
@@ -471,6 +503,7 @@ class ChapelDomain(Domain):
         'const': ChapelXRefRole(),
         'var': ChapelXRefRole(),
         'func': ChapelXRefRole(),
+        'iter': ChapelXRefRole(),
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
