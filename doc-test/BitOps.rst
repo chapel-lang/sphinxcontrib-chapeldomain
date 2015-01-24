@@ -9,7 +9,7 @@ Module: BitOps
 .. module:: BitOps
     :synopsis: Bit Manipulation Functions
  
-.. function:: inline clz(x: uint(?bits))
+.. function:: inline proc clz(x: uint(?bits))
 
     count leading zeros
 
@@ -22,7 +22,7 @@ Module: BitOps
     :rtype: uint(bits)
 
 
-.. function:: inline clz(x: int(?bits))
+.. function:: inline proc clz(x: int(?bits))
       
     count leading zeros
 
@@ -32,7 +32,7 @@ Module: BitOps
     :returns: the number of 0 bits before the most significant 1 bit in `x` as
               `x.type`
 
-.. function:: inline ctz(x)
+.. function:: inline proc ctz(x)
       
     count trailing zeros
 
@@ -44,7 +44,7 @@ Module: BitOps
     :type x: uint(?bits)
    
 
-.. function:: inline ctz(x)
+.. function:: inline proc ctz(x)
       
     count trailing zeros
 
@@ -56,7 +56,7 @@ Module: BitOps
     :type x: int(?bits)
 
 
-.. function:: inline popcount(x)
+.. function:: inline proc popcount(x)
       
     population count
 
@@ -68,7 +68,7 @@ Module: BitOps
     :rtype: uint(bits)
    
 
-.. function:: inline popcount(x)
+.. function:: inline proc popcount(x)
       
     population count
 
@@ -86,6 +86,6 @@ Module: BitOps
     :type y: uint(64)
     :rtype: uint(64)
 
-.. function:: inline bitRotLeft(x, shift)
+.. function:: inline proc bitRotLeft(x, shift)
 
-.. function:: inline bitRotRight(x: uint(64)(64), shift)
+.. function:: inline proc bitRotRight(x: uint(64)(64), shift)

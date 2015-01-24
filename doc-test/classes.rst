@@ -74,6 +74,13 @@ Chapel classes
         :returns: new instance of ChplBigNum
         :rtype: ChplBigNum
 
+    .. method:: inline proc read()
+
+        Inline the reads!
+
+        :rtype: bool
+        :returns: True if read was successful.
+
 
 Python classes
 --------------

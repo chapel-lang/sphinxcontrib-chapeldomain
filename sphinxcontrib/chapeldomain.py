@@ -33,7 +33,7 @@ VERSION = '0.0.1'
 
 
 chpl_sig_pattern = re.compile(
-    r"""^ (inline\s+)?             # prefixes
+    r"""^ ((?:\w+\s+)*)?           # prefixes
           ([\w.]*\.)?              # class name(s)
           (\w+)  \s*               # function or method name
           (?:\((.*)\))?            # optional: arguments
@@ -184,8 +184,8 @@ class ChapelObject(ObjectDescription):
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
-        if func_prefix:
-            signode += addnodes.desc_addname(func_prefix, func_prefix)
+        # if func_prefix:
+        #     signode += addnodes.desc_addname(func_prefix, func_prefix)
         if name_prefix:
             signode += addnodes.desc_addname(name_prefix, name_prefix)
 
@@ -339,6 +339,26 @@ class ChapelClassMember(ChapelObject):
         else:
             pass  # FIXME: Raise error? Warn?
 
+    def get_signature_prefix(self, sig):
+        """FIXME"""
+        # FIXME: parse signature and use it if proc/iter present?
+        if not self.objtype.endswith('method'):
+            return ChapelObject.get_signature_prefix(self, sig)
+
+        sig_match = chpl_sig_pattern.match(sig)
+        if sig_match is None:
+            return ''
+
+        prefixes, _, _, _, _ = sig_match.groups()
+        if prefixes:
+            return prefixes.strip() + ' '
+        elif self.objtype.startswith('iter'):
+            return 'iter' + ' '
+        elif self.objtype == 'method':
+            return 'proc' + ' '
+        else:
+            pass  # FIXME: Raise error? Warn?
+
     def needs_arglist(self):
         """FIXME"""
         return self.objtype.endswith('method')
@@ -411,6 +431,25 @@ class ChapelModuleLevel(ChapelObject):
             return 'iterator'
         elif self.objtype == 'function':
             return 'procedure'
+        else:
+            pass  # FIXME: Raise error? Warn?
+
+    def get_signature_prefix(self, sig):
+        """FIXME"""
+        if not self.objtype.endswith('function'):
+            return ChapelObject.get_signature_prefix(self, sig)
+
+        sig_match = chpl_sig_pattern.match(sig)
+        if sig_match is None:
+            return ''
+
+        prefixes, _, _, _, _ = sig_match.groups()
+        if prefixes and prefixes.strip():
+            return prefixes.strip() + ' '
+        elif self.objtype.startswith('iter'):
+            return 'iter' + ' '
+        elif self.objtype == 'function':
+            return 'proc' + ' '
         else:
             pass  # FIXME: Raise error? Warn?
 

@@ -42,7 +42,7 @@ Chapel Functions
     :returns: it
     :rtype: Message
 
-.. function:: inline messageId(msg)
+.. function:: inline proc messageId(msg)
 
     Returns the message id.
 
