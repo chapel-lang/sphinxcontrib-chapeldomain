@@ -17,11 +17,12 @@ Module: Containers
     :chpl:func:`~BitOps.clz`... :chpl:attr:`~MyModule.ChplVector.elements`
     blah blah :chpl:meth:`~MyModule.ChplBigNum.fromInt`. See :chpl:mod:`BitOps`.
 
-    .. attribute:: eltType
-    .. attribute:: capacity: int(64)
-    .. attribute:: lastIdx: int(64)
-    .. attribute:: dom: domain(1)
-    .. attribute:: elements: [.(this, "dom")] .(this, "eltType")
+    .. attribute:: type eltType
+    .. attribute:: var capacity: int(64)
+    .. attribute:: var lastIdx: int(64)
+    .. attribute:: var dom: domain(1)
+    .. attribute:: var elements: [.(this, "dom")] .(this, "eltType")
+    .. attribute:: param MIN_SIZE: uint
 
     .. method:: Vector(type eltType, cap: _unknown, offset: _unknown)
 

@@ -32,12 +32,23 @@ from sphinx.util.nodes import make_refnode
 VERSION = '0.0.1'
 
 
+# regex for parsing proc, iter, class, record, etc.
 chpl_sig_pattern = re.compile(
-    r"""^ ((?:\w+\s+)*)?           # prefixes
-          ([\w.]*\.)?              # class name(s)
-          (\w+)  \s*               # function or method name
-          (?:\((.*)\))?            # optional: arguments
-          (?:\s* [:\s] \s* (.*))?  #   or return type or ref intent
+    r"""^ ((?:\w+\s+)*                   # optional: prefixes
+           (?:proc|iter|class|record)\s+ #   must end with keyword
+          )?
+          ([\w.]*\.)?                    # class name(s)
+          (\w+)  \s*                     # function or method name
+          (?:\((.*)\))?                  # optional: arguments
+          (?:\s* [:\s] \s* (.*))?        #   or return type or ref intent
+          $""", re.VERBOSE)
+
+# regex for parsing attribute and data directives.
+chpl_attr_sig_pattern = re.compile(
+    r"""^ ((?:\w+\s+)*)?      # optional: prefixes
+          ([\w.]*\.)?         # class name(s)
+          (\w+) \s*           # const, var, param, etc name
+          (?:\s* : \s* (.*))? # optional: type
           $""", re.VERBOSE)
 
 
@@ -49,14 +60,6 @@ chpl_sig_pattern = re.compile(
 #     def astext(self):
 #         return ' : ' + nodes.TextElement.astext(self)
 # nodes._add_node_class_names([chapel_desc_returns.__name__])
-
-
-class ChapelField(Field):
-    pass
-
-
-class ChapelTypedField(TypedField):
-    pass
 
 
 # FIXME: rename ChapelObject -> ChapelBase
@@ -130,6 +133,52 @@ class ChapelObject(ObjectDescription):
         else:
             signode += paramlist
 
+    def _get_attr_like_prefix(self, sig):
+        """FIXME"""
+        sig_match = chpl_attr_sig_pattern.match(sig)
+        if sig_match is None:
+            return ChapelObject.get_signature_prefix(self, sig)
+
+        prefixes, _, _, _ = sig_match.groups()
+        if prefixes:
+            return prefixes.strip() + ' '
+        else:
+            return ChapelObject.get_signature_prefix(self, sig)
+
+    def _get_proc_like_prefix(self, sig):
+        """FIXME"""
+        sig_match = chpl_sig_pattern.match(sig)
+        if sig_match is None:
+            return ChapelObject.get_signature_prefix(self, sig)
+
+        prefixes, _, _, _, _ = sig_match.groups()
+        if prefixes:
+            return prefixes.strip() + ' '
+        elif self.objtype.startswith('iter'):
+            return 'iter' + ' '
+        elif self.objtype in ('method', 'function'):
+            return 'proc' + ' '
+        else:
+            return ChapelObject.get_signature_prefix(self, sig)
+
+    def _is_attr_like(self):
+        """Returns True when objtype is attribute or data."""
+        return self.objtype in ('attribute', 'const', 'var')
+
+    def _is_proc_like(self):
+        """Returns True when objtype is *function or *method."""
+        return (self.objtype in
+                ('function', 'iterfunction', 'method', 'itermethod'))
+
+    def _get_sig_prefix(self, sig):
+        """FIXME"""
+        if self._is_proc_like():
+            return self._get_proc_like_prefix(sig)
+        elif self._is_attr_like():
+            return self._get_attr_like_prefix(sig)
+        else:
+            return ChapelObject.get_signature_prefix(self, sig)
+
     def get_signature_prefix(self, sig):
         """May return a prefix to put before the object name in the signature."""
         return ''
@@ -145,11 +194,18 @@ class ChapelObject(ObjectDescription):
 
         FIXME
         """
-        sig_match = chpl_sig_pattern.match(sig)
-        if sig_match is None:
-            raise ValueError('Signature does not parse: {0}'.format(sig))
+        if self._is_attr_like():
+            sig_match = chpl_attr_sig_pattern.match(sig)
+            if sig_match is None:
+                raise ValueError('Signature does not parse: {0}'.format(sig))
+            func_prefix, name_prefix, name, retann = sig_match.groups()
+            arglist = None
+        else:
+            sig_match = chpl_sig_pattern.match(sig)
+            if sig_match is None:
+                raise ValueError('Signature does not parse: {0}'.format(sig))
 
-        func_prefix, name_prefix, name, arglist, retann = sig_match.groups()
+            func_prefix, name_prefix, name, arglist, retann = sig_match.groups()
 
         modname = self.options.get(
             'module', self.env.temp_data.get('chpl:module'))
@@ -341,23 +397,7 @@ class ChapelClassMember(ChapelObject):
 
     def get_signature_prefix(self, sig):
         """FIXME"""
-        # FIXME: parse signature and use it if proc/iter present?
-        if not self.objtype.endswith('method'):
-            return ChapelObject.get_signature_prefix(self, sig)
-
-        sig_match = chpl_sig_pattern.match(sig)
-        if sig_match is None:
-            return ''
-
-        prefixes, _, _, _, _ = sig_match.groups()
-        if prefixes:
-            return prefixes.strip() + ' '
-        elif self.objtype.startswith('iter'):
-            return 'iter' + ' '
-        elif self.objtype == 'method':
-            return 'proc' + ' '
-        else:
-            pass  # FIXME: Raise error? Warn?
+        return self._get_sig_prefix(sig)
 
     def needs_arglist(self):
         """FIXME"""
@@ -436,22 +476,7 @@ class ChapelModuleLevel(ChapelObject):
 
     def get_signature_prefix(self, sig):
         """FIXME"""
-        if not self.objtype.endswith('function'):
-            return ChapelObject.get_signature_prefix(self, sig)
-
-        sig_match = chpl_sig_pattern.match(sig)
-        if sig_match is None:
-            return ''
-
-        prefixes, _, _, _, _ = sig_match.groups()
-        if prefixes and prefixes.strip():
-            return prefixes.strip() + ' '
-        elif self.objtype.startswith('iter'):
-            return 'iter' + ' '
-        elif self.objtype == 'function':
-            return 'proc' + ' '
-        else:
-            pass  # FIXME: Raise error? Warn?
+        return self._get_sig_prefix(sig)
 
     def needs_arglist(self):
         """FIXME"""
