@@ -114,6 +114,42 @@ class AttrSigPatternTests(PatternTestCase):
         for sig, class_name, attr in test_cases:
             self.check_sig(sig, '', class_name, attr, None)
 
+    def test_with_prefixes(self):
+        """Verify type, config, etc prefixes work."""
+        test_cases = [
+            ('type foo', 'type ', 'foo'),
+            ('config const bar', 'config const ', 'bar'),
+            ('config var x', 'config var ', 'x'),
+            ('var y', 'var ', 'y'),
+            ('const baz', 'const ', 'baz'),
+        ]
+        for sig, prefix, attr in test_cases:
+            self.check_sig(sig, prefix, None, attr, None)
+
+    def test_with_types(self):
+        """Verify types parse correctly."""
+        test_cases = [
+            ('foo: int', 'foo', 'int'),
+            ('bar: real', 'bar', 'real'),
+            ('baz: int(32)', 'baz', 'int(32)'),
+            ('D: domain(9)', 'D', 'domain(9)'),
+            ('A: [{1..n}] BigNum', 'A', '[{1..n}] BigNum'),
+            ('x: MyModule.MyClass', 'x', 'MyModule.MyClass'),
+        ]
+        for sig, attr, type_name in test_cases:
+            self.check_sig(sig, '', None, attr, type_name)
+
+    def test_with_all(self):
+        """Verify full specified signatures parse correctly."""
+        test_cases = [
+            ('config const MyModule.MyClass.n: int', 'config const ', 'MyModule.MyClass.', 'n', 'int'),
+            ('var X.n: MyMod.MyClass', 'var ', 'X.', 'n', 'MyMod.MyClass'),
+            ('config param debugAdvancedIters:bool', 'config param ', None, 'debugAdvancedIters', 'bool'),
+            ('config param MyMod.DEBUG: bool', 'config param ', 'MyMod.', 'DEBUG', 'bool'),
+        ]
+        for sig, prefix, class_name, attr, type_name in test_cases:
+            self.check_sig(sig, prefix, class_name, attr, type_name)
+
 
 if __name__ == '__main__':
     unittest.main()
