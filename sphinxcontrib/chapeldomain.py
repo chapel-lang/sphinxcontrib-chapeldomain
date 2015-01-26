@@ -38,7 +38,7 @@ chpl_sig_pattern = re.compile(
            (?:proc|iter|class|record)\s+ #   must end with keyword
           )?
           ([\w.]*\.)?                    # class name(s)
-          (\w+)  \s*                     # function or method name
+          ([\w\+\-/\*]+)  \s*            # function or method name
           (?:\((.*)\))?                  # optional: arguments
           (?:\s* [:\s] \s* (.*))?        #   or return type or ref intent
           $""", re.VERBOSE)

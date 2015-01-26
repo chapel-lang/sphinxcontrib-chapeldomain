@@ -52,14 +52,52 @@ class SigPatternTests(PatternTestCase):
         test_cases = [
             '...',
             '.',
-            '-',
-            '---',
-            ':::',
+            ':fda',
             '@',
             '#',
         ]
         for sig in test_cases:
             self.check_is_not_match(sig)
+
+    def test_no_parens(self):
+        """Verify various symbols (e.g. parenless functions) parse."""
+        test_cases = [
+            'x',
+            'foo',
+            'l_l',
+            'foo123',
+            '1',
+            '123',
+            '+',
+            '-',
+            '/',
+            '*',
+            '**',
+        ]
+        for sig in test_cases:
+            self.check_sig(sig, None, None, sig, None, None)
+
+    def test_no_args(self):
+        """Verify various functions with no args parse correctly."""
+        test_cases = [
+            ('x()', 'x'),
+            ('foo()', 'foo'),
+            ('l_l()', 'l_l'),
+            ('foo123()', 'foo123'),
+            ('1()', '1'),
+            ('123()', '123'),
+            ('+()', '+'),
+            ('-()', '-'),
+            ('/()', '/'),
+            ('*()', '*'),
+            ('**()', '**'),
+        ]
+        for sig, name in test_cases:
+            self.check_sig(sig, None, None, name, '', None)
+
+    def test_with_args(self):
+        """Verify function signatures with arguments parse correctly."""
+        self.fail('no')
 
 
 class AttrSigPatternTests(PatternTestCase):
