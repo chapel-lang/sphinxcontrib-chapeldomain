@@ -18,6 +18,7 @@ Module 'Foo'
    classes
    BitOps
    Vector
+   Containers
 
 .. default-domain:: chpl
 

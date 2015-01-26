@@ -6,7 +6,7 @@
 Module: Containers
 ==================
 
-.. module:: Containers
+.. module:: VectorFake
     :synopsis: Container classes! Currently, just Vector
 
 .. class:: Vector
