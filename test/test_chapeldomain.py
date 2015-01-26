@@ -91,13 +91,57 @@ class SigPatternTests(PatternTestCase):
             ('/()', '/'),
             ('*()', '*'),
             ('**()', '**'),
+            ('x ()', 'x'),
         ]
         for sig, name in test_cases:
             self.check_sig(sig, None, None, name, '', None)
 
     def test_with_args(self):
         """Verify function signatures with arguments parse correctly."""
-        self.fail('no')
+        test_cases = [
+            ('x(y)', 'x', 'y'),
+            ('x(y:int)', 'x', 'y:int'),
+            ('x(y:int=1)', 'x', 'y:int=1'),
+            ('x( y : int = 1 )', 'x', ' y : int = 1 '),
+            ('x ( y )', 'x', ' y '),
+            ('x ( )', 'x', ' '),
+            ('+(a:string, b:string)', '+', 'a:string, b:string'),
+            ('+ (a, b)', '+', 'a, b'),
+            ('++++++++++++++++++++ ( +++ )', '++++++++++++++++++++', ' +++ '),
+        ]
+        for sig, name, arglist in test_cases:
+            self.check_sig(sig, None, None, name, arglist, None)
+
+    def test_with_return_type(self):
+        """Verify function signatures with return types parse correctly."""
+        test_cases = [
+            ('x(): int', 'x', '', 'int'),
+            ('x(): MyMod.MyClass', 'x', '', 'MyMod.MyClass'),
+            ('x(): int(32)', 'x', '', 'int(32)'),
+            ('x():int(32)', 'x', '', 'int(32)'),
+            ('x(y:int(64)):int(32)', 'x', 'y:int(64)', 'int(32)'),
+            ('x(y:int(64), d: domain(r=2, i=int, s=true)): [{1..5}] real', 'x', 'y:int(64), d: domain(r=2, i=int, s=true)', '[{1..5}] real'),
+            ('x(): domain(1)', 'x', '', 'domain(1)'),
+            ('x(): [{1..n}] BigNum', 'x', '', '[{1..n}] BigNum'),
+            ('x(): nil', 'x', '', 'nil'),
+        ]
+        for sig, name, arglist, retann in test_cases:
+            self.check_sig(sig, None, None, name, arglist, retann)
+
+    def test_with_class_names(self):
+        """Verify function signatures with class names parse correctly."""
+        test_cases = [
+            ('X.x()', 'X.', 'x', ''),
+            ('my.foo()', 'my.', 'foo', ''),
+            ('1.1', '1.', '1', None),
+            ('1.1()', '1.', '1', ''),
+            ('BigNum.+(a, b)', 'BigNum.', '+', 'a, b'),
+            ('BigNum.fromInt()', 'BigNum.', 'fromInt', ''),
+            ('Vector.top', 'Vector.', 'top', None),
+            ('MyMod.MyClass.foo()', 'MyMod.MyClass.', 'foo', ''),
+        ]
+        for sig, class_name, name, arglist in test_cases:
+            self.check_sig(sig, None, class_name, name, arglist, None)
 
 
 class AttrSigPatternTests(PatternTestCase):
