@@ -25,7 +25,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
 from sphinx.util.compat import Directive
-from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
@@ -180,7 +180,9 @@ class ChapelObject(ObjectDescription):
             return ChapelObject.get_signature_prefix(self, sig)
 
     def get_signature_prefix(self, sig):
-        """May return a prefix to put before the object name in the signature."""
+        """May return a prefix to put before the object name in
+        the signature.
+        """
         return ''
 
     def needs_arglist(self):
@@ -205,14 +207,14 @@ class ChapelObject(ObjectDescription):
             if sig_match is None:
                 raise ValueError('Signature does not parse: {0}'.format(sig))
 
-            func_prefix, name_prefix, name, arglist, retann = sig_match.groups()
+            func_prefix, name_prefix, name, arglist, retann = \
+                sig_match.groups()
 
         modname = self.options.get(
             'module', self.env.temp_data.get('chpl:module'))
         classname = self.env.temp_data.get('chpl:class')
 
         if classname:
-            add_module = False
             if name_prefix and name_prefix.startswith(classname):
                 fullname = name_prefix + name
                 # class name is given again in the signature
@@ -225,7 +227,6 @@ class ChapelObject(ObjectDescription):
                 # class name is not given in the signature
                 fullname = classname + '.' + name
         else:
-            add_module = True
             if name_prefix:
                 classname = name_prefix.rstrip('.')
                 fullname = name_prefix + name
@@ -259,14 +260,16 @@ class ChapelObject(ObjectDescription):
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if retann:
-                signode += addnodes.desc_returns(retann, retann)  # FIXME: ? chapel_desc_returns(retann, retann)
+                # FIXME: ? chapel_desc_returns(retann, retann)
+                signode += addnodes.desc_returns(retann, retann)
             if anno:
                 signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
         if retann:
-            signode += addnodes.desc_returns(retann, retann)  # FIXME: ? chapel_desc_returns(retann, retann)
+            # FIXME: ? chapel_desc_returns(retann, retann)
+            signode += addnodes.desc_returns(retann, retann)
         if anno:
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
         return fullname, name_prefix
@@ -335,11 +338,13 @@ class ChapelModule(Directive):
         if not noindex:
             env.domaindata['chpl']['modules'][modname] = \
                 (env.docname, self.options.get('synopsis', ''),
-                 self.options.get('platform', ''), 'deprecated' in self.options)
+                 self.options.get('platform', ''),
+                 'deprecated' in self.options)
 
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in ChapelDomain.find_obj().
-            env.domaindata['chpl']['objects'][modname] = (env.docname, 'module')
+            env.domaindata['chpl']['objects'][modname] = (
+                env.docname, 'module')
             targetnode = nodes.target('', '', ids=['module-' + modname],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
@@ -416,9 +421,11 @@ class ChapelClassMember(ChapelObject):
                 else:
                     return _('%s()') % name
             if modname and add_modules:
-                return _('%s() (%s.%s %s)') % (methname, modname, clsname, self.chpl_type_name)
+                return _('%s() (%s.%s %s)') % \
+                    (methname, modname, clsname, self.chpl_type_name)
             else:
-                return _('%s() (%s %s)') % (methname, clsname, self.chpl_type_name)
+                return _('%s() (%s %s)') % \
+                    (methname, clsname, self.chpl_type_name)
         elif self.objtype == 'attribute':
             try:
                 clsname, attrname = name.rsplit('.', 1)
@@ -486,7 +493,8 @@ class ChapelModuleLevel(ChapelObject):
         """FIXME"""
         if self.objtype.endswith('function'):
             if not modname:
-                return _('%s() (built-in %s)') % (name_cls[0], self.chpl_type_name)
+                return _('%s() (built-in %s)') % \
+                    (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
         elif self.objtype in ('data'):
             if not modname:
@@ -494,7 +502,6 @@ class ChapelModuleLevel(ChapelObject):
             return _('%s() (in module %s)') % (name_cls[0], modname)
         else:
             return ''
-                
 
 
 class ChapelXRefRole(XRefRole):
@@ -583,10 +590,10 @@ class ChapelDomain(Domain):
 
     def clear_doc(self, docname):
         """FIXME"""
-        for fullname, (fn, _) in self.data['objects'].iteritems():
+        for fullname, (fn, x) in self.data['objects'].iteritems():
             if fn == docname:
                 del self.data['objects'][fullname]
-        for modname, (fn, _, _, _) in self.data['modules'].iteritems():
+        for modname, (fn, x, x, x) in self.data['modules'].iteritems():
             if fn == docname:
                 del self.data['modules'][modname]
 
@@ -614,7 +621,8 @@ class ChapelDomain(Domain):
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
-                    if fullname in objects and objects[fullname][1] in objtypes:
+                    if (fullname in objects and
+                            objects[fullname][1] in objtypes):
                         newname = fullname
                 if not newname:
                     if (modname and modname + '.' + name in objects and
@@ -640,7 +648,7 @@ class ChapelDomain(Domain):
             elif modname and modname + '.' + name in objects:
                 newname = modname + '.' + name
             elif (modname and classname and
-                      modname + '.' + classname + '.' + name in objects):
+                    modname + '.' + classname + '.' + name in objects):
                 newname = modname + '.' + classname + '.' + name
 
         if newname is not None:
@@ -687,9 +695,10 @@ class ChapelDomain(Domain):
                                 self._make_module_refnode(builder, fromdocname,
                                                           name, contnode)))
             else:
-                results.append(('chpl:' + self.role_for_objtype(obj[1]),
-                                make_refnode(builder, fromdocname, obj[0], name,
-                                             contnode, name)))
+                results.append(
+                    ('chpl:' + self.role_for_objtype(obj[1]),
+                     make_refnode(builder, fromdocname, obj[0], name,
+                                  contnode, name)))
 
         return results
 
@@ -713,7 +722,7 @@ class ChapelDomain(Domain):
             if fn in docnames:
                 self.data['objects'][fullname] = (fn, objtype)
         for modname, data in otherdata['modules'].iteritems():
-            if data[0] in docname:
+            if data[0] in docnames:
                 self.data['modules'][modname] = data
 
     # def process_doc(self, env, docname, document):
