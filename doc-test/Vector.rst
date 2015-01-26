@@ -3,7 +3,7 @@
 
 .. default-domain:: chpl
 
-Module: Containers
+Module: VectorFake
 ==================
 
 .. module:: VectorFake

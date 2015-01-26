@@ -1,9 +1,9 @@
 .. default-domain:: chpl
 
 Module: Containers
-=============
+==================
 .. module:: Containers
-    .. class:: Vector
+.. class:: Vector
         
   <where the class level comment should live>
 
