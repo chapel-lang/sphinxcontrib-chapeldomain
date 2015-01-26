@@ -124,6 +124,9 @@ class SigPatternTests(PatternTestCase):
             ('x(): domain(1)', 'x', '', 'domain(1)'),
             ('x(): [{1..n}] BigNum', 'x', '', '[{1..n}] BigNum'),
             ('x(): nil', 'x', '', 'nil'),
+            ('x() ref', 'x', '', 'ref'),
+            ('x() const', 'x', '', 'const'),
+            ('x(ref x:int(32)) const', 'x', 'ref x:int(32)', 'const'),
         ]
         for sig, name, arglist, retann in test_cases:
             self.check_sig(sig, None, None, name, arglist, retann)
@@ -142,6 +145,31 @@ class SigPatternTests(PatternTestCase):
         ]
         for sig, class_name, name, arglist in test_cases:
             self.check_sig(sig, None, class_name, name, arglist, None)
+
+    def test_with_prefixes(self):
+        """Verify functions with prefixes parse correctly."""
+        test_cases = [
+            ('proc foo()', 'proc ', 'foo', ''),
+            ('inline proc foo()', 'inline proc ', 'foo', ''),
+            ('inline proc +()', 'inline proc ', '+', ''),
+            ('inline iter basic()', 'inline iter ', 'basic', ''),
+        ]
+        for sig, prefix, name, arglist in test_cases:
+            self.check_sig(sig, prefix, None, name, arglist, None)
+
+    def test_with_all(self):
+        """Verify fully specified signatures parse correctly."""
+        test_cases = [
+            ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', 'ref'),
+            ('inline proc range.first', 'inline proc ', 'range.', 'first', None, None),
+            ('iter Math.fib(n: int(64)): GMP.BigInt', 'iter ', 'Math.', 'fib', 'n: int(64)', 'GMP.BigInt'),
+            ('proc My.Mod.With.Deep.NameSpace.1.2.3.432.foo()', 'proc ', 'My.Mod.With.Deep.NameSpace.1.2.3.432.', 'foo', '', None),
+            ('these() ref', None, None, 'these', '', 'ref'),
+            ('size', None, None, 'size', None, None),
+            ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', 'Containers.Vector'),
+        ]
+        for sig, prefix, class_name, name, arglist, retann in test_cases:
+            self.check_sig(sig, prefix, class_name, name, arglist, retann)
 
 
 class AttrSigPatternTests(PatternTestCase):
