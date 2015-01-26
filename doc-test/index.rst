@@ -21,14 +21,35 @@ Module 'Foo'
 
 .. default-domain:: chpl
 
-.. const:: constTest
+.. data:: const constTest
 
     This is a contant. Use :const:`constTest` for this and that.
 
-.. var:: varTest
+.. data:: var varTest
 
     This is some variable. Use :var:`varTest` for everyday needs. Otherwise,
     use :const:`constTest`...
+
+.. data:: config const n
+
+    Problem size, which can be set on command line with ``--n
+    <value>``. :chpl:param:`debugAdvancedIters`.
+
+.. data:: config param debugAdvancedIters:bool
+
+    Default is ``false``.
+
+Do these XRefs work?
+--------------------
+
+* :chpl:const:`n`
+* :chpl:data:`n`
+* :chpl:param:`debugAdvancedIters`
+* :chpl:data:`debugAdvancedIters`
+* :chpl:var:`varTest`
+* :chpl:data:`varTest`
+* :chpl:const:`constTest`
+* :chpl:data:`constTest`
 
 CPP tests...
 ------------

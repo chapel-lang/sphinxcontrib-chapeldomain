@@ -163,7 +163,7 @@ class ChapelObject(ObjectDescription):
 
     def _is_attr_like(self):
         """Returns True when objtype is attribute or data."""
-        return self.objtype in ('attribute', 'const', 'var')
+        return self.objtype in ('attribute', 'data')
 
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
@@ -488,7 +488,7 @@ class ChapelModuleLevel(ChapelObject):
             if not modname:
                 return _('%s() (built-in %s)') % (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype in ('const', 'var'):  # FIXME: no data for chapel
+        elif self.objtype in ('data'):
             if not modname:
                 return _('%s (built-in variable)') % name_cls[0]
             return _('%s() (in module %s)') % (name_cls[0], modname)
@@ -537,8 +537,7 @@ class ChapelDomain(Domain):
     labels = 'Chapel'
 
     object_types = {
-        'const': ObjType(l_('const'), 'const'),
-        'var': ObjType(l_('var'), 'var'),
+        'data': ObjType(l_('data'), 'data', 'const', 'var', 'param'),
         'function': ObjType(l_('function'), 'func', 'proc'),
         'iterfunction': ObjType(l_('iterfunction'), 'func', 'iter', 'proc'),
         'class': ObjType(l_('class'), 'class'),
@@ -550,8 +549,7 @@ class ChapelDomain(Domain):
     }
 
     directives = {
-        'const': ChapelModuleLevel,
-        'var': ChapelModuleLevel,
+        'data': ChapelModuleLevel,
         'function': ChapelModuleLevel,
         'iterfunction': ChapelModuleLevel,
         'class': ChapelClassObject,
@@ -564,8 +562,10 @@ class ChapelDomain(Domain):
     }
 
     roles = {
+        'data': ChapelXRefRole(),
         'const': ChapelXRefRole(),
         'var': ChapelXRefRole(),
+        'param': ChapelXRefRole(),
         'func': ChapelXRefRole(),
         'proc': ChapelXRefRole(),
         'iter': ChapelXRefRole(),
