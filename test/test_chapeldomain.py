@@ -8,7 +8,9 @@ import mock
 import unittest
 
 from sphinxcontrib.chapeldomain import (
-    ChapelDomain, chpl_sig_pattern, chpl_attr_sig_pattern)
+    ChapelDomain, ChapelObject,
+    chpl_sig_pattern, chpl_attr_sig_pattern,
+)
 
 
 class ChapelDomainTests(unittest.TestCase):
@@ -19,6 +21,169 @@ class ChapelDomainTests(unittest.TestCase):
         env = mock.Mock()
         env.domaindata = {'name': 'chapel'}
         self.assertIsNotNone(ChapelDomain(env))
+
+
+class ChapelObjectTests(unittest.TestCase):
+    """ChapelObject tests."""
+
+    def new_obj(self, objtype, **kwargs):
+        """Return new mocked out ChapelObject"""
+        default_args = {
+            'name': 'my-chpl',
+            'arguments': mock.Mock('arguments'),
+            'options': mock.Mock('options'),
+            'content': mock.Mock('content'),
+            'lineno': mock.Mock('lineno'),
+            'content_offset': mock.Mock('content_offset'),
+            'block_text': mock.Mock('block_text'),
+            'state': mock.Mock('state'),
+            'state_machine': mock.Mock('state_machine'),
+        }
+        default_args.update(kwargs)
+        o = ChapelObject(**default_args)
+        o.objtype = objtype
+        return o
+
+    def test_init(self):
+        """Verify ChapelObject can be initialized."""
+        self.assertIsNotNone(self.new_obj('blah'))
+
+    def test_is_attr_like__true(self):
+        """Verify _is_attr_like return True for data and
+        attribute directives.
+        """
+        for objtype in ('data', 'attribute'):
+            self.assertTrue(self.new_obj(objtype)._is_attr_like())
+
+    def test_is_attr_like__false(self):
+        """Verify _is_attr_like return False for non-attr like directive."""
+        bad_dirs = [
+            'function',
+            'iterfunction',
+            'method',
+            'itermethod',
+            'class',
+            'record',
+            'module',
+            'random',
+            '',
+        ]
+        for objtype in bad_dirs:
+            self.assertFalse(self.new_obj(objtype)._is_attr_like())
+
+    def test_is_proc_like__true(self):
+        """Verify _is_proc_like returns True for proc-like directives."""
+        good_dirs = [
+            'function',
+            'iterfunction',
+            'method',
+            'itermethod',
+        ]
+        for objtype in good_dirs:
+            self.assertTrue(self.new_obj(objtype)._is_proc_like())
+
+    def test_is_proc_like__false(self):
+        """Verify _is_proc_like returns False for proc-like directives."""
+        bad_dirs = [
+            'data',
+            'attribute',
+            'class',
+            'record',
+            'module',
+            'random',
+            '',
+        ]
+        for objtype in bad_dirs:
+            self.assertFalse(self.new_obj(objtype)._is_proc_like())
+
+    def test_get_attr_like_prefix(self):
+        """Verify _get_attr_like_prefix returns correct value for several
+        attribute and data signatures.
+        """
+        test_cases = [
+            ('', ''),
+            ('foo', ''),
+            ('type T', 'type '),
+            ('var x', 'var '),
+            ('config const n', 'config const '),
+            ('blah blah blah blah blah', 'blah blah blah blah '),
+        ]
+        for objtype in ('attribute', 'data'):
+            obj = self.new_obj(objtype)
+            for sig, prefix in test_cases:
+                actual_prefix = obj._get_attr_like_prefix(sig)
+                self.assertEqual(prefix, actual_prefix)
+
+    def test_get_attr_like_prefix__bad_objtype(self):
+        """Verify weird case where sig matches, but objtype is incorrect."""
+        actual_prefix = self.new_obj('bogus')._get_attr_like_prefix('foo')
+        self.assertEqual('', actual_prefix)
+
+    def test_get_proc_like_prefix__proc(self):
+        """Verify _get_proc_like_prefix return correct value for
+        several signatures.
+        """
+        test_cases = [
+            ('', ''),
+            ('_', 'proc '),
+            ('foo', 'proc '),
+            ('foo()', 'proc '),
+            ('proc foo', 'proc '),
+            ('inline proc foo', 'inline proc '),
+            ('proc foo() ref', 'proc '),
+            ('iter foo() ref', 'iter '),
+            ('inline iter foo(x, y): int(32)', 'inline iter '),
+            ('proc proc proc proc proc proc', 'proc proc proc proc proc '),
+        ]
+        for objtype in ('function', 'method'):
+            obj = self.new_obj(objtype)
+            for sig, prefix in test_cases:
+                actual_prefix = obj._get_proc_like_prefix(sig)
+                self.assertEqual(prefix, actual_prefix)
+
+    def test_get_proc_like_prefix__iter(self):
+        """Verify _get_proc_like_prefix return correct value for
+        several signatures.
+        """
+        test_cases = [
+            ('', ''),
+            ('_', 'iter '),
+            ('foo', 'iter '),
+            ('foo()', 'iter '),
+            ('proc foo', 'proc '),
+            ('inline proc foo', 'inline proc '),
+            ('proc foo() ref', 'proc '),
+            ('iter foo() ref', 'iter '),
+            ('inline iter foo(x, y): int(32)', 'inline iter '),
+            ('iter iter iter iter iter iter', 'iter iter iter iter iter '),
+        ]
+        for objtype in ('iterfunction', 'itermethod'):
+            obj = self.new_obj(objtype)
+            for sig, prefix in test_cases:
+                actual_prefix = obj._get_proc_like_prefix(sig)
+                self.assertEqual(prefix, actual_prefix)
+
+    def test_get_proc_like_prefix__bad_objtype(self):
+        """Verify weird case where sig matches, but objtype is incorrect."""
+        actual_prefix = self.new_obj('bogus')._get_proc_like_prefix('foo')
+        self.assertEqual('', actual_prefix)
+
+    def test_get_sig_prefix__non_proc_non_attr(self):
+        """Verify returns '' for non-attr, non-proc objtype."""
+        obj = self.new_obj('bogus')
+        self.assertEqual('', obj._get_sig_prefix('x'))
+
+    def test_get_sig_prefix__proc_like(self):
+        """Verify return proc prefix for proc-like objtype."""
+        for objtype in ('function', 'iterfunction', 'method', 'itermethod'):
+            obj = self.new_obj(objtype)
+            self.assertEqual('inline proc ', obj._get_sig_prefix('inline proc x'))
+
+    def test_get_sig_prefix__attr_like(self):
+        """Verify returns attr prefix for attr-like objtype."""
+        for objtype in ('attribute', 'data'):
+            obj = self.new_obj(objtype)
+            self.assertEqual('config const ', obj._get_sig_prefix('config const x'))
 
 
 class PatternTestCase(unittest.TestCase):
@@ -160,6 +325,8 @@ class SigPatternTests(PatternTestCase):
     def test_with_all(self):
         """Verify fully specified signatures parse correctly."""
         test_cases = [
+            ('proc foo() ref', 'proc ', None, 'foo', '', 'ref'),
+            ('iter foo() ref', 'iter ', None, 'foo', '', 'ref'),
             ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', 'ref'),
             ('inline proc range.first', 'inline proc ', 'range.', 'first', None, None),
             ('iter Math.fib(n: int(64)): GMP.BigInt', 'iter ', 'Math.', 'fib', 'n: int(64)', 'GMP.BigInt'),
