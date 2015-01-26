@@ -62,9 +62,10 @@ chpl_attr_sig_pattern = re.compile(
 # nodes._add_node_class_names([chapel_desc_returns.__name__])
 
 
-# FIXME: rename ChapelObject -> ChapelBase
 class ChapelObject(ObjectDescription):
-    """FIXME"""
+    """Base class for Chapel directives. It has methods for parsing signatures of
+    any form, and generating target and index text.
+    """
 
     option_spec = {
         'noindex': directives.flag,
@@ -134,7 +135,7 @@ class ChapelObject(ObjectDescription):
             signode += paramlist
 
     def _get_attr_like_prefix(self, sig):
-        """FIXME"""
+        """Return prefix text for attribute or data directive."""
         sig_match = chpl_attr_sig_pattern.match(sig)
         if sig_match is None:
             return ChapelObject.get_signature_prefix(self, sig)
@@ -146,7 +147,9 @@ class ChapelObject(ObjectDescription):
             return ChapelObject.get_signature_prefix(self, sig)
 
     def _get_proc_like_prefix(self, sig):
-        """FIXME"""
+        """Return prefix text for function or method directive
+        (and similar).
+        """
         sig_match = chpl_sig_pattern.match(sig)
         if sig_match is None:
             return ChapelObject.get_signature_prefix(self, sig)
@@ -171,7 +174,10 @@ class ChapelObject(ObjectDescription):
                 ('function', 'iterfunction', 'method', 'itermethod'))
 
     def _get_sig_prefix(self, sig):
-        """FIXME"""
+        """Return signature prefix text. For attribute, data, and proc/iter directives
+        this might be part of the signature. E.g. `type myNewType` will return
+        a prefix of 'type' and `inline proc foo()` will return 'inline proc'.
+        """
         if self._is_proc_like():
             return self._get_proc_like_prefix(sig)
         elif self._is_attr_like():
@@ -192,9 +198,14 @@ class ChapelObject(ObjectDescription):
         return False
 
     def handle_signature(self, sig, signode):
-        """Transform a Chapel signature into RST nodes.
+        """Parse the signature *sig* into individual nodes and append them to the
+        *signode*. If ValueError is raises, parsing is aborted and the whole
+        *sig* string is put into a single desc_name node.
 
-        FIXME
+        The return value is the value that identifies the object. IOW, it is
+        the identifier that will be used to reference this object, datum,
+        attribute, proc, etc. It is a tuple of "fullname" (including module and
+        class(es)) and the classes. See also :py:meth:`add_target_and_index`.
         """
         if self._is_attr_like():
             sig_match = chpl_attr_sig_pattern.match(sig)
@@ -279,7 +290,10 @@ class ChapelObject(ObjectDescription):
         raise NotImplementedError('must be implemented in subclasses')
 
     def add_target_and_index(self, name_cls, sig, signode):
-        """FIXME"""
+        """Add cross-reference IDs and entries to the index node, if
+        applicable. *name_cls* is the return value of
+        :py:meth:`handle_signature`.
+        """
         modname = self.options.get(
             'module', self.env.temp_data.get('chpl:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
@@ -305,17 +319,20 @@ class ChapelObject(ObjectDescription):
                                               fullname, ''))
 
     def before_content(self):
-        """FIXME: is this needed/correct?"""
+        """Called before parsing content. Set flag to help with class scoping.
+        """
         self.clsname_set = False
 
     def after_content(self):
-        """FIXME: is this needed/correct?"""
+        """Called after parsing content. If any classes were added to the env
+        temp_data, make sure they are removed.
+        """
         if self.clsname_set:
             self.env.temp_data.pop('chpl:class', None)
 
 
 class ChapelModule(Directive):
-    """Directive to makre description of a new module."""
+    """Directive to make description of a new module."""
 
     has_content = False
     required_arguments = 1
@@ -329,7 +346,13 @@ class ChapelModule(Directive):
     }
 
     def run(self):
-        """FIXME"""
+        """Custom execution for chapel module directive. This class is instantiated by
+        the directive implementation and then this method is called. It parses
+        the options on the module directive, updates the environment according,
+        and creates an index entry for the module.
+
+        Based on the python domain module directive.
+        """
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
@@ -371,7 +394,7 @@ class ChapelCurrentModule(Directive):
     option_spec = {}
 
     def run(self):
-        """FIXME"""
+        """See :py:meth:`ChapelModule.run`"""
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         if modname == 'None':
@@ -386,7 +409,9 @@ class ChapelTypeObject(ChapelObject):
 
 
 class ChapelClassMember(ChapelObject):
-    """FIXME"""
+    """Description of Chapel class members, including attributes, procs,
+    and iters.
+    """
 
     @property
     def chpl_type_name(self):
@@ -398,18 +423,20 @@ class ChapelClassMember(ChapelObject):
         elif self.objtype == 'method':
             return 'method'
         else:
-            pass  # FIXME: Raise error? Warn?
+            return ''
 
     def get_signature_prefix(self, sig):
-        """FIXME"""
+        """Return signature prefix based on sig. May include portion of the sig text,
+        if relevant (e.g. `proc foo()` will return 'proc' here.
+        """
         return self._get_sig_prefix(sig)
 
     def needs_arglist(self):
-        """FIXME"""
+        """Procs and iters need arglists. Attributes do not."""
         return self.objtype.endswith('method')
 
     def get_index_text(self, modname, name_cls):
-        """FIXME"""
+        """Return text for index entry based on object type."""
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
         if self.objtype.endswith('method'):
@@ -443,14 +470,14 @@ class ChapelClassMember(ChapelObject):
 
 
 class ChapelClassObject(ChapelObject):
-    """FIXME"""
+    """Chapel class and record description."""
 
     def get_signature_prefix(self, sig):
-        """FIXME"""
+        """Return class or record according to object type."""
         return self.objtype + ' '
 
     def get_index_text(self, modname, name_cls):
-        """FIXME"""
+        """Return index entry text based on object type."""
         if self.objtype in ('class', 'record'):
             if not modname:
                 return _('%s (built-in %s)') % (name_cls[0], self.objtype)
@@ -459,7 +486,9 @@ class ChapelClassObject(ChapelObject):
             return ''
 
     def before_content(self):
-        """FIXME"""
+        """Called before parsing content. Push the class name onto the class name
+        stack. Used to construct the full name for members.
+        """
         ChapelObject.before_content(self)
         if self.names:
             self.env.temp_data['chpl:class'] = self.names[0][0]
@@ -467,7 +496,9 @@ class ChapelClassObject(ChapelObject):
 
 
 class ChapelModuleLevel(ChapelObject):
-    """FIXME"""
+    """Chapel module level functions, types, and variables (i.e. data directives)
+    descriptions.
+    """
 
     @property
     def chpl_type_name(self):
@@ -479,18 +510,20 @@ class ChapelModuleLevel(ChapelObject):
         elif self.objtype == 'function':
             return 'procedure'
         else:
-            pass  # FIXME: Raise error? Warn?
+            return ''
 
     def get_signature_prefix(self, sig):
-        """FIXME"""
+        """Return signature prefix based on sig. May include portion of the sig text,
+        if relevant (e.g. `proc foo()` will return `proc` here.
+        """
         return self._get_sig_prefix(sig)
 
     def needs_arglist(self):
-        """FIXME"""
+        """Procs and iters need arglists. Data directives do not."""
         return self.objtype.endswith('function')
 
     def get_index_text(self, modname, name_cls):
-        """FIXME"""
+        """Return text for index entry based on object type."""
         if self.objtype.endswith('function'):
             if not modname:
                 return _('%s() (built-in %s)') % \
@@ -505,10 +538,17 @@ class ChapelModuleLevel(ChapelObject):
 
 
 class ChapelXRefRole(XRefRole):
-    """FIXME"""
+    """Chapel cross-referencing role. Extends base XRefRole with special link
+    processing method. The Chapel link processing knows how to match a chapel
+    xref expression to the known objects, data, and modules in the current
+    project/documents.
+    """
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        """FIXME"""
+        """Called after parsing title and target text, and creating the reference
+        node. Alter the reference node and return it with chapel module and
+        class information, if relevant.
+        """
         refnode['chpl:module'] = env.temp_data.get('chpl:module')
         refnode['chpl:class'] = env.temp_data.get('chpl:class')
         if not has_explicit_title:
@@ -533,12 +573,8 @@ class ChapelXRefRole(XRefRole):
         return title, target
 
 
-class ChapelNamespaceObject(Directive):
-    """FIXME"""
-
-
 class ChapelDomain(Domain):
-    """FIXME"""
+    """Chapel language domain."""
 
     name = 'chpl'
     labels = 'Chapel'
@@ -589,7 +625,7 @@ class ChapelDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        """FIXME"""
+        """Remove the data associated with this instance of the domain."""
         for fullname, (fn, x) in self.data['objects'].iteritems():
             if fn == docname:
                 del self.data['objects'][fullname]
@@ -657,7 +693,10 @@ class ChapelDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      type_name, target, node, contnode):
-        """FIXME"""
+        """Resolve the pending_xref *node* with give *type_name* and *target*. Returns
+        None if xref node can not be resolved. If xref can be resolved, returns
+        new node containing the *contnode*.
+        """
         modname = node.get('chpl:module')
         clsname = node.get('chpl:class')
         searchmode = 1 if node.hasattr('refspecific') else 0
@@ -682,7 +721,10 @@ class ChapelDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
-        """FIXME"""
+        """Similar to :py:meth:`ChapelDomain.resolve_xref`, but applies to *any* or
+        similar role where type is not known. This returns a list of tuples
+        with ("domain:role", newnode).
+        """
         modname = node.get('chpl:module')
         clsname = node.get('chpl:class')
         results = []
@@ -703,7 +745,9 @@ class ChapelDomain(Domain):
         return results
 
     def _make_module_refnode(self, builder, fromdocname, name, contnode):
-        """FIXME"""
+        """Helper function to generate new xref node based on
+        current environment.
+        """
         # Get additional info for modules.
         docname, synopsis, platform, deprecated = self.data['modules'][name]
         title = name
@@ -717,7 +761,9 @@ class ChapelDomain(Domain):
                             'module-' + name, contnode, title)
 
     def merge_domaindata(self, docnames, otherdata):
-        """FIXME"""
+        """Merge in data regarding *docnames* from a different domaindata inventory
+        (coming froma subprocess in a parallel build).
+        """
         for fullname, (fn, objtype) in otherdata['objects'].iteritems():
             if fn in docnames:
                 self.data['objects'][fullname] = (fn, objtype)
@@ -725,19 +771,24 @@ class ChapelDomain(Domain):
             if data[0] in docnames:
                 self.data['modules'][modname] = data
 
-    # def process_doc(self, env, docname, document):
-    #     """FIXME"""
-
     def get_objects(self):
-        """FIXME"""
+        """Return iterable of "object descriptions", which are tuple with these items:
+
+        * `name`
+        * `dispname`
+        * `type`
+        * `docname`
+        * `anchor`
+        * `priority`
+
+        For details on each item, see
+        :py:meth:`~sphinx.domains.Domain.get_objects`.
+        """
         for modname, info in self.data['modules'].iteritems():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
         for refname, (docname, type_name) in self.data['objects'].iteritems():
             if type_name != 'module':  # modules are already handled
                 yield (refname, refname, type_name, docname, refname, 1)
-
-    # def get_type_name(self, type, primary=False):
-    #     """FIXME"""
 
 
 def setup(app):
