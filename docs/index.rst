@@ -31,6 +31,8 @@ To install from source on github_::
 Getting Started
 ---------------
 
+.. highlight:: rst
+
 This is an example that covers several features of the Chapel domain::
 
     .. chpl:module:: GMP
