@@ -9,6 +9,10 @@ tool suite.
 .. _Chapel: http://chapel-lang.org/
 .. _Sphinx: http://sphinx-doc.org/
 
+`Package documentation`_ is available on readthedocs.org.
+
+.. _Package documentation: //sphinxcontrib-chapeldomain.readthedocs.org/
+
 Installation
 ------------
 
