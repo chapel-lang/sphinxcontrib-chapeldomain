@@ -791,9 +791,9 @@ class ChapelDomain(Domain):
         For details on each item, see
         :py:meth:`~sphinx.domains.Domain.get_objects`.
         """
-        for modname, info in self.data['modules'].iteritems():
+        for modname, info in self.data['modules'].items():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
-        for refname, (docname, type_name) in self.data['objects'].iteritems():
+        for refname, (docname, type_name) in self.data['objects'].items():
             if type_name != 'module':  # modules are already handled
                 yield (refname, refname, type_name, docname, refname, 1)
 

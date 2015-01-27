@@ -9,6 +9,10 @@ tool suite.
 .. _Chapel: http://chapel-lang.org/
 .. _Sphinx: http://sphinx-doc.org/
 
+`Package documentation`_ is available on readthedocs.org.
+
+.. _Package documentation: //sphinxcontrib-chapeldomain.readthedocs.org/
+
 Installation
 ------------
 
@@ -26,6 +30,8 @@ To install from source on github_::
 
 Getting Started
 ---------------
+
+.. highlight:: rst
 
 This is an example that covers several features of the Chapel domain::
 
