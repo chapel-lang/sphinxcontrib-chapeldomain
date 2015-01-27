@@ -31,35 +31,11 @@ To install from source on github_::
 Getting Started
 ---------------
 
-.. highlight:: rst
+See the :doc:`Chapel Domain Reference <reference>` for a description of
+directives and roles provided by this domain.
 
-This is an example that covers several features of the Chapel domain::
-
-    .. chpl:module:: GMP
-        :synopsis: multiple precision integer library
-
-    .. chpl:record:: BigNum
-
-        multiple precision instances
-
-        .. chpl:method:: proc add(a:BigNum, b:BigNum)
-
-            Add two big ints, ``a`` and ``b``, and store the result in ``this``
-            instance.
-
-            :arg a: BigNum to be added
-            :type a: BigNum
-
-            :arg BigNum b: BigNum to be added
-
-            :returns: nothing, result is stored in current instance
-
-        .. chpl:itermethod:: iter these() ref
-
-            Arbitrary iterator that returns individual digits of this instance.
-
-            :ytype: reference
-            :yields: reference to each individual digit of BigNum
+For tips on developing the chapel domain (as opposed to using the directives),
+see the :doc:`developer documenation <developers>`.
 
 Contents:
 
