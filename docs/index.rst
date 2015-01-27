@@ -6,10 +6,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
-
-Indices and tables
-==================
+   reference
 
 * :ref:`genindex`
 * :ref:`modindex`
