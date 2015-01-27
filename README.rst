@@ -9,6 +9,10 @@ Chapel domain for `Sphinx <http://sphinx-doc.org/>`_.
 .. image:: https://coveralls.io/repos/chapel-lang/sphinxcontrib-chapeldomain/badge.svg?branch=master
     :target: https://coveralls.io/r/chapel-lang/sphinxcontrib-chapeldomain?branch=master
 
+Package documentation is available on readthedocs.org:
+
+https://sphinxcontrib-chapeldomain.readthedocs.org/
+
 Installation
 ------------
 
