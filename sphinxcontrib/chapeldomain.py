@@ -771,10 +771,10 @@ class ChapelDomain(Domain):
         """Merge in data regarding *docnames* from a different domaindata inventory
         (coming froma subprocess in a parallel build).
         """
-        for fullname, (fn, objtype) in otherdata['objects'].iteritems():
+        for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
                 self.data['objects'][fullname] = (fn, objtype)
-        for modname, data in otherdata['modules'].iteritems():
+        for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
                 self.data['modules'][modname] = data
 
