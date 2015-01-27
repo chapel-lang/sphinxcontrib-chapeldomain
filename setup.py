@@ -13,16 +13,16 @@ with open(os.path.join('sphinxcontrib', 'chapeldomain.py'), 'r') as fp:
 setup(
     name='sphinxcontrib-chapeldomain',
     version=version,
-    url='',
-    download_url='',
+    url='https://github.com/chapel-lang/sphinxcontrib-chapeldomain',
+    download_url='https://pypi.python.org/pypi/sphinxcontrib-chapeldomain',
     license='Apache License v2.0',
     author='Chapel Team',
     author_email='chapel-developers@lists.sourceforge.net',
     description='Chapel domain for Sphinx',
     long_description=long_desc,
-    zip_safe=False,  # TODO: Can this be True? (thomasvandoren, 2014-12-09)
+    zip_safe=False,
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

@@ -1,13 +1,13 @@
 Chapel Domain for Sphinx
 ========================
 
-Chapel domain for `Sphinx <http://sphinx-doc.org/>`_.
+.. py:module:: sphinxcontrib.chapeldomain
 
-.. image:: https://travis-ci.org/chapel-lang/sphinxcontrib-chapeldomain.svg?branch=master
-    :target: https://travis-ci.org/chapel-lang/sphinxcontrib-chapeldomain
+Chapel_ domain for Sphinx_! Document Chapel modules and APIs using the Sphinx
+tool suite.
 
-.. image:: https://coveralls.io/repos/chapel-lang/sphinxcontrib-chapeldomain/badge.svg?branch=master
-    :target: https://coveralls.io/r/chapel-lang/sphinxcontrib-chapeldomain?branch=master
+.. _Chapel: http://chapel-lang.org/
+.. _Sphinx: http://sphinx-doc.org/
 
 Installation
 ------------
@@ -54,3 +54,17 @@ This is an example that covers several features of the Chapel domain::
 
             :ytype: reference
             :yields: reference to each individual digit of BigNum
+
+Contents:
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+
+   self
+   reference
+   developers
