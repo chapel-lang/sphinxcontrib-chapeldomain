@@ -205,10 +205,108 @@ argument. See example::
             :ytype: reference
             :yields: reference to each individual digit of BigNum
 
+The above will render like this:
+
+.. chpl:module:: GMP
+    :noindex:
+    :synopsis: multiple precision integer library
+
+.. chpl:record:: BigNum
+    :noindex:
+
+    multiple precision instances
+
+    .. chpl:method:: proc add(a:BigNum, b:BigNum)
+        :noindex:
+
+        Add two big ints, ``a`` and ``b``, and store the result in ``this``
+        instance.
+
+        :arg a: BigNum to be added
+        :type a: BigNum
+
+        :arg BigNum b: BigNum to be added
+
+        :returns: nothing, result is stored in current instance
+
+    .. chpl:itermethod:: iter these() ref
+        :noindex:
+
+        Arbitrary iterator that returns individual digits of this instance.
+
+        :ytype: reference
+        :yields: reference to each individual digit of BigNum
+
+Note that it is possible to combine the ``arg`` and ``type`` fields into a
+single ``arg`` field, like ``:arg BigNum b:``. The same is true for ``param``
+fields.
+
 .. _chapel-roles:
 
 Cross-referencing Chapel objects
 --------------------------------
 
-.. FIXME: do it
+The following roles refer to objects in modules and are possibly hyperlinked if
+a matching identifier is found:
 
+.. role:: chpl:mod
+
+    Reference a module; a dotted name may be used.
+
+.. role:: chpl:func
+          chpl:iter
+
+    Reference a Chapel function or iterator; dotted names may be used. The role
+    text needs not include trailing parentheses to enhance readability.
+
+.. role:: chpl:data
+          chpl:const
+          chpl:var
+          chpl:param
+          chpl:type
+
+    Reference a module-level variable, constant, compiler param, or type.
+
+.. role:: chpl:class
+          chpl:record
+
+    Reference a class or record; a dotted name may be used.
+
+.. role:: chpl:meth
+          chpl:iter
+
+    Reference a method or iterator of an object (class or record). The role
+    text can include the type name and the method name. If it occurs within the
+    description of a type, the type name can be omitted. A dotted name may be
+    used.
+
+.. role:: chpl:attr
+
+    Reference a data attribute (const, var, param, generic type) of an object.
+
+The name enclosed in this markup can include a module name and/or a class or
+record name. For example, ``:chpl:func:`writeln``` could refer to a function
+named ``writeln`` in the current module, or the built-in function of that
+name. In contrast, ``:chpl:func:`Foo.writeln``` clearly refers to the
+``writeln`` function in the ``Foo`` module.
+
+Normally, names in these roles are search first without any further
+qualification, then with the current module name prepended, then with the
+current module and class name (if any) prepended. If you prefix the name with a
+dot, this order is reserved. For example, in the documentation of the ``IO``
+module, ``:chpl:func:`writeln``` always refers to the built-in function, while
+``:chpl:func:`.writeln``` refers to ``IO.open``.
+
+A similar heuristic is used to determine whether the name is an attribute of
+the currently documented class.
+
+Also, if the name is prefixed with a dot, and no exact match is found, the
+target is taken as a suffix and all object names with that suffix are
+searched. For example, ``:chpl:meth:`.channel.read``` references the
+``IO.channel.read()`` function, even if the current module is not ``IO``. Since
+this can get ambiguous, if there is more than one possible match, you will get
+a warning from Sphinx.
+
+Note that you can combine the ``~`` and ``.`` prefixes:
+``:chpl:meth:`~.channel.read``` will reference the ``IO.channel.read()``
+method, but the visible link caption will only be ``read()``.
