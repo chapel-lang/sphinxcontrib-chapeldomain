@@ -13,8 +13,8 @@ with open(os.path.join('sphinxcontrib', 'chapeldomain.py'), 'r') as fp:
 setup(
     name='sphinxcontrib-chapeldomain',
     version=version,
-    url='',
-    download_url='',
+    url='https://github.com/chapel-lang/sphinxcontrib-chapeldomain',
+    download_url='https://pypi.python.org/pypi/sphinxcontrib-chapeldomain',
     license='Apache License v2.0',
     author='Chapel Team',
     author_email='chapel-developers@lists.sourceforge.net',
