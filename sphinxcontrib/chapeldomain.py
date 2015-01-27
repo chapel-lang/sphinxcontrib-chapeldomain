@@ -633,10 +633,10 @@ class ChapelDomain(Domain):
 
     def clear_doc(self, docname):
         """Remove the data associated with this instance of the domain."""
-        for fullname, (fn, x) in self.data['objects'].iteritems():
+        for fullname, (fn, x) in self.data['objects'].items():
             if fn == docname:
                 del self.data['objects'][fullname]
-        for modname, (fn, x, x, x) in self.data['modules'].iteritems():
+        for modname, (fn, x, x, x) in self.data['modules'].items():
             if fn == docname:
                 del self.data['modules'][modname]
 
