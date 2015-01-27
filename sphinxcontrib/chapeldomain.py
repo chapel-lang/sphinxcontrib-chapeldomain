@@ -143,6 +143,8 @@ class ChapelObject(ObjectDescription):
         prefixes, _, _, _ = sig_match.groups()
         if prefixes:
             return prefixes.strip() + ' '
+        elif self.objtype == 'type':
+            return 'type' + ' '
         else:
             return ChapelObject.get_signature_prefix(self, sig)
 
@@ -166,7 +168,7 @@ class ChapelObject(ObjectDescription):
 
     def _is_attr_like(self):
         """Returns True when objtype is attribute or data."""
-        return self.objtype in ('attribute', 'data')
+        return self.objtype in ('attribute', 'data', 'type')
 
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
@@ -509,6 +511,8 @@ class ChapelModuleLevel(ChapelObject):
             return 'iterator'
         elif self.objtype == 'function':
             return 'procedure'
+        elif self.objtype == 'type':
+            return 'type'
         else:
             return ''
 
@@ -580,7 +584,8 @@ class ChapelDomain(Domain):
     labels = 'Chapel'
 
     object_types = {
-        'data': ObjType(l_('data'), 'data', 'const', 'var', 'param'),
+        'data': ObjType(l_('data'), 'data', 'const', 'var', 'param', 'type'),
+        'type': ObjType(l_('type'), 'type', 'data'),
         'function': ObjType(l_('function'), 'func', 'proc'),
         'iterfunction': ObjType(l_('iterfunction'), 'func', 'iter', 'proc'),
         'class': ObjType(l_('class'), 'class'),
@@ -593,6 +598,7 @@ class ChapelDomain(Domain):
 
     directives = {
         'data': ChapelModuleLevel,
+        'type': ChapelModuleLevel,
         'function': ChapelModuleLevel,
         'iterfunction': ChapelModuleLevel,
         'class': ChapelClassObject,
@@ -609,6 +615,7 @@ class ChapelDomain(Domain):
         'const': ChapelXRefRole(),
         'var': ChapelXRefRole(),
         'param': ChapelXRefRole(),
+        'type': ChapelXRefRole(),
         'func': ChapelXRefRole(),
         'proc': ChapelXRefRole(),
         'iter': ChapelXRefRole(),

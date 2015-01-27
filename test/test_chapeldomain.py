@@ -52,7 +52,7 @@ class ChapelObjectTests(unittest.TestCase):
         """Verify _is_attr_like return True for data and
         attribute directives.
         """
-        for objtype in ('data', 'attribute'):
+        for objtype in ('data', 'attribute', 'type'):
             self.assertTrue(self.new_obj(objtype)._is_attr_like())
 
     def test_is_attr_like__false(self):
@@ -87,6 +87,7 @@ class ChapelObjectTests(unittest.TestCase):
         bad_dirs = [
             'data',
             'attribute',
+            'type',
             'class',
             'record',
             'module',
@@ -113,6 +114,23 @@ class ChapelObjectTests(unittest.TestCase):
             for sig, prefix in test_cases:
                 actual_prefix = obj._get_attr_like_prefix(sig)
                 self.assertEqual(prefix, actual_prefix)
+
+    def test_get_attr_like_prefix__type(self):
+        """Verify _get_attr_like_prefix return correct value for
+        type signatures.
+        """
+        test_cases = [
+            ('', ''),
+            ('foo', 'type '),
+            ('type T', 'type '),
+            ('var x', 'var '),
+            ('config const n', 'config const '),
+            ('blah blah blah blah blah', 'blah blah blah blah '),
+        ]
+        obj = self.new_obj('type')
+        for sig, prefix in test_cases:
+            actual_prefix = obj._get_attr_like_prefix(sig)
+            self.assertEqual(prefix, actual_prefix)
 
     def test_get_attr_like_prefix__bad_objtype(self):
         """Verify weird case where sig matches, but objtype is incorrect."""
@@ -181,7 +199,7 @@ class ChapelObjectTests(unittest.TestCase):
 
     def test_get_sig_prefix__attr_like(self):
         """Verify returns attr prefix for attr-like objtype."""
-        for objtype in ('attribute', 'data'):
+        for objtype in ('attribute', 'data', 'type'):
             obj = self.new_obj(objtype)
             self.assertEqual('config const ', obj._get_sig_prefix('config const x'))
 

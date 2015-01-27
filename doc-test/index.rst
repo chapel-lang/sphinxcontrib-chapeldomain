@@ -40,6 +40,14 @@ Module 'Foo'
 
     Default is ``false``.
 
+.. data:: type T: domain(1, int(32), true)
+
+    Alias a particular domain to *T*. See also :chpl:type:`U`.
+
+.. type:: U
+
+    I can haz *U*?
+
 Do these XRefs work?
 --------------------
 
@@ -51,6 +59,10 @@ Do these XRefs work?
 * :chpl:data:`varTest`
 * :chpl:const:`constTest`
 * :chpl:data:`constTest`
+* :chpl:type:`T`
+* :chpl:data:`T`
+* :chpl:type:`U`
+* :chpl:data:`U`
 
 CPP tests...
 ------------
