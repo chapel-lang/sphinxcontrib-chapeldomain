@@ -280,7 +280,8 @@ a matching identifier is found:
 
 .. role:: chpl:mod
 
-    Reference a module; a dotted name may be used.
+    Reference a module; a dotted name may be used. See :ref:`Cross-reference
+    Contents <chapel-xref-content>` for details on dotted and non-dotted names.
 
 .. role:: chpl:func
           chpl:iter
@@ -312,6 +313,11 @@ a matching identifier is found:
 .. role:: chpl:attr
 
     Reference a data attribute (const, var, param, generic type) of an object.
+
+.. _chapel-xref-content:
+
+Cross-reference Contents
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The name enclosed in this markup can include a module name and/or a class or
 record name. For example, ``:chpl:func:`writeln``` could refer to a function
