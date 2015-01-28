@@ -31,7 +31,7 @@ Module Directives
     platforms, the option should be omitted.
 
     The ``deprecated`` option can be given (with no value) to mark a module as
-    deprecated. It will be designated as such in various locations then.
+    deprecated. It will then be designated as such in various locations.
 
 .. directive:: .. chpl:currentmodule:: name
 
@@ -39,7 +39,7 @@ Module Directives
     from here are in the given module (similar to :rst:dir:`chpl:module`), but
     it will not create index entries, an entry in the Global Module Index, or a
     link target for :rst:role:`chpl:mod`. This is helpful in situations where
-    documentation for things in a module is spread over multiple files or
+    documentation for a module's content is spread over multiple files or
     sections. One location needs to have :rst:dir:`chpl:module` directive, and
     the others can have :rst:dir:`chpl:currentmodule`.
 
@@ -48,7 +48,7 @@ Module and Class Contents
 
 The following directives are provided for module and class contents.
 
-.. directive:: .. chpl:function:: name(parameters)
+.. directive:: .. chpl:function:: signature
 
     Describes a module-level function. The signature should include the
     parameters as given in the Chapel definition. See :ref:`signatures` for
@@ -69,25 +69,55 @@ The following directives are provided for module and class contents.
     This information can (in any ``chpl`` directive) optionally be given in a
     structured form, see :ref:`info-field-lists`.
 
-.. directive:: .. chpl:iterfunction:: name(parameters)
+.. directive:: .. chpl:iterfunction:: signature
 
     Describes a module-level iterator. The description should be similar to
     :rst:dir:`chpl:function`.
 
-.. directive:: .. chpl:data:: name
+For example, this would document a module with a ``proc`` and an ``iter``::
 
-    Describes global data in a module including ``const``, ``var``, ``type``,
-    ``param``, ``config const``, etc. Class, record, and instance attributes
-    are not documented using this environment.
+    .. chpl:module:: GMP
+        :synopsis: multiple precision integer library
 
-.. directive:: .. chpl:type:: name
+    .. chpl:function:: proc factorial(n: int): BigNum
+
+        Calculate and return ``n!``. Since this can result in very large
+        numbers, the final result is returned as a :chpl:class:`BigNum`.
+
+        :param n: nth factorial to calculate
+        :type n: int
+        :rtype: BigNum
+        :returns: ``n!``
+
+    .. chpl:iterfunction:: iter fibonacci(): BigNum
+
+        Yield fibonacci numbers infinitely. It is up to caller to break
+        iteration.
+
+        Often called with :chpl:func:`zip` to track current number. For
+        example:
+
+        .. code-block:: chapel
+
+            for value, n in zip(fibonacci(), 1..) do
+              writeln("fibonacci(", n, ") = ", value);
+
+        :ytype: BigNum
+        :yields: fibonacci numbers
+
+.. directive:: .. chpl:data:: signature
+
+    Describes global data in a module including ``const``, ``var``, ``param``,
+    ``config const``, etc. Class, record, and instance attributes are not
+    documented using this environment.
+
+.. directive:: .. chpl:type:: signature
 
     Describes global type in module. Generic types for classes and records are
     not documented using this environment (see :rst:dir:`chpl:attribute` for
     that).
 
-.. directive:: .. chpl:class:: name
-               .. chpl:class:: name(parameters)
+.. directive:: .. chpl:class:: signature
 
     Describe a class. The signature can optionally include parentheses with
     parameters which will be shown as the constructor arguments. See also
@@ -110,25 +140,24 @@ The following directives are provided for module and class contents.
 
     The first way is the preferred one.
 
-.. directive:: .. chpl:record:: name
-               .. chpl:record:: name(parameters)
+.. directive:: .. chpl:record:: signature
 
     Records work the same as :rst:dir:`chpl:class`.
 
-.. directive:: .. chpl:attribute:: name
+.. directive:: .. chpl:attribute:: signature
 
     Describes an object data attribute. This can be a ``param``, ``const``,
     ``var``, ``type``, etc. The description should include information about
     the type of the data to be expected and whether it may be changed directly.
 
-.. directive:: .. chpl:method:: name(parameters)
+.. directive:: .. chpl:method:: signature
 
     Describes an object instance method (for :rst:dir:`chpl:class` or
     :rst:dir:`chpl:record`). The description should include similar information
     to that described for :rst:dir:`chpl:function`. See also :ref:`signatures`
     and :ref:`info-field-lists`.
 
-.. directive:: .. chpl:itermethod:: name(paramaters)
+.. directive:: .. chpl:itermethod:: signature
 
     Describes an object instance iterator method (for :rst:dir:`chpl:class` or
     :rst:dir:`chpl:record`). The description should be similar to
@@ -139,8 +168,8 @@ The following directives are provided for module and class contents.
 Chapel Signatures
 -----------------
 
-Signatures of functions, methods, classes, records, iterators, etc can be given
-like would be written in Chapel.
+Signatures of functions, methods, classes, records, iterators, etc can be
+specified similar to how they would be written in Chapel.
 
 Default values for optional arguments can be given. Signatures can also include
 their declarations, return types, and return intents. For example::
@@ -153,7 +182,7 @@ their declarations, return types, and return intents. For example::
 
     .. data:: config const n: int
 
-    .. type:: type T: domain(3, int, true)
+    .. type:: type T = domain(3, int, true)
 
     .. attribute:: param MyMod.MyClass.communicative: bool = false
 
@@ -173,11 +202,11 @@ recognized and formatted nicely:
 * ``rtype``: Return type. Creates a link if possible.
 * ``yields``, ``yield``: Description of the yield value, often used for
   iterators.
-* ``ytype``: Description of the yield value.
+* ``ytype``: Yield type. Creates a link if possible.
 
-The field names must consist of one of these keywords and an argument, except
-for ``returns``, ``rtype``, ``yields``, and ``ytype``, which do not need an
-argument. See example::
+For ``param``, ``arg``, ``type``, etc a field name must consist of one of the
+keywords and an argument. ``returns``, ``rtype``, ``yields``, ``ytype``, do not
+need an argument. See example::
 
     .. chpl:module:: GMP
         :synopsis: multiple precision integer library
@@ -251,7 +280,8 @@ a matching identifier is found:
 
 .. role:: chpl:mod
 
-    Reference a module; a dotted name may be used.
+    Reference a module; a dotted name may be used. See :ref:`Cross-reference
+    Contents <chapel-xref-content>` for details on dotted and non-dotted names.
 
 .. role:: chpl:func
           chpl:iter
@@ -284,18 +314,49 @@ a matching identifier is found:
 
     Reference a data attribute (const, var, param, generic type) of an object.
 
+.. _chapel-xref-content:
+
+Cross-reference Contents
+~~~~~~~~~~~~~~~~~~~~~~~~
+
 The name enclosed in this markup can include a module name and/or a class or
 record name. For example, ``:chpl:func:`writeln``` could refer to a function
 named ``writeln`` in the current module, or the built-in function of that
 name. In contrast, ``:chpl:func:`Foo.writeln``` clearly refers to the
 ``writeln`` function in the ``Foo`` module.
 
-Normally, names in these roles are search first without any further
+Normally, names in these roles are searched first without any further
 qualification, then with the current module name prepended, then with the
 current module and class name (if any) prepended. If you prefix the name with a
 dot, this order is reserved. For example, in the documentation of the ``IO``
 module, ``:chpl:func:`writeln``` always refers to the built-in function, while
-``:chpl:func:`.writeln``` refers to ``IO.open``.
+``:chpl:func:`.writeln``` refers to ``IO.writeln``.
+
+For example, here is a description with both a non-dotted and a dotted
+cross-reference::
+
+    .. module:: IO
+
+    .. class:: channel
+
+        .. method:: read()
+
+            Description...
+            example 1 --> :chpl:func:`writeln`
+            example 2 --> :chpl:func:`.writeln`
+
+Example 1 will search for ``writeln`` cross-reference in this order:
+
+#. ``writeln``: built-in function
+#. ``IO.writeln``: writeln defined in IO module
+#. ``IO.channel.writeln``: writeln defined on IO.channel class
+
+Example 2 will search for ``writeln`` cross-reference in the opposite order,
+because it is dotted:
+
+#. ``IO.channel.writeln``: writeln defined on IO.channel class
+#. ``IO.writeln``: writeln defined in IO module
+#. ``writeln``: built-in function
 
 A similar heuristic is used to determine whether the name is an attribute of
 the currently documented class.
@@ -307,6 +368,11 @@ searched. For example, ``:chpl:meth:`.channel.read``` references the
 this can get ambiguous, if there is more than one possible match, you will get
 a warning from Sphinx.
 
-Note that you can combine the ``~`` and ``.`` prefixes:
-``:chpl:meth:`~.channel.read``` will reference the ``IO.channel.read()``
-method, but the visible link caption will only be ``read()``.
+When ``~`` prefix is added to the cross-reference, the visible link will only
+display the leaf. For example, ``:chpl:meth:`~IO.channel.read``` will display
+as ``read`` and still reference ``IO.channel.read()`` method.
+
+Note that you can combine the ``~`` and ``.``
+prefixes. ``:chpl:meth:`~.channel.read``` will reference the
+``IO.channel.read()`` method, but the visible link caption will only be
+``read``.
