@@ -53,7 +53,8 @@ chpl_attr_sig_pattern = re.compile(
 
 
 # FIXME: This might be needed to support something other than the -> for return
-#        annotations. (thomasvandoren, 2015-01-20)
+#        annotations. This would replace instances of addnodes.desc_returns, if
+#        needed/used. (thomasvandoren, 2015-01-20)
 #
 # class chapel_desc_returns(addnodes.desc_returns):
 #     """Node for a "returns" annotation."""
@@ -273,7 +274,6 @@ class ChapelObject(ObjectDescription):
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if retann:
-                # FIXME: ? chapel_desc_returns(retann, retann)
                 signode += addnodes.desc_returns(retann, retann)
             if anno:
                 signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
@@ -281,7 +281,6 @@ class ChapelObject(ObjectDescription):
 
         self._pseudo_parse_arglist(signode, arglist)
         if retann:
-            # FIXME: ? chapel_desc_returns(retann, retann)
             signode += addnodes.desc_returns(retann, retann)
         if anno:
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
@@ -404,10 +403,6 @@ class ChapelCurrentModule(Directive):
         else:
             env.temp_data['chpl:module'] = modname
         return []
-
-
-class ChapelTypeObject(ChapelObject):
-    """FIXME"""
 
 
 class ChapelClassMember(ChapelObject):
@@ -644,7 +639,8 @@ class ChapelDomain(Domain):
         """Find a Chapel object for "name", possibly with module or class/record
         name. Returns a list of (name, object entry) tuples.
 
-        FIXME: fill in arg and returns docs (thomasvandoren, 2015-01-23)
+        :arg int searchmode: If 1, search more specific names first. Otherwise,
+            search built-ins first and then get more specific.
         """
         if name[-2:] == '()':
             name = name[:-2]
