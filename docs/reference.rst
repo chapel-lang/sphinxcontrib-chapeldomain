@@ -204,7 +204,7 @@ recognized and formatted nicely:
   iterators.
 * ``ytype``: Yield type. Creates a link if possible.
 
-For ``param``, ``arg``, ``type``, etc a field names must consist of one of the
+For ``param``, ``arg``, ``type``, etc a field name must consist of one of the
 keywords and an argument. ``returns``, ``rtype``, ``yields``, ``ytype``, do not
 need an argument. See example::
 
