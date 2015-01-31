@@ -21,7 +21,13 @@ Module 'Foo'
    Containers
    foo
 
+**Does it work???**
+
+* :chpl:chplref:`chplmodindex`
+
 .. default-domain:: chpl
+
+* :chplref:`Stuff... <chplmodindex>`
 
 .. data:: const constTest
 
@@ -48,10 +54,6 @@ Module 'Foo'
 .. type:: U
 
     I can haz *U*?
-
-**Does it work???**
-
-* :chpl:ref:`modindex`
 
 Do these XRefs work?
 --------------------
