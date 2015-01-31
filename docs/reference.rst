@@ -326,6 +326,8 @@ a matching identifier is found:
 
         For example, see all modules in the :chplref:`chplmodindex`.
 
+    .. versionadded:: 0.0.3
+
     .. warning::
 
         ``chplmodindex`` is a special name, like ``modindex``, ``genindex``,
