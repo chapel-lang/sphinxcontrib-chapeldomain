@@ -581,7 +581,36 @@ class ChapelModuleIndex(Index):
     shortname = l_('modules')
 
     def generate(self, docnames=None):
-        """FIXME"""
+        """Returns entries for index given by ``name``. If ``docnames`` is given,
+        restrict to entries referring to these docnames.
+
+        Retunrs tuple of ``(content, collapse)``. ``collapse`` is bool. When
+        True, sub-entries should start collapsed for output formats that
+        support collapsing.
+
+        ``content`` is a sequence of ``(letter, entries)`` tuples. ``letter``
+        is the "heading" for the given ``entries``, in this case the starting
+        letter.
+
+        ``entries`` is a sequence of single entries, where a single entry is a
+        sequence ``[name, subtype, docname, anchor, extra, qualifier,
+        description]``. These items are:
+
+        * ``name`` - name of the index entry to be displayed
+        * ``subtype`` - sub-entry related type:
+
+          * 0 - normal entry
+          * 1 - entry with sub-entries
+          * 2 - sub-entry
+
+        * ``docname`` - docname where the entry is located
+        * ``anchor`` - anchor for the entry within docname
+        * ``extra`` - extra info for the entry
+        * ``qualifier`` - qualifier for the description
+        * ``description`` - description for the entry
+
+        Qualifier and description are not rendered in some output formats.
+        """
         content = {}
 
         # list of prefixes to ignore
@@ -695,11 +724,18 @@ class ChapelDomain(Domain):
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),
+        'chplref': ChapelXRefRole(),
     }
 
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
+        'labels': {     # labelname -> docname, labelid, sectionname
+            'chplmodindex': ('chpl-modindex', '', l_('Chapel Module Index')),
+        },
+        'anonlabels': { # labelname -> docname, labelid
+            'chplmodindex': ('chpl-modindex', ''),
+        },
     }
 
     indices = [
@@ -708,12 +744,18 @@ class ChapelDomain(Domain):
 
     def clear_doc(self, docname):
         """Remove the data associated with this instance of the domain."""
-        for fullname, (fn, x) in self.data['objects'].items():
+        for fullname, (fn, _) in self.data['objects'].items():
             if fn == docname:
                 del self.data['objects'][fullname]
-        for modname, (fn, x, x, x) in self.data['modules'].items():
+        for modname, (fn, _, _, _) in self.data['modules'].items():
             if fn == docname:
                 del self.data['modules'][modname]
+        for labelname, (fn, _, _) in self.data['labels'].items():
+            if fn == docname:
+                del self.data['labels'][labelname]
+        for anonlabelname, (fn, _) in self.data['anonlabels'].items():
+            if fn == docname:
+                del self.data['anonlabels'][anonlabelname]
 
     def find_obj(self, env, modname, classname, name, type_name, searchmode=0):
         """Find a Chapel object for "name", possibly with module or class/record
@@ -780,6 +822,23 @@ class ChapelDomain(Domain):
         None if xref node can not be resolved. If xref can be resolved, returns
         new node containing the *contnode*.
         """
+        # Special case the :chpl:chplref:`chplmodindex` instances.
+        if type_name == 'chplref':
+            if node['refexplicit']:
+                # Reference to anonymous label. The reference uses the supplied
+                # link caption.
+                docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+                sectname = node.astext()
+            else:
+                # Reference to named label. The final node will contain the
+                # section name after the label.
+                docname, labelid, sectname = self.data['labels'].get(target, ('', '', ''))
+
+            if not docname:
+                return None
+
+            return self._make_refnode(fromdocname, builder, docname, labelid, sectname, contnode)
+
         modname = node.get('chpl:module')
         clsname = node.get('chpl:class')
         searchmode = 1 if node.hasattr('refspecific') else 0
@@ -827,6 +886,25 @@ class ChapelDomain(Domain):
 
         return results
 
+    def _make_refnode(self, fromdocname, builder, docname, labelid, sectname, contnode, **kwargs):
+        """Return reference node for something like ``:chpl:chplref:``."""
+        nodeclass = kwargs.pop('nodeclass', nodes.reference)
+        newnode = nodeclass('', '', internal=True, **kwargs)
+        innernode = nodes.emphasis(sectname, sectname)
+        if docname == fromdocname:
+            newnode['refid'] = labelid
+        else:
+            # Set more info on contnode. In case the get_relative_uri call
+            # raises NoUri, the builder will then have to resolve these.
+            contnode = addnodes.pending_xref('')
+            contnode['refdocname'] = docname
+            contnode['refsectname'] = sectname
+            newnode['refuri'] = builder.get_relative_uri(fromdocname, docname)
+            if labelid:
+                newnode['refuri'] += '#' + labelid
+        newnode.append(innernode)
+        return newnode
+
     def _make_module_refnode(self, builder, fromdocname, name, contnode):
         """Helper function to generate new xref node based on
         current environment.
@@ -853,6 +931,12 @@ class ChapelDomain(Domain):
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
                 self.data['modules'][modname] = data
+        for labelname, data in otherdata['labels'].items():
+            if data[0] in docnames:
+                self.data['labels'][labelname] = data
+        for anonlabelname, data in otherdata['anonlabels'].items():
+            if data[0] in docnames:
+                self.data['anonlabels'][anonlabelname] = data
 
     def get_objects(self):
         """Return iterable of "object descriptions", which are tuple with these items:
