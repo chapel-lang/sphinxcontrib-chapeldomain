@@ -13,7 +13,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:
     import unittest2 as unittest
 
 from sphinxcontrib.chapeldomain import (
-    ChapelDomain, ChapelObject,
+    ChapelDomain, ChapelModuleIndex, ChapelObject,
     chpl_sig_pattern, chpl_attr_sig_pattern,
 )
 
@@ -26,6 +26,134 @@ class ChapelDomainTests(unittest.TestCase):
         env = mock.Mock()
         env.domaindata = {'name': 'chapel'}
         self.assertIsNotNone(ChapelDomain(env))
+
+
+class ChapelModuleIndexTests(unittest.TestCase):
+    """ChapelModuleIndex tests."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Initalize sphinx locale stuff."""
+        super(cls, ChapelModuleIndexTests).setUpClass()
+        import sphinx.locale
+        sphinx.locale.init([], 'en')
+
+    def setUp(self):
+        """Add some useful values to this instance."""
+        self.modules = {
+            # Regular sub-module.
+            'foo.bar.baz': ('index', '', '', False),
+
+            # Module with sub-modules and a synopsis.
+            'foo': ('index', 'foo module synopsis -- it has two submodules', '', False),
+
+            # Regular sub-module, should be sorted b/w foo and foo.bar.baz.
+            'foo.bar': ('index', '', '', False),
+
+            # Regular sub-module with similar name to Boo (test Boo vs foo.Boo
+            # when common prefix is foo.).
+            'foo.Boo': ('index', '', '', False),
+
+            # Regular module.
+            'zed': ('other_doc', '', '', False),
+
+            # Deprecated module with platform and synopsis.
+            'Zedd': ('other_doc', 'use zed', 'linux', True),
+
+            # Regular module with platform.
+            'Boo': ('halloween', '', 'Mac', False),
+
+            # Oddly names module that will exactly match the ignore
+            # pattern. Also, it will generate a parent that is not real.
+            'odd.': ('index', '', '', False),
+        }
+
+    def new_index(self, ignores=None):
+        """Helper to create and return new ChapelModuleIndex."""
+        env = mock.Mock()
+        env.domaindata = {'name': 'chapel'}
+        env.config = {'chapeldomain_modindex_common_prefix': ignores or []}
+        domain = ChapelDomain(env)
+        index = ChapelModuleIndex(domain)
+        index.domain.data['modules'] = self.modules
+        return index
+
+    def test_init(self):
+        """Simple test to verify ChapelModuleIndex can be initialized."""
+        self.assertIsNotNone(self.new_index())
+
+    def test_generate(self):
+        """Verify an arbitrary set of modules is returned in correct order."""
+        index = self.new_index()
+        expected_contents = [
+            ('b', [
+                ['Boo', 0, 'halloween', 'module-Boo', 'Mac', '', ''],
+            ]),
+            ('f', [
+                ['foo', 1, 'index', 'module-foo', '', '', 'foo module synopsis -- it has two submodules'],
+                ['foo.bar', 2, 'index', 'module-foo.bar', '', '', ''],
+                ['foo.bar.baz', 2, 'index', 'module-foo.bar.baz', '', '', ''],
+                ['foo.Boo', 2, 'index', 'module-foo.Boo', '', '', ''],
+            ]),
+            ('o', [
+                ['odd', 1, '', '', '', '', ''],
+                ['odd.', 2, 'index', 'module-odd.', '', '', ''],
+            ]),
+            ('z', [
+                ['zed', 0, 'other_doc', 'module-zed', '', '', ''],
+                ['Zedd', 0, 'other_doc', 'module-Zedd', 'linux', 'Deprecated', 'use zed'],
+            ]),
+        ]
+
+        contents, collapse = index.generate()
+        self.assertFalse(collapse)
+        self.assertEqual(expected_contents, contents)
+
+    def test_generate__docnames(self):
+        """Verify generate() returns modules that are in docnames list."""
+        index = self.new_index()
+        expected_contents = [
+            ('b', [
+                ['Boo', 0, 'halloween', 'module-Boo', 'Mac', '', ''],
+            ]),
+            ('z', [
+                ['zed', 0, 'other_doc', 'module-zed', '', '', ''],
+                ['Zedd', 0, 'other_doc', 'module-Zedd', 'linux', 'Deprecated', 'use zed'],
+            ]),
+        ]
+
+        contents, collapse = index.generate(docnames=['halloween', 'other_doc'])
+        self.assertFalse(collapse)
+        self.assertEqual(expected_contents, contents)
+
+    def test_generate__ignore_common_prefix(self):
+        """Verify behavior when chapeldomain_modindex_common_prefix is set in
+        configuration.
+        """
+        index = self.new_index(ignores=['foo.', 'odd.'])
+        expected_contents = [
+            ('b', [
+                ['Boo', 0, 'halloween', 'module-Boo', 'Mac', '', ''],
+                ['foo.bar', 1, 'index', 'module-foo.bar', '', '', ''],
+                ['foo.bar.baz', 2, 'index', 'module-foo.bar.baz', '', '', ''],
+                ['foo.Boo', 0, 'index', 'module-foo.Boo', '', '', ''],
+            ]),
+            ('f', [
+                ['foo', 0, 'index', 'module-foo', '', '', 'foo module synopsis -- it has two submodules'],
+            ]),
+            ('o', [
+                ['odd', 1, '', '', '', '', ''],
+                ['odd.', 2, 'index', 'module-odd.', '', '', ''],
+            ]),
+            ('z', [
+                ['zed', 0, 'other_doc', 'module-zed', '', '', ''],
+                ['Zedd', 0, 'other_doc', 'module-Zedd', 'linux', 'Deprecated', 'use zed'],
+            ]),
+        ]
+
+        contents, collapse = index.generate()
+        self.assertTrue(collapse)
+        self.assertEqual(expected_contents, contents)
 
 
 class ChapelObjectTests(unittest.TestCase):
