@@ -19,6 +19,7 @@ Module 'Foo'
    BitOps
    Vector
    Containers
+   foo
 
 .. default-domain:: chpl
 
@@ -47,6 +48,10 @@ Module 'Foo'
 .. type:: U
 
     I can haz *U*?
+
+**Does it work???**
+
+* :chpl:ref:`modindex`
 
 Do these XRefs work?
 --------------------
@@ -98,4 +103,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

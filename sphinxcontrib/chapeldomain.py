@@ -18,10 +18,11 @@ import re
 
 from docutils import nodes
 from docutils.parsers.rst import directives
+from six import iteritems
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType
+from sphinx.domains import Domain, Index, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
 from sphinx.util.compat import Directive
@@ -572,6 +573,81 @@ class ChapelXRefRole(XRefRole):
         return title, target
 
 
+class ChapelModuleIndex(Index):
+    """Provides Chapel module index based on chpl:module."""
+
+    name = 'modindex'
+    localname = l_('Chapel Module Index')
+    shortname = l_('modules')
+
+    def generate(self, docnames=None):
+        """FIXME"""
+        content = {}
+
+        # list of prefixes to ignore
+        ignores = self.domain.env.config['chapeldomain_modindex_common_prefix']
+        ignores = sorted(ignores, key=len, reverse=True)
+
+        # list of all modules, sorted by module name
+        modules = sorted(iteritems(self.domain.data['modules']),
+                         key=lambda x: x[0].lower())
+
+        # sort out collapsible modules
+        prev_modname = ''
+        num_toplevels = 0
+        for modname, (docname, synopsis, platforms, deprecated) in modules:
+            # If given a list of docnames and current docname is not in it,
+            # skip this docname for the index.
+            if docnames and docname not in docnames:
+                continue
+
+            for ignore in ignores:
+                if modname.startswith(ignore):
+                    modname = modname[len(ignore):]
+                    stripped = ignore
+                    break
+            else:
+                stripped = ''
+
+            # we stripped the whole module name?
+            if not modname:
+                modname, stripped = stripped, ''
+
+            # Put the module in correct bucket (first letter).
+            entries = content.setdefault(modname[0].lower(), [])
+
+            package = modname.split('.')[0]
+            if package != modname:
+                # it's a submodule!
+                if prev_modname == package:
+                    # first submodule - make parent a group head
+                    if entries:
+                        entries[-1][1] = 1
+                elif not prev_modname.startswith(package):
+                    # submodule without parent in list, add dummy entry
+                    entries.append([stripped + package, 1, '', '', '', '', ''])
+                subtype = 2
+            else:
+                num_toplevels += 1
+                subtype = 0
+
+            qualifier = deprecated and _('Deprecated') or ''
+            entries.append([stripped + modname, subtype, docname,
+                            'module-' + stripped + modname, platforms,
+                            qualifier, synopsis])
+            prev_modname = modname
+
+        # apply heuristics when to collapse modindex at page load: only
+        # collapse if number of toplevel modules is larger than number of
+        # submodules
+        collapse = len(modules) - num_toplevels < num_toplevels
+
+        # sort by first leter
+        content = sorted(iteritems(content))
+
+        return content, collapse
+
+
 class ChapelDomain(Domain):
     """Chapel language domain."""
 
@@ -625,6 +701,10 @@ class ChapelDomain(Domain):
         'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
     }
+
+    indices = [
+        ChapelModuleIndex,
+    ]
 
     def clear_doc(self, docname):
         """Remove the data associated with this instance of the domain."""
@@ -796,4 +876,5 @@ class ChapelDomain(Domain):
 
 def setup(app):
     """Add Chapel domain to Sphinx app."""
+    app.add_config_value('chapeldomain_modindex_common_prefix', [], 'html')
     app.add_domain(ChapelDomain)
