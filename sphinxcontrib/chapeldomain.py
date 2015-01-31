@@ -728,12 +728,12 @@ class ChapelDomain(Domain):
     }
 
     initial_data = {
-        'objects': {},  # fullname -> docname, objtype
-        'modules': {},  # modname -> docname, synopsis, platform, deprecated
-        'labels': {     # labelname -> docname, labelid, sectionname
+        'objects': {},   # fullname -> docname, objtype
+        'modules': {},   # modname -> docname, synopsis, platform, deprecated
+        'labels': {      # labelname -> docname, labelid, sectionname
             'chplmodindex': ('chpl-modindex', '', l_('Chapel Module Index')),
         },
-        'anonlabels': { # labelname -> docname, labelid
+        'anonlabels': {  # labelname -> docname, labelid
             'chplmodindex': ('chpl-modindex', ''),
         },
     }
@@ -744,16 +744,16 @@ class ChapelDomain(Domain):
 
     def clear_doc(self, docname):
         """Remove the data associated with this instance of the domain."""
-        for fullname, (fn, _) in self.data['objects'].items():
+        for fullname, (fn, x) in self.data['objects'].items():
             if fn == docname:
                 del self.data['objects'][fullname]
-        for modname, (fn, _, _, _) in self.data['modules'].items():
+        for modname, (fn, x, x, x) in self.data['modules'].items():
             if fn == docname:
                 del self.data['modules'][modname]
-        for labelname, (fn, _, _) in self.data['labels'].items():
+        for labelname, (fn, x, x) in self.data['labels'].items():
             if fn == docname:
                 del self.data['labels'][labelname]
-        for anonlabelname, (fn, _) in self.data['anonlabels'].items():
+        for anonlabelname, (fn, x) in self.data['anonlabels'].items():
             if fn == docname:
                 del self.data['anonlabels'][anonlabelname]
 
@@ -827,17 +827,20 @@ class ChapelDomain(Domain):
             if node['refexplicit']:
                 # Reference to anonymous label. The reference uses the supplied
                 # link caption.
-                docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+                docname, labelid = self.data['anonlabels'].get(
+                    target, ('', ''))
                 sectname = node.astext()
             else:
                 # Reference to named label. The final node will contain the
                 # section name after the label.
-                docname, labelid, sectname = self.data['labels'].get(target, ('', '', ''))
+                docname, labelid, sectname = self.data['labels'].get(
+                    target, ('', '', ''))
 
             if not docname:
                 return None
 
-            return self._make_refnode(fromdocname, builder, docname, labelid, sectname, contnode)
+            return self._make_refnode(
+                fromdocname, builder, docname, labelid, sectname, contnode)
 
         modname = node.get('chpl:module')
         clsname = node.get('chpl:class')
@@ -886,7 +889,8 @@ class ChapelDomain(Domain):
 
         return results
 
-    def _make_refnode(self, fromdocname, builder, docname, labelid, sectname, contnode, **kwargs):
+    def _make_refnode(self, fromdocname, builder, docname, labelid, sectname,
+                      contnode, **kwargs):
         """Return reference node for something like ``:chpl:chplref:``."""
         nodeclass = kwargs.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **kwargs)
