@@ -1,1 +1,3 @@
+docutils
+six
 Sphinx>=1.0

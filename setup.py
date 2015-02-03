@@ -42,6 +42,8 @@ setup(
     packages=find_packages(exclude=('test',)),
     include_package_data=True,
     install_requires=[
+        'docutils',
+        'six',
         'Sphinx>=1.0',
     ],
     namespace_packages=['sphinxcontrib']
