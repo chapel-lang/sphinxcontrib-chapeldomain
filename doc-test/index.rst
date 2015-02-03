@@ -19,8 +19,15 @@ Module 'Foo'
    BitOps
    Vector
    Containers
+   foo
+
+**Does it work???**
+
+* :chpl:chplref:`chplmodindex`
 
 .. default-domain:: chpl
+
+* :chplref:`Stuff... <chplmodindex>`
 
 .. data:: const constTest
 
@@ -98,4 +105,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

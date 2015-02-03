@@ -18,10 +18,11 @@ import re
 
 from docutils import nodes
 from docutils.parsers.rst import directives
+from six import iteritems
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType
+from sphinx.domains import Domain, Index, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
 from sphinx.util.compat import Directive
@@ -29,7 +30,7 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -572,6 +573,110 @@ class ChapelXRefRole(XRefRole):
         return title, target
 
 
+class ChapelModuleIndex(Index):
+    """Provides Chapel module index based on chpl:module."""
+
+    name = 'modindex'
+    localname = l_('Chapel Module Index')
+    shortname = l_('modules')
+
+    def generate(self, docnames=None):
+        """Returns entries for index given by ``name``. If ``docnames`` is given,
+        restrict to entries referring to these docnames.
+
+        Retunrs tuple of ``(content, collapse)``. ``collapse`` is bool. When
+        True, sub-entries should start collapsed for output formats that
+        support collapsing.
+
+        ``content`` is a sequence of ``(letter, entries)`` tuples. ``letter``
+        is the "heading" for the given ``entries``, in this case the starting
+        letter.
+
+        ``entries`` is a sequence of single entries, where a single entry is a
+        sequence ``[name, subtype, docname, anchor, extra, qualifier,
+        description]``. These items are:
+
+        * ``name`` - name of the index entry to be displayed
+        * ``subtype`` - sub-entry related type:
+
+          * 0 - normal entry
+          * 1 - entry with sub-entries
+          * 2 - sub-entry
+
+        * ``docname`` - docname where the entry is located
+        * ``anchor`` - anchor for the entry within docname
+        * ``extra`` - extra info for the entry
+        * ``qualifier`` - qualifier for the description
+        * ``description`` - description for the entry
+
+        Qualifier and description are not rendered in some output formats.
+        """
+        content = {}
+
+        # list of prefixes to ignore
+        ignores = self.domain.env.config['chapeldomain_modindex_common_prefix']
+        ignores = sorted(ignores, key=len, reverse=True)
+
+        # list of all modules, sorted by module name
+        modules = sorted(iteritems(self.domain.data['modules']),
+                         key=lambda x: x[0].lower())
+
+        # sort out collapsible modules
+        prev_modname = ''
+        num_toplevels = 0
+        for modname, (docname, synopsis, platforms, deprecated) in modules:
+            # If given a list of docnames and current docname is not in it,
+            # skip this docname for the index.
+            if docnames and docname not in docnames:
+                continue
+
+            for ignore in ignores:
+                if modname.startswith(ignore):
+                    modname = modname[len(ignore):]
+                    stripped = ignore
+                    break
+            else:
+                stripped = ''
+
+            # we stripped the whole module name?
+            if not modname:
+                modname, stripped = stripped, ''
+
+            # Put the module in correct bucket (first letter).
+            entries = content.setdefault(modname[0].lower(), [])
+
+            package = modname.split('.')[0]
+            if package != modname:
+                # it's a submodule!
+                if prev_modname == package:
+                    # first submodule - make parent a group head
+                    if entries:
+                        entries[-1][1] = 1
+                elif not prev_modname.startswith(package):
+                    # submodule without parent in list, add dummy entry
+                    entries.append([stripped + package, 1, '', '', '', '', ''])
+                subtype = 2
+            else:
+                num_toplevels += 1
+                subtype = 0
+
+            qualifier = deprecated and _('Deprecated') or ''
+            entries.append([stripped + modname, subtype, docname,
+                            'module-' + stripped + modname, platforms,
+                            qualifier, synopsis])
+            prev_modname = modname
+
+        # apply heuristics when to collapse modindex at page load: only
+        # collapse if number of toplevel modules is larger than number of
+        # submodules
+        collapse = len(modules) - num_toplevels < num_toplevels
+
+        # sort by first leter
+        content = sorted(iteritems(content))
+
+        return content, collapse
+
+
 class ChapelDomain(Domain):
     """Chapel language domain."""
 
@@ -619,12 +724,23 @@ class ChapelDomain(Domain):
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),
+        'chplref': ChapelXRefRole(),
     }
 
     initial_data = {
-        'objects': {},  # fullname -> docname, objtype
-        'modules': {},  # modname -> docname, synopsis, platform, deprecated
+        'objects': {},   # fullname -> docname, objtype
+        'modules': {},   # modname -> docname, synopsis, platform, deprecated
+        'labels': {      # labelname -> docname, labelid, sectionname
+            'chplmodindex': ('chpl-modindex', '', l_('Chapel Module Index')),
+        },
+        'anonlabels': {  # labelname -> docname, labelid
+            'chplmodindex': ('chpl-modindex', ''),
+        },
     }
+
+    indices = [
+        ChapelModuleIndex,
+    ]
 
     def clear_doc(self, docname):
         """Remove the data associated with this instance of the domain."""
@@ -634,6 +750,12 @@ class ChapelDomain(Domain):
         for modname, (fn, x, x, x) in self.data['modules'].items():
             if fn == docname:
                 del self.data['modules'][modname]
+        for labelname, (fn, x, x) in self.data['labels'].items():
+            if fn == docname:
+                del self.data['labels'][labelname]
+        for anonlabelname, (fn, x) in self.data['anonlabels'].items():
+            if fn == docname:
+                del self.data['anonlabels'][anonlabelname]
 
     def find_obj(self, env, modname, classname, name, type_name, searchmode=0):
         """Find a Chapel object for "name", possibly with module or class/record
@@ -700,6 +822,26 @@ class ChapelDomain(Domain):
         None if xref node can not be resolved. If xref can be resolved, returns
         new node containing the *contnode*.
         """
+        # Special case the :chpl:chplref:`chplmodindex` instances.
+        if type_name == 'chplref':
+            if node['refexplicit']:
+                # Reference to anonymous label. The reference uses the supplied
+                # link caption.
+                docname, labelid = self.data['anonlabels'].get(
+                    target, ('', ''))
+                sectname = node.astext()
+            else:
+                # Reference to named label. The final node will contain the
+                # section name after the label.
+                docname, labelid, sectname = self.data['labels'].get(
+                    target, ('', '', ''))
+
+            if not docname:
+                return None
+
+            return self._make_refnode(
+                fromdocname, builder, docname, labelid, sectname, contnode)
+
         modname = node.get('chpl:module')
         clsname = node.get('chpl:class')
         searchmode = 1 if node.hasattr('refspecific') else 0
@@ -747,6 +889,26 @@ class ChapelDomain(Domain):
 
         return results
 
+    def _make_refnode(self, fromdocname, builder, docname, labelid, sectname,
+                      contnode, **kwargs):
+        """Return reference node for something like ``:chpl:chplref:``."""
+        nodeclass = kwargs.pop('nodeclass', nodes.reference)
+        newnode = nodeclass('', '', internal=True, **kwargs)
+        innernode = nodes.emphasis(sectname, sectname)
+        if docname == fromdocname:
+            newnode['refid'] = labelid
+        else:
+            # Set more info on contnode. In case the get_relative_uri call
+            # raises NoUri, the builder will then have to resolve these.
+            contnode = addnodes.pending_xref('')
+            contnode['refdocname'] = docname
+            contnode['refsectname'] = sectname
+            newnode['refuri'] = builder.get_relative_uri(fromdocname, docname)
+            if labelid:
+                newnode['refuri'] += '#' + labelid
+        newnode.append(innernode)
+        return newnode
+
     def _make_module_refnode(self, builder, fromdocname, name, contnode):
         """Helper function to generate new xref node based on
         current environment.
@@ -773,6 +935,12 @@ class ChapelDomain(Domain):
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
                 self.data['modules'][modname] = data
+        for labelname, data in otherdata['labels'].items():
+            if data[0] in docnames:
+                self.data['labels'][labelname] = data
+        for anonlabelname, data in otherdata['anonlabels'].items():
+            if data[0] in docnames:
+                self.data['anonlabels'][anonlabelname] = data
 
     def get_objects(self):
         """Return iterable of "object descriptions", which are tuple with these items:
@@ -796,4 +964,5 @@ class ChapelDomain(Domain):
 
 def setup(app):
     """Add Chapel domain to Sphinx app."""
+    app.add_config_value('chapeldomain_modindex_common_prefix', [], 'html')
     app.add_domain(ChapelDomain)

@@ -314,6 +314,26 @@ a matching identifier is found:
 
     Reference a data attribute (const, var, param, generic type) of an object.
 
+.. role:: chpl:chplref
+
+    Special Chapel reference, which acts just like ``:ref:``. Used to
+    cross-reference the "Chapel Module Index". For example::
+
+        * :chpl:chplref:`chplmodindex`
+        * :chpl:chplref:`The module index <chplmodindex>`
+
+        Or, with the default-domain or primary_domain set to chpl:
+
+        For example, see all modules in the :chplref:`chplmodindex`.
+
+    .. versionadded:: 0.0.3
+
+    .. warning::
+
+        ``chplmodindex`` is a special name, like ``modindex``, ``genindex``,
+        and ``search``. Do not create documents named ``chplmodindex``, as it
+        will cause problems.
+
 .. _chapel-xref-content:
 
 Cross-reference Contents
@@ -376,3 +396,21 @@ Note that you can combine the ``~`` and ``.``
 prefixes. ``:chpl:meth:`~.channel.read``` will reference the
 ``IO.channel.read()`` method, but the visible link caption will only be
 ``read``.
+
+Sphinx Configuration
+--------------------
+
+This section lists additional configuration values that are added to the "build
+configuration file", i.e. ``conf.py``, when using the Chapel domain.
+
+.. This is py:data because that works and looks ok. It's not really python
+   module data.
+.. py:data:: chapeldomain_modindex_common_prefix
+
+    A list of prefixes that are ignored for sorting the Chapel module index
+    (e.g. if this is set to ``['foo.']``, then ``foo.bar`` module is shown
+    under ``B``, instead of ``F``). This is useful when documenting a project
+    that consists of a single package. Currently only works for the HTML
+    builder. Default is ``[]``.
+
+    .. versionadded:: 0.0.3
