@@ -76,9 +76,15 @@ class ChapelObject(ObjectDescription):
     }
 
     doc_field_types = [
-        TypedField('parameter', label=l_('Parameters'),
+        TypedField('parameter', label=l_('Arguments'),
                    names=('param', 'parameter', 'arg', 'argument'),
-                   typerolename='obj', typenames=('paramtype', 'type'),
+
+                   # FIXME: Use role name here that exists and is general
+                   #        enough to reference anything... Maybe something
+                   #        like 'class'? (thomasvandoren, 2015-02-04)
+                   typerolename='obj',
+
+                   typenames=('paramtype', 'type'),
                    can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
