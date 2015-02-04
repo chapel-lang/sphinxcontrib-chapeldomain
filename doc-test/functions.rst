@@ -10,14 +10,14 @@ Chapel Functions
 .. function:: noParens
 
     A function without parenthesis. What is the world coming to?
-    :chpl:func:`sendIt`. See also :chpl:func:`noParensRet`.
+    :chpl:proc:`sendIt`. See also :chpl:proc:`noParensRet`.
 
     :returns: something really, really interesting... jk
 
 .. function:: noParensRet: int
 
     A function without parenthesis with a return type. See also
-    :chpl:func:`noParens`...
+    :chpl:proc:`noParens`...
 
     :rtype: int
     :returns: integer value with invoking function (e.g. just call
@@ -25,19 +25,19 @@ Chapel Functions
 
 .. function:: send()
 
-    Send something... blah blah :chpl:func:`messageId`. blah blah
-    :chpl:func:`noParens`
+    Send something... blah blah :chpl:proc:`messageId`. blah blah
+    :chpl:proc:`noParens`
 
 .. function:: sendIt()
 
-    Send it. See :chpl:func:`send` and :chpl:func:`sendItAgain`.
+    Send it. See :chpl:proc:`send` and :chpl:proc:`sendItAgain`.
 
     :returns: it
     :rtype: Message
 
 .. function:: sendItAgain(): Message
 
-    Send it. See :chpl:func:`sendMessage`...
+    Send it. See :chpl:proc:`sendMessage`...
 
     :returns: it
     :rtype: Message
@@ -52,21 +52,21 @@ Chapel Functions
 
 .. function:: takeAType(type someType)
 
-    Takes a generic type of some sort... see also :chpl:func:`returnRef`.
+    Takes a generic type of some sort... see also :chpl:proc:`returnRef`.
 
     :arg type someType: the generic type
     :returns: new instance of someType
 
 .. function:: returnRef() ref
 
-    Returns reference to some value. See also :chpl:func:`takeAType`.
+    Returns reference to some value. See also :chpl:proc:`takeAType`.
 
     :returns: reference to known value
     :rtype: MyType
 
 .. function:: sendMessage(sender, recipient, message_body, [priority=1])
 
-    Send a message to a recipient. ... :chpl:func:`sendMessageFullyTyped` ...
+    Send a message to a recipient. ... :chpl:proc:`sendMessageFullyTyped` ...
 
     :arg string sender: The person sending the message
     :arg string recipient: The recipient of the message
@@ -78,7 +78,7 @@ Chapel Functions
 
 .. function:: sendMessageFullyTyped(sender: string, recipient: string, message_body: string, [priority: int=1]): int
 
-    Send a message to a recipient... see also :chpl:func:`sendMessage`
+    Send a message to a recipient... see also :chpl:proc:`sendMessage`
 
     :arg string sender: The person sending the message
     :arg string recipient: The recipient of the message
@@ -91,8 +91,8 @@ Chapel Functions
 .. iterfunction:: fib(n)
 
     Iterate through first ``n`` Fibonacci numbers. Can xref me with
-    ``:chpl:iter:``? :chpl:iter:`fib` ? How about ``:chpl:func:``?
-    :chpl:func:`fib` ? And ``:chpl:proc:``? :chpl:proc:`fib` ?
+    ``:chpl:iter:``? :chpl:iter:`fib` ? How about ``:chpl:proc:``?
+    :chpl:proc:`fib` ? And ``:chpl:proc:``? :chpl:proc:`fib` ?
 
     :arg int n: Number of Fibonacci numbers to return.
     :ytype: int
