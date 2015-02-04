@@ -31,6 +31,10 @@ Chapel classes
         One dimensional array that stores elements of vector. See also
         :chpl:attr:`ChplVector.dom`.
 
+    .. attribute:: var lock$: sync bool
+
+        Instance lock that ensures certain operations are serialized.
+
     .. method:: ChplVector(type eltType, cap=4, offset=0)
 
         Initialize new generic ChplVector of type eltType. See

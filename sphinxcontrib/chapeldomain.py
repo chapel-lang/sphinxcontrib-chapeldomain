@@ -30,7 +30,7 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.3'
+VERSION = '0.0.4'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -38,8 +38,8 @@ chpl_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*                   # optional: prefixes
            (?:proc|iter|class|record)\s+ #   must end with keyword
           )?
-          ([\w.]*\.)?                    # class name(s)
-          ([\w\+\-/\*]+)  \s*            # function or method name
+          ([\w$.]*\.)?                   # class name(s)
+          ([\w\+\-/\*$]+)  \s*           # function or method name
           (?:\((.*?)\))?                 # optional: arguments
           (?:\s* [:\s] \s* (.*))?        #   or return type or ref intent
           $""", re.VERBOSE)
@@ -47,8 +47,8 @@ chpl_sig_pattern = re.compile(
 # regex for parsing attribute and data directives.
 chpl_attr_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*)?      # optional: prefixes
-          ([\w.]*\.)?         # class name(s)
-          (\w+) \s*           # const, var, param, etc name
+          ([\w$.]*\.)?        # class name(s)
+          ([\w$]+) \s*        # const, var, param, etc name
           (?:\s* : \s* (.*))? # optional: type
           $""", re.VERBOSE)
 
