@@ -485,6 +485,8 @@ class SigPatternTests(PatternTestCase):
             ('these() ref', None, None, 'these', '', 'ref'),
             ('size', None, None, 'size', None, None),
             ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', 'Containers.Vector'),
+            ('proc MyClass$.lock$(combo$): sync bool', 'proc ', 'MyClass$.', 'lock$', 'combo$', 'sync bool'),
+            ('proc MyClass$.lock$(combo$): sync myBool$', 'proc ', 'MyClass$.', 'lock$', 'combo$', 'sync myBool$'),
         ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
@@ -574,6 +576,9 @@ class AttrSigPatternTests(PatternTestCase):
             ('var X.n: MyMod.MyClass', 'var ', 'X.', 'n', 'MyMod.MyClass'),
             ('config param debugAdvancedIters:bool', 'config param ', None, 'debugAdvancedIters', 'bool'),
             ('config param MyMod.DEBUG: bool', 'config param ', 'MyMod.', 'DEBUG', 'bool'),
+            ('var RandomStreamPrivate_lock$: _syncvar(bool)', 'var ', None, 'RandomStreamPrivate_lock$', '_syncvar(bool)'),
+            ('var RandomStreamPrivate_lock$: sync bool', 'var ', None, 'RandomStreamPrivate_lock$', 'sync bool'),
+            ('const RS$.lock$: sync MyMod$.MyClass$.bool', 'const ', 'RS$.', 'lock$', 'sync MyMod$.MyClass$.bool'),
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)
