@@ -51,7 +51,7 @@ The following directives are provided for module and class contents.
 .. directive:: .. chpl:function:: signature
 
     Describes a module-level function. The signature should include the
-    parameters as given in the Chapel definition. See :ref:`signatures` for
+    arguments as given in the Chapel definition. See :ref:`signatures` for
     details.
 
     For example::
@@ -62,9 +62,8 @@ The following directives are provided for module and class contents.
     iterators, see :rst:dir:`chpl:method` and :rst:dir:`chpl:itermethod`
     respectively.
 
-    The description normally includes information about the parameters
-    required, how they are used, side effects, return type, and return
-    description.
+    The description normally includes information about the arguments required,
+    how they are used, side effects, return type, and return description.
 
     This information can (in any ``chpl`` directive) optionally be given in a
     structured form, see :ref:`info-field-lists`.
@@ -120,7 +119,7 @@ For example, this would document a module with a ``proc`` and an ``iter``::
 .. directive:: .. chpl:class:: signature
 
     Describe a class. The signature can optionally include parentheses with
-    parameters which will be shown as the constructor arguments. See also
+    arguments which will be shown as the constructor arguments. See also
     :ref:`signatures`.
 
     Methods and attributes belonging to the class should be placed in this
