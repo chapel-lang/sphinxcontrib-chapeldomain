@@ -51,7 +51,7 @@ The following directives are provided for module and class contents.
 .. directive:: .. chpl:function:: signature
 
     Describes a module-level function. The signature should include the
-    parameters as given in the Chapel definition. See :ref:`signatures` for
+    arguments as given in the Chapel definition. See :ref:`signatures` for
     details.
 
     For example::
@@ -62,9 +62,8 @@ The following directives are provided for module and class contents.
     iterators, see :rst:dir:`chpl:method` and :rst:dir:`chpl:itermethod`
     respectively.
 
-    The description normally includes information about the parameters
-    required, how they are used, side effects, return type, and return
-    description.
+    The description normally includes information about the arguments required,
+    how they are used, side effects, return type, and return description.
 
     This information can (in any ``chpl`` directive) optionally be given in a
     structured form, see :ref:`info-field-lists`.
@@ -94,7 +93,7 @@ For example, this would document a module with a ``proc`` and an ``iter``::
         Yield fibonacci numbers infinitely. It is up to caller to break
         iteration.
 
-        Often called with :chpl:func:`zip` to track current number. For
+        Often called with :chpl:proc:`zip` to track current number. For
         example:
 
         .. code-block:: chapel
@@ -120,7 +119,7 @@ For example, this would document a module with a ``proc`` and an ``iter``::
 .. directive:: .. chpl:class:: signature
 
     Describe a class. The signature can optionally include parentheses with
-    parameters which will be shown as the constructor arguments. See also
+    arguments which will be shown as the constructor arguments. See also
     :ref:`signatures`.
 
     Methods and attributes belonging to the class should be placed in this
@@ -283,11 +282,18 @@ a matching identifier is found:
     Reference a module; a dotted name may be used. See :ref:`Cross-reference
     Contents <chapel-xref-content>` for details on dotted and non-dotted names.
 
-.. role:: chpl:func
+.. role:: chpl:proc
           chpl:iter
 
-    Reference a Chapel function or iterator; dotted names may be used. The role
-    text needs not include trailing parentheses to enhance readability.
+    Reference a Chapel function or iterator. The role text needs not include
+    trailing parentheses to enhance readability.
+
+    These can also be used to reference a method or iterator on an object
+    (class or record instance). The role text can include the type name and the
+    method, in those cases. If it occurs within the description of a type, the
+    type name can be omitted.
+
+    Dotted names may be used for any form.
 
 .. role:: chpl:data
           chpl:const
@@ -301,14 +307,6 @@ a matching identifier is found:
           chpl:record
 
     Reference a class or record; a dotted name may be used.
-
-.. role:: chpl:meth
-          chpl:iter
-
-    Reference a method or iterator of an object (class or record). The role
-    text can include the type name and the method name. If it occurs within the
-    description of a type, the type name can be omitted. A dotted name may be
-    used.
 
 .. role:: chpl:attr
 
@@ -340,17 +338,17 @@ Cross-reference Contents
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The name enclosed in this markup can include a module name and/or a class or
-record name. For example, ``:chpl:func:`writeln``` could refer to a function
+record name. For example, ``:chpl:proc:`writeln``` could refer to a function
 named ``writeln`` in the current module, or the built-in function of that
-name. In contrast, ``:chpl:func:`Foo.writeln``` clearly refers to the
+name. In contrast, ``:chpl:proc:`Foo.writeln``` clearly refers to the
 ``writeln`` function in the ``Foo`` module.
 
 Normally, names in these roles are searched first without any further
 qualification, then with the current module name prepended, then with the
 current module and class name (if any) prepended. If you prefix the name with a
 dot, this order is reserved. For example, in the documentation of the ``IO``
-module, ``:chpl:func:`writeln``` always refers to the built-in function, while
-``:chpl:func:`.writeln``` refers to ``IO.writeln``.
+module, ``:chpl:proc:`writeln``` always refers to the built-in function, while
+``:chpl:proc:`.writeln``` refers to ``IO.writeln``.
 
 For example, here is a description with both a non-dotted and a dotted
 cross-reference::
@@ -362,8 +360,8 @@ cross-reference::
         .. method:: read()
 
             Description...
-            example 1 --> :chpl:func:`writeln`
-            example 2 --> :chpl:func:`.writeln`
+            example 1 --> :chpl:proc:`writeln`
+            example 2 --> :chpl:proc:`.writeln`
 
 Example 1 will search for ``writeln`` cross-reference in this order:
 
