@@ -801,8 +801,8 @@ class ChapelDomain(Domain):
                         # "Fuzzy" search mode.
                         searchname = '.' + name
                         matches = [(oname, objects[oname]) for oname in objects
-                                   if oname.endswith(searchname)
-                                   and objects[oname][1] in objtypes]
+                                   if oname.endswith(searchname) and
+                                   objects[oname][1] in objtypes]
         else:
             # NOTE: Search for exact match, object type is not considered.
             if name in objects:
