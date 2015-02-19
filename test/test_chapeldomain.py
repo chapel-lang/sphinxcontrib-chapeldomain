@@ -487,6 +487,9 @@ class SigPatternTests(PatternTestCase):
             ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', 'Containers.Vector'),
             ('proc MyClass$.lock$(combo$): sync bool', 'proc ', 'MyClass$.', 'lock$', 'combo$', 'sync bool'),
             ('proc MyClass$.lock$(combo$): sync myBool$', 'proc ', 'MyClass$.', 'lock$', 'combo$', 'sync myBool$'),
+            ('proc MyRs(seed: int(64)): int(64)', 'proc ', None, 'MyRs', 'seed: int(64)', 'int(64)'),
+            ('proc RandomStream(seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true)',
+             'proc ', None, 'RandomStream', 'seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true', None),
         ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
