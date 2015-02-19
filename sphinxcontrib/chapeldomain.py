@@ -41,26 +41,27 @@ chpl_sig_pattern = re.compile(
           ([\w$.]*\.)?                   # class name(s)
           ([\w\+\-/\*$]+)  \s*           # function or method name
           (?:\((.*?)\))?                 # optional: arguments
-          (?:\s* [:\s] \s* (.*))?        #   or return type or ref intent
+          (\s* : \s* [^:]+|              #   or return type
+           \s+ \w+                       #   or ref intent
+          )?
           $""", re.VERBOSE)
 
 # regex for parsing attribute and data directives.
 chpl_attr_sig_pattern = re.compile(
-    r"""^ ((?:\w+\s+)*)?      # optional: prefixes
-          ([\w$.]*\.)?        # class name(s)
-          ([\w$]+) \s*        # const, var, param, etc name
-          (?:\s* : \s* (.*))? # optional: type
+    r"""^ ((?:\w+\s+)*)?          # optional: prefixes
+          ([\w$.]*\.)?            # class name(s)
+          ([\w$]+) \s*            # const, var, param, etc name
+          (?:\s* : \s* ([^:]+))?  # optional: type
           $""", re.VERBOSE)
 
 
-# FIXME: This might be needed to support something other than the -> for return
-#        annotations. This would replace instances of addnodes.desc_returns, if
-#        needed/used. (thomasvandoren, 2015-01-20)
-#
-# class chapel_desc_returns(addnodes.desc_returns):
+# This would be the ideal way to create a chapelerific desc_returns similar to
+# addnodes.desc_returns. However, due to some update issue, the
+# nodes._add_node_class_names() call does not seem to make chapel_desc_returns
+# to the sphinx html write. So, we'll just use addnodes.desc_returns
+# directly. :-\ (thomasvandoren, 2015-02-19)
+# class chapel_desc_returns(addnodes.desc_type):
 #     """Node for a "returns" annotation."""
-#     def astext(self):
-#         return ' : ' + nodes.TextElement.astext(self)
 # nodes._add_node_class_names([chapel_desc_returns.__name__])
 
 
@@ -272,7 +273,7 @@ class ChapelObject(ObjectDescription):
         signode += addnodes.desc_name(name, name)
 
         if not arglist:
-            # If this needs and arglist, and parens were provided in the
+            # If this needs an arglist, and parens were provided in the
             # signature, add a parameterlist. Chapel supports paren-less
             # functions and methods, which can act as computed properties. If
             # arglist is the empty string, the signature included parens. If
@@ -281,14 +282,14 @@ class ChapelObject(ObjectDescription):
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if retann:
-                signode += addnodes.desc_returns(retann, retann)
+                signode += addnodes.desc_type(retann, retann)
             if anno:
                 signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
         if retann:
-            signode += addnodes.desc_returns(retann, retann)
+            signode += addnodes.desc_type(retann, retann)
         if anno:
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
         return fullname, name_prefix
