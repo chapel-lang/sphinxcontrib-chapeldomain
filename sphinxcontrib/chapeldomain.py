@@ -50,8 +50,8 @@ chpl_sig_pattern = re.compile(
 chpl_attr_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*)?          # optional: prefixes
           ([\w$.]*\.)?            # class name(s)
-          ([\w$]+) \s*            # const, var, param, etc name
-          (?:\s* : \s* ([^:]+))?  # optional: type
+          ([\w$]+)                # const, var, param, etc name
+          (\s* : \s* [^:]+)?      # optional: type
           $""", re.VERBOSE)
 
 

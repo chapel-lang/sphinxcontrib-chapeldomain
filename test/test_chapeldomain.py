@@ -565,12 +565,13 @@ class AttrSigPatternTests(PatternTestCase):
     def test_with_types(self):
         """Verify types parse correctly."""
         test_cases = [
-            ('foo: int', 'foo', 'int'),
-            ('bar: real', 'bar', 'real'),
-            ('baz: int(32)', 'baz', 'int(32)'),
-            ('D: domain(9)', 'D', 'domain(9)'),
-            ('A: [{1..n}] BigNum', 'A', '[{1..n}] BigNum'),
-            ('x: MyModule.MyClass', 'x', 'MyModule.MyClass'),
+            ('foo: int', 'foo', ': int'),
+            ('bar: real', 'bar', ': real'),
+            ('baz: int(32)', 'baz', ': int(32)'),
+            ('D: domain(9)', 'D', ': domain(9)'),
+            ('A: [{1..n}] BigNum', 'A', ': [{1..n}] BigNum'),
+            ('x: MyModule.MyClass', 'x', ': MyModule.MyClass'),
+            ('x  :  sync real', 'x', '  :  sync real'),
         ]
         for sig, attr, type_name in test_cases:
             self.check_sig(sig, '', None, attr, type_name)
@@ -578,13 +579,13 @@ class AttrSigPatternTests(PatternTestCase):
     def test_with_all(self):
         """Verify full specified signatures parse correctly."""
         test_cases = [
-            ('config const MyModule.MyClass.n: int', 'config const ', 'MyModule.MyClass.', 'n', 'int'),
-            ('var X.n: MyMod.MyClass', 'var ', 'X.', 'n', 'MyMod.MyClass'),
-            ('config param debugAdvancedIters:bool', 'config param ', None, 'debugAdvancedIters', 'bool'),
-            ('config param MyMod.DEBUG: bool', 'config param ', 'MyMod.', 'DEBUG', 'bool'),
-            ('var RandomStreamPrivate_lock$: _syncvar(bool)', 'var ', None, 'RandomStreamPrivate_lock$', '_syncvar(bool)'),
-            ('var RandomStreamPrivate_lock$: sync bool', 'var ', None, 'RandomStreamPrivate_lock$', 'sync bool'),
-            ('const RS$.lock$: sync MyMod$.MyClass$.bool', 'const ', 'RS$.', 'lock$', 'sync MyMod$.MyClass$.bool'),
+            ('config const MyModule.MyClass.n: int', 'config const ', 'MyModule.MyClass.', 'n', ': int'),
+            ('var X.n: MyMod.MyClass', 'var ', 'X.', 'n', ': MyMod.MyClass'),
+            ('config param debugAdvancedIters:bool', 'config param ', None, 'debugAdvancedIters', ':bool'),
+            ('config param MyMod.DEBUG: bool', 'config param ', 'MyMod.', 'DEBUG', ': bool'),
+            ('var RandomStreamPrivate_lock$: _syncvar(bool)', 'var ', None, 'RandomStreamPrivate_lock$', ': _syncvar(bool)'),
+            ('var RandomStreamPrivate_lock$: sync bool', 'var ', None, 'RandomStreamPrivate_lock$', ': sync bool'),
+            ('const RS$.lock$: sync MyMod$.MyClass$.bool', 'const ', 'RS$.', 'lock$', ': sync MyMod$.MyClass$.bool'),
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)
