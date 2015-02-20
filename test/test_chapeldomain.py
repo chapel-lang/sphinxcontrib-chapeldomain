@@ -349,19 +349,22 @@ class PatternTestCase(unittest.TestCase):
 class SigPatternTests(PatternTestCase):
     """Verify chpl_sig_pattern regex."""
 
+    longMessage = True
     pattern = chpl_sig_pattern
 
     def check_sig(self, sig, func_prefix, name_prefix, name, arglist, retann):
         """Verify signature results in appropriate matches."""
+        fail_msg = 'sig: {0}'.format(sig)
+
         match = self.pattern.match(sig)
-        self.assertIsNotNone(match)
+        self.assertIsNotNone(match, msg=fail_msg)
 
         (actual_func_prefix, actual_name_prefix, actual_name, actual_arglist, actual_retann) = match.groups()
-        self.assertEqual(func_prefix, actual_func_prefix)
-        self.assertEqual(name_prefix, actual_name_prefix)
-        self.assertEqual(name, actual_name)
-        self.assertEqual(arglist, actual_arglist)
-        self.assertEqual(retann, actual_retann)
+        self.assertEqual(func_prefix, actual_func_prefix, msg=fail_msg)
+        self.assertEqual(name_prefix, actual_name_prefix, msg=fail_msg)
+        self.assertEqual(name, actual_name, msg=fail_msg)
+        self.assertEqual(arglist, actual_arglist, msg=fail_msg)
+        self.assertEqual(retann, actual_retann, msg=fail_msg)
 
     def test_does_not_match(self):
         """Verify various signatures that should not match."""
@@ -431,18 +434,18 @@ class SigPatternTests(PatternTestCase):
     def test_with_return_type(self):
         """Verify function signatures with return types parse correctly."""
         test_cases = [
-            ('x(): int', 'x', '', 'int'),
-            ('x(): MyMod.MyClass', 'x', '', 'MyMod.MyClass'),
-            ('x(): int(32)', 'x', '', 'int(32)'),
-            ('x():int(32)', 'x', '', 'int(32)'),
-            ('x(y:int(64)):int(32)', 'x', 'y:int(64)', 'int(32)'),
-            ('x(y:int(64), d: domain(r=2, i=int, s=true)): [{1..5}] real', 'x', 'y:int(64), d: domain(r=2, i=int, s=true)', '[{1..5}] real'),
-            ('x(): domain(1)', 'x', '', 'domain(1)'),
-            ('x(): [{1..n}] BigNum', 'x', '', '[{1..n}] BigNum'),
-            ('x(): nil', 'x', '', 'nil'),
-            ('x() ref', 'x', '', 'ref'),
-            ('x() const', 'x', '', 'const'),
-            ('x(ref x:int(32)) const', 'x', 'ref x:int(32)', 'const'),
+            ('x(): int', 'x', '', ': int'),
+            ('x(): MyMod.MyClass', 'x', '', ': MyMod.MyClass'),
+            ('x(): int(32)', 'x', '', ': int(32)'),
+            ('x():int(32)', 'x', '', ':int(32)'),
+            ('x(y:int(64)):int(32)', 'x', 'y:int(64)', ':int(32)'),
+            ('x(y:int(64), d: domain(r=2, i=int, s=true)): [{1..5}] real', 'x', 'y:int(64), d: domain(r=2, i=int, s=true)', ': [{1..5}] real'),
+            ('x(): domain(1)', 'x', '', ': domain(1)'),
+            ('x(): [{1..n}] BigNum', 'x', '', ': [{1..n}] BigNum'),
+            ('x(): nil', 'x', '', ': nil'),
+            ('x() ref', 'x', '', ' ref'),
+            ('x() const', 'x', '', ' const'),
+            ('x(ref x:int(32)) const', 'x', 'ref x:int(32)', ' const'),
         ]
         for sig, name, arglist, retann in test_cases:
             self.check_sig(sig, None, None, name, arglist, retann)
@@ -476,17 +479,20 @@ class SigPatternTests(PatternTestCase):
     def test_with_all(self):
         """Verify fully specified signatures parse correctly."""
         test_cases = [
-            ('proc foo() ref', 'proc ', None, 'foo', '', 'ref'),
-            ('iter foo() ref', 'iter ', None, 'foo', '', 'ref'),
-            ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', 'ref'),
+            ('proc foo() ref', 'proc ', None, 'foo', '', ' ref'),
+            ('iter foo() ref', 'iter ', None, 'foo', '', ' ref'),
+            ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', ' ref'),
             ('inline proc range.first', 'inline proc ', 'range.', 'first', None, None),
-            ('iter Math.fib(n: int(64)): GMP.BigInt', 'iter ', 'Math.', 'fib', 'n: int(64)', 'GMP.BigInt'),
+            ('iter Math.fib(n: int(64)): GMP.BigInt', 'iter ', 'Math.', 'fib', 'n: int(64)', ': GMP.BigInt'),
             ('proc My.Mod.With.Deep.NameSpace.1.2.3.432.foo()', 'proc ', 'My.Mod.With.Deep.NameSpace.1.2.3.432.', 'foo', '', None),
-            ('these() ref', None, None, 'these', '', 'ref'),
+            ('these() ref', None, None, 'these', '', ' ref'),
             ('size', None, None, 'size', None, None),
-            ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', 'Containers.Vector'),
-            ('proc MyClass$.lock$(combo$): sync bool', 'proc ', 'MyClass$.', 'lock$', 'combo$', 'sync bool'),
-            ('proc MyClass$.lock$(combo$): sync myBool$', 'proc ', 'MyClass$.', 'lock$', 'combo$', 'sync myBool$'),
+            ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', ': Containers.Vector'),
+            ('proc MyClass$.lock$(combo$): sync bool', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync bool'),
+            ('proc MyClass$.lock$(combo$): sync myBool$', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync myBool$'),
+            ('proc MyRs(seed: int(64)): int(64)', 'proc ', None, 'MyRs', 'seed: int(64)', ': int(64)'),
+            ('proc RandomStream(seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true)',
+             'proc ', None, 'RandomStream', 'seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true', None),
         ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
