@@ -30,7 +30,7 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.8'
+VERSION = '0.0.9'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -507,15 +507,17 @@ class ChapelModuleLevel(ChapelObject):
 
     @property
     def chpl_type_name(self):
-        """Returns iterator or procedure or '' depending on object type."""
-        if not self.objtype.endswith('function'):
+        """Returns type, iterator, or procedure or '' depending on
+        object type.
+        """
+        if self.objtype == 'type':
+            return 'type'
+        elif not self.objtype.endswith('function'):
             return ''
         elif self.objtype.startswith('iter'):
             return 'iterator'
         elif self.objtype == 'function':
             return 'procedure'
-        elif self.objtype == 'type':
-            return 'type'
         else:
             return ''
 
@@ -536,10 +538,13 @@ class ChapelModuleLevel(ChapelObject):
                 return _('%s() (built-in %s)') % \
                     (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype in ('data'):
+        elif self.objtype in ('data', 'type'):
             if not modname:
-                return _('%s (built-in variable)') % name_cls[0]
-            return _('%s() (in module %s)') % (name_cls[0], modname)
+                type_name = self.objtype
+                if type_name == 'data':
+                    type_name = 'variable'
+                return _('%s (built-in %s)') % (name_cls[0], type_name)
+            return _('%s (in module %s)') % (name_cls[0], modname)
         else:
             return ''
 

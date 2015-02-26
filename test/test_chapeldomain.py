@@ -13,7 +13,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:
     import unittest2 as unittest
 
 from sphinxcontrib.chapeldomain import (
-    ChapelDomain, ChapelModuleIndex, ChapelObject,
+    ChapelDomain, ChapelModuleIndex, ChapelModuleLevel, ChapelObject,
     chpl_sig_pattern, chpl_attr_sig_pattern,
 )
 
@@ -34,7 +34,7 @@ class ChapelModuleIndexTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Initalize sphinx locale stuff."""
-        super(cls, ChapelModuleIndexTests).setUpClass()
+        super(ChapelModuleIndexTests, cls).setUpClass()
         import sphinx.locale
         sphinx.locale.init([], 'en')
 
@@ -156,8 +156,17 @@ class ChapelModuleIndexTests(unittest.TestCase):
         self.assertEqual(expected_contents, contents)
 
 
-class ChapelObjectTests(unittest.TestCase):
-    """ChapelObject tests."""
+class ChapelObjectTestCase(unittest.TestCase):
+    """Helper for ChapelObject related tests."""
+
+    object_cls = ChapelObject
+
+    @classmethod
+    def setUpClass(cls):
+        """Initalize sphinx locale stuff."""
+        super(ChapelObjectTestCase, cls).setUpClass()
+        import sphinx.locale
+        sphinx.locale.init([], 'en')
 
     def new_obj(self, objtype, **kwargs):
         """Return new mocked out ChapelObject"""
@@ -173,9 +182,111 @@ class ChapelObjectTests(unittest.TestCase):
             'state_machine': mock.Mock('state_machine'),
         }
         default_args.update(kwargs)
-        o = ChapelObject(**default_args)
+        o = self.object_cls(**default_args)
         o.objtype = objtype
         return o
+
+
+class ChapelModuleLevelTests(ChapelObjectTestCase):
+    """ChapelModuleLevel tests."""
+
+    object_cls = ChapelModuleLevel
+
+    def test_get_index_text__function__no_mod(self):
+        """Verify get_index_text() for function without module."""
+        mod = self.new_obj('function')
+        expected_text = 'myProc() (built-in procedure)'
+        actual_text = mod.get_index_text(None, ('myProc',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__function__mod(self):
+        """Verify get_index_text() for function with module."""
+        mod = self.new_obj('function')
+        expected_text = 'myProc() (in module MyMod)'
+        actual_text = mod.get_index_text('MyMod', ('myProc',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__iter__no_mod(self):
+        """Verify get_index_text() for function without module."""
+        mod = self.new_obj('iterfunction')
+        expected_text = 'myProc() (built-in iterator)'
+        actual_text = mod.get_index_text(None, ('myProc',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__iter__mod(self):
+        """Verify get_index_text() for function with module."""
+        mod = self.new_obj('iterfunction')
+        expected_text = 'myProc() (in module MyMod)'
+        actual_text = mod.get_index_text('MyMod', ('myProc',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__data__no_mod(self):
+        """Verify get_index_text() for data without module."""
+        mod = self.new_obj('data')
+        expected_text = 'myThing (built-in variable)'
+        actual_text = mod.get_index_text(None, ('myThing',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__data__mod(self):
+        """Verify get_index_text() for data with module."""
+        mod = self.new_obj('data')
+        expected_text = 'myThing (in module MyMod)'
+        actual_text = mod.get_index_text('MyMod', ('myThing',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__type__no_mod(self):
+        """Verify get_index_text() for type without module."""
+        mod = self.new_obj('type')
+        expected_text = 'myType (built-in type)'
+        actual_text = mod.get_index_text(None, ('myType',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__type__mod(self):
+        """Verify get_index_text() for type with module."""
+        mod = self.new_obj('type')
+        expected_text = 'myType (in module MyMod)'
+        actual_text = mod.get_index_text('MyMod', ('myType',))
+        self.assertEqual(expected_text, actual_text)
+
+    def test_get_index_text__other(self):
+        """Verify get_index_text() returns empty string for object types other than
+        function, attribute, and type.
+        """
+        for objtype in ('other', 'attribute', 'class', 'module', 'method', 'itermethod'):
+            mod = self.new_obj(objtype)
+            self.assertEqual('', mod.get_index_text('MyMod', ('myThing',)))
+
+    def test_chpl_type_name(self):
+        """Verify chpl_type_name property for different objtypes."""
+        test_cases = [
+            ('function', 'procedure'),
+            ('iterfunction', 'iterator'),
+            ('type', 'type'),
+            ('data', ''),
+            ('method', ''),
+            ('itermethod', ''),
+        ]
+        for objtype, expected_type in test_cases:
+            mod = self.new_obj(objtype)
+            self.assertEqual(expected_type, mod.chpl_type_name)
+
+    def test_needs_arglist(self):
+        """Verify needs_arglist()."""
+        test_cases = [
+            ('function', True),
+            ('iterfunction', True),
+            ('type', False),
+            ('data', False),
+            ('method', False),
+            ('itermethod', False),
+        ]
+        for objtype, expected in test_cases:
+            mod = self.new_obj(objtype)
+            self.assertEqual(expected, mod.needs_arglist())
+
+
+class ChapelObjectTests(ChapelObjectTestCase):
+    """ChapelObject tests."""
 
     def test_init(self):
         """Verify ChapelObject can be initialized."""

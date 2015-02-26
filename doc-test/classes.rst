@@ -16,6 +16,14 @@ Chapel classes
     See also :chpl:record:`ChplBigNum`. The :chpl:iter:`these` iterator can be
     used to iterate over the elements of the vector.
 
+    .. attribute:: type eltType
+
+        Generic type for Vector elements.
+
+    .. type:: age = int(64)
+
+        Type alias for tracking age.
+
     .. attribute:: capacity
 
         Integer capacity of vector. See also... random
