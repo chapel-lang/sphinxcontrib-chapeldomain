@@ -270,6 +270,20 @@ class ChapelModuleLevelTests(ChapelObjectTestCase):
             mod = self.new_obj(objtype)
             self.assertEqual(expected_type, mod.chpl_type_name)
 
+    def test_needs_arglist(self):
+        """Verify needs_arglist()."""
+        test_cases = [
+            ('function', True),
+            ('iterfunction', True),
+            ('type', False),
+            ('data', False),
+            ('method', False),
+            ('itermethod', False),
+        ]
+        for objtype, expected in test_cases:
+            mod = self.new_obj(objtype)
+            self.assertEqual(expected, mod.needs_arglist())
+
 
 class ChapelObjectTests(ChapelObjectTestCase):
     """ChapelObject tests."""
