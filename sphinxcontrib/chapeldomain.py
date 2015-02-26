@@ -508,14 +508,14 @@ class ChapelModuleLevel(ChapelObject):
     @property
     def chpl_type_name(self):
         """Returns iterator or procedure or '' depending on object type."""
-        if not self.objtype.endswith('function'):
+        if self.objtype == 'type':
+            return 'type'
+        elif not self.objtype.endswith('function'):
             return ''
         elif self.objtype.startswith('iter'):
             return 'iterator'
         elif self.objtype == 'function':
             return 'procedure'
-        elif self.objtype == 'type':
-            return 'type'
         else:
             return ''
 
