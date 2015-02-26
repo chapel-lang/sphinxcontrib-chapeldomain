@@ -536,10 +536,13 @@ class ChapelModuleLevel(ChapelObject):
                 return _('%s() (built-in %s)') % \
                     (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype in ('data'):
+        elif self.objtype in ('data', 'type'):
             if not modname:
-                return _('%s (built-in variable)') % name_cls[0]
-            return _('%s() (in module %s)') % (name_cls[0], modname)
+                type_name = self.objtype
+                if type_name == 'data':
+                    type_name = 'variable'
+                return _('%s (built-in %s)') % (name_cls[0], type_name)
+            return _('%s (in module %s)') % (name_cls[0], modname)
         else:
             return ''
 
