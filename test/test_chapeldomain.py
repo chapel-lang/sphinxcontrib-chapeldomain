@@ -700,6 +700,10 @@ class AttrSigPatternTests(PatternTestCase):
             ('type commDiagnostics = chpl_commDiagnostics', 'type ', None, 'commDiagnostics', ' = chpl_commDiagnostics'),
             ('type age = int(64)', 'type ', None, 'age', ' = int(64)'),
             ('type MyMod.BigAge=BigNum.BigInt', 'type ', 'MyMod.', 'BigAge', '=BigNum.BigInt'),
+            ('const x = false', 'const ', None, 'x', ' = false'),
+            ('config const MyC.x: int(64) = 5', 'config const ', 'MyC.', 'x', ': int(64) = 5'),
+            ('config param n: uint(64) = 5: uint(64)', 'config param ', None, 'n', ': uint(64) = 5: uint(64)'),
+            ('var MyM.MyC.x = 4: uint(64)', 'var ', 'MyM.MyC.', 'x', ' = 4: uint(64)'),
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)
