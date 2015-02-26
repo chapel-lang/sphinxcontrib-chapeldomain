@@ -30,7 +30,7 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.7'
+VERSION = '0.0.8'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -51,7 +51,7 @@ chpl_attr_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*)?          # optional: prefixes
           ([\w$.]*\.)?            # class name(s)
           ([\w$]+)                # const, var, param, etc name
-          (\s* : \s* [^:]+)?      # optional: type
+          (\s* [:=] \s* [^:=]+)?  # optional: type
           $""", re.VERBOSE)
 
 
