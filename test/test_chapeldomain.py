@@ -586,6 +586,9 @@ class AttrSigPatternTests(PatternTestCase):
             ('var RandomStreamPrivate_lock$: _syncvar(bool)', 'var ', None, 'RandomStreamPrivate_lock$', ': _syncvar(bool)'),
             ('var RandomStreamPrivate_lock$: sync bool', 'var ', None, 'RandomStreamPrivate_lock$', ': sync bool'),
             ('const RS$.lock$: sync MyMod$.MyClass$.bool', 'const ', 'RS$.', 'lock$', ': sync MyMod$.MyClass$.bool'),
+            ('type commDiagnostics = chpl_commDiagnostics', 'type ', None, 'commDiagnostics', ' = chpl_commDiagnostics'),
+            ('type age = int(64)', 'type ', None, 'age', ' = int(64)'),
+            ('type MyMod.BigAge=BigNum.BigInt', 'type ', 'MyMod.', 'BigAge', '=BigNum.BigInt'),
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)
