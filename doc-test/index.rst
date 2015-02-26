@@ -47,11 +47,11 @@ Module 'Foo'
 
     Default is ``false``.
 
-.. data:: type T: domain(1, int(32), true)
+.. type:: type T = domain(1, int(32), true)
 
     Alias a particular domain to *T*. See also :chpl:type:`U`.
 
-.. type:: U
+.. type:: U = int(64)
 
     I can haz *U*?
 
