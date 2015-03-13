@@ -30,7 +30,7 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.9'
+VERSION = '0.0.10'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -51,7 +51,7 @@ chpl_attr_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*)?          # optional: prefixes
           ([\w$.]*\.)?            # class name(s)
           ([\w$]+)                # const, var, param, etc name
-          (\s* [:=] \s* .+)?      # optional: type
+          (\s* [:={] \s* .+)?     # optional: type, default value
           $""", re.VERBOSE)
 
 
@@ -177,7 +177,7 @@ class ChapelObject(ObjectDescription):
 
     def _is_attr_like(self):
         """Returns True when objtype is attribute or data."""
-        return self.objtype in ('attribute', 'data', 'type')
+        return self.objtype in ('attribute', 'data', 'type', 'enum')
 
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
@@ -538,7 +538,7 @@ class ChapelModuleLevel(ChapelObject):
                 return _('%s() (built-in %s)') % \
                     (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype in ('data', 'type'):
+        elif self.objtype in ('data', 'type', 'enum'):
             if not modname:
                 type_name = self.objtype
                 if type_name == 'data':
@@ -700,6 +700,7 @@ class ChapelDomain(Domain):
         'type': ObjType(l_('type'), 'type', 'data'),
         'function': ObjType(l_('function'), 'func', 'proc'),
         'iterfunction': ObjType(l_('iterfunction'), 'func', 'iter', 'proc'),
+        'enum': ObjType(l_('enum'), 'enum'),
         'class': ObjType(l_('class'), 'class'),
         'record': ObjType(l_('record'), 'record'),
         'method': ObjType(l_('method'), 'meth', 'proc'),
@@ -713,6 +714,13 @@ class ChapelDomain(Domain):
         'type': ChapelModuleLevel,
         'function': ChapelModuleLevel,
         'iterfunction': ChapelModuleLevel,
+
+        # TODO: Consider making enums ChapelClassObject, then each constant
+        #       becomes an attribute on the class. Then xrefs to each constant
+        #       would be possible, plus it would scale to large numbers of
+        #       constants. (thomasvandoren, 2015-03-12)
+        'enum': ChapelModuleLevel,
+
         'class': ChapelClassObject,
         'record': ChapelClassObject,
         'method': ChapelClassMember,
@@ -733,6 +741,7 @@ class ChapelDomain(Domain):
         'iter': ChapelXRefRole(),
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
+        'enum': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),

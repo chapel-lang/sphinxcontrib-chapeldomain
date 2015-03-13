@@ -296,7 +296,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
         """Verify _is_attr_like return True for data and
         attribute directives.
         """
-        for objtype in ('data', 'attribute', 'type'):
+        for objtype in ('data', 'attribute', 'type', 'enum'):
             self.assertTrue(self.new_obj(objtype)._is_attr_like())
 
     def test_is_attr_like__false(self):
@@ -336,6 +336,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'record',
             'module',
             'random',
+            'enum',
             '',
         ]
         for objtype in bad_dirs:
@@ -352,6 +353,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             ('var x', 'var '),
             ('config const n', 'config const '),
             ('blah blah blah blah blah', 'blah blah blah blah '),
+            ('enum Color', 'enum '),
         ]
         for objtype in ('attribute', 'data'):
             obj = self.new_obj(objtype)
@@ -604,7 +606,13 @@ class SigPatternTests(PatternTestCase):
             ('proc MyRs(seed: int(64)): int(64)', 'proc ', None, 'MyRs', 'seed: int(64)', ': int(64)'),
             ('proc RandomStream(seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true)',
              'proc ', None, 'RandomStream', 'seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true', None),
-        ]
+            ('class X', 'class ', None, 'X', None, None),
+            ('class MyClass:YourClass', 'class ', None, 'MyClass', None, ':YourClass'),
+            ('class M.C : A, B, C', 'class ', 'M.', 'C', None, ': A, B, C'),
+            ('record R', 'record ', None, 'R', None, None),
+            ('record MyRec:SuRec', 'record ', None, 'MyRec', None, ':SuRec'),
+            ('record N.R : X, Y, Z', 'record ', 'N.', 'R', None, ': X, Y, Z'),
+         ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
 
@@ -706,6 +714,9 @@ class AttrSigPatternTests(PatternTestCase):
             ('var MyM.MyC.x = 4: uint(64)', 'var ', 'MyM.MyC.', 'x', ' = 4: uint(64)'),
             ('type MyT = 2*real(64)', 'type ', None, 'MyT', ' = 2*real(64)'),
             ('type myFloats = 2*(real(64))', 'type ', None, 'myFloats', ' = 2*(real(64))'),
+            ('enum Color { Red, Yellow, Blue }', 'enum ', None, 'Color', ' { Red, Yellow, Blue }'),
+            ('enum Month { January=1, February }', 'enum ', None, 'Month', ' { January=1, February }'),
+            ('enum One { Neo }', 'enum ', None, 'One', ' { Neo }'),
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)

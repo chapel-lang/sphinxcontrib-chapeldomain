@@ -116,6 +116,19 @@ For example, this would document a module with a ``proc`` and an ``iter``::
     not documented using this environment (see :rst:dir:`chpl:attribute` for
     that).
 
+.. directive:: .. chpl:enum:: signature
+
+    Describes enumerated type in module, including the constants. For example::
+
+        .. chpl:enum:: Color { Red, Yellow, Blue }
+
+            Supported colors.
+
+        .. chpl:enum:: Weekdays { Sun=0, Mon, Tue, Wed, Thu, Fri, Sat }
+
+            Days for the week. The values associated with the constants can be
+            used with Date records.
+
 .. directive:: .. chpl:class:: signature
 
     Describe a class. The signature can optionally include parentheses with

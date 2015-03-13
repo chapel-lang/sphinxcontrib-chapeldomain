@@ -55,6 +55,8 @@ Module 'Foo'
 
     I can haz *U*?
 
+.. enum:: enum Color { Red, Yellow, Blue }
+
 Do these XRefs work?
 --------------------
 
