@@ -604,6 +604,12 @@ class SigPatternTests(PatternTestCase):
             ('proc MyRs(seed: int(64)): int(64)', 'proc ', None, 'MyRs', 'seed: int(64)', ': int(64)'),
             ('proc RandomStream(seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true)',
              'proc ', None, 'RandomStream', 'seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true', None),
+            ('class X', 'class ', None, 'X', None, None),
+            ('class MyClass:YourClass', 'class ', None, 'MyClass', None, ':YourClass'),
+            ('class M.C : A, B, C', 'class ', 'M.', 'C', None, ': A, B, C'),
+            ('record R', 'record ', None, 'R', None, None),
+            ('record MyRec:SuRec', 'record ', None, 'MyRec', None, ':SuRec'),
+            ('record N.R : X, Y, Z', 'record ', 'N.', 'R', None, ': X, Y, Z'),
         ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
