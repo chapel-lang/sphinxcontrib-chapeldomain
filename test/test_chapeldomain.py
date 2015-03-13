@@ -296,7 +296,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
         """Verify _is_attr_like return True for data and
         attribute directives.
         """
-        for objtype in ('data', 'attribute', 'type'):
+        for objtype in ('data', 'attribute', 'type', 'enum'):
             self.assertTrue(self.new_obj(objtype)._is_attr_like())
 
     def test_is_attr_like__false(self):
@@ -336,6 +336,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'record',
             'module',
             'random',
+            'enum',
             '',
         ]
         for objtype in bad_dirs:
@@ -352,6 +353,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             ('var x', 'var '),
             ('config const n', 'config const '),
             ('blah blah blah blah blah', 'blah blah blah blah '),
+            ('enum Color', 'enum '),
         ]
         for objtype in ('attribute', 'data'):
             obj = self.new_obj(objtype)
