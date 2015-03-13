@@ -741,7 +741,7 @@ class ChapelDomain(Domain):
         'iter': ChapelXRefRole(),
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
-        'enum' : ChapelXRefRole(),
+        'enum': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),
