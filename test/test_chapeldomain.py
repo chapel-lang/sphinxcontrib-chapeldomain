@@ -610,7 +610,7 @@ class SigPatternTests(PatternTestCase):
             ('record R', 'record ', None, 'R', None, None),
             ('record MyRec:SuRec', 'record ', None, 'MyRec', None, ':SuRec'),
             ('record N.R : X, Y, Z', 'record ', 'N.', 'R', None, ': X, Y, Z'),
-        ]
+         ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
 
@@ -712,6 +712,9 @@ class AttrSigPatternTests(PatternTestCase):
             ('var MyM.MyC.x = 4: uint(64)', 'var ', 'MyM.MyC.', 'x', ' = 4: uint(64)'),
             ('type MyT = 2*real(64)', 'type ', None, 'MyT', ' = 2*real(64)'),
             ('type myFloats = 2*(real(64))', 'type ', None, 'myFloats', ' = 2*(real(64))'),
+            ('enum Color { Red, Yellow, Blue }', 'enum ', None, 'Color', ' { Red, Yellow, Blue }'),
+            ('enum Month { January=1, February }', 'enum ', None, 'Month', ' { January=1, February }'),
+            ('enum One { Neo }', 'enum ', None, 'One', ' { Neo }'),
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)
