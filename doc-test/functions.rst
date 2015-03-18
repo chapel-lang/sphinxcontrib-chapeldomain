@@ -98,6 +98,15 @@ Chapel Functions
     :ytype: int
     :yields: Fibonacci numbers, first through nth.
 
+.. function:: proc foo(x: int(?bits))
+
+    :type x: int(?bits)
+    :type x: int(32)
+    :arg x: x is good
+    :type x: int
+    :type x: int(64)
+
+
 Other stuff...
 --------------
 

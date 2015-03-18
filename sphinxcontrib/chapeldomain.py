@@ -30,7 +30,7 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.10'
+VERSION = '0.0.11'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -64,6 +64,49 @@ chpl_attr_sig_pattern = re.compile(
 #     """Node for a "returns" annotation."""
 # nodes._add_node_class_names([chapel_desc_returns.__name__])
 
+class ChapelTypedField(TypedField):
+    """Override TypedField in order to change output format."""
+
+    def make_field(self, types, domain, items):
+        """Copy+Paste of TypedField.make_field() from Sphinx version 1.2.3. The first
+        and second nodes.Text() instance are changed in this implementation to
+        be ' : ' and '' respectively (instead of ' (' and ')').
+
+        TODO: Ask sphinx devs if there is a better way to support
+              this that is less copy+pasty. (thomasvandoren, 2015-03-17)
+        """
+        def handle_item(fieldarg, content):
+            par = nodes.paragraph()
+            par += self.make_xref(
+                self.rolename, domain, fieldarg, nodes.strong)
+            if fieldarg in types:
+                par += nodes.Text(' : ')
+                # NOTE: using .pop() here to prevent a single type node to be
+                # inserted twice into the doctree, which leads to
+                # inconsistencies later when references are resolved
+                fieldtype = types.pop(fieldarg)
+                if (len(fieldtype) == 1 and
+                        isinstance(fieldtype[0], nodes.Text)):
+                    typename = u''.join(n.astext() for n in fieldtype)
+                    par += self.make_xref(self.typerolename, domain, typename)
+                else:
+                    par += fieldtype
+                par += nodes.Text('')
+            par += nodes.Text(' -- ')
+            par += content
+            return par
+
+        fieldname = nodes.field_name('', self.label)
+        if len(items) == 1 and self.can_collapse:
+            fieldarg, content = items[0]
+            bodynode = handle_item(fieldarg, content)
+        else:
+            bodynode = self.list_type()
+            for fieldarg, content in items:
+                bodynode += nodes.list_item('', handle_item(fieldarg, content))
+        fieldbody = nodes.field_body('', bodynode)
+        return nodes.field('', fieldname, fieldbody)
+
 
 class ChapelObject(ObjectDescription):
     """Base class for Chapel directives. It has methods for parsing signatures of
@@ -77,16 +120,11 @@ class ChapelObject(ObjectDescription):
     }
 
     doc_field_types = [
-        TypedField('parameter', label=l_('Arguments'),
-                   names=('param', 'parameter', 'arg', 'argument'),
-
-                   # FIXME: Use role name here that exists and is general
-                   #        enough to reference anything... Maybe something
-                   #        like 'class'? (thomasvandoren, 2015-02-04)
-                   typerolename='obj',
-
-                   typenames=('paramtype', 'type'),
-                   can_collapse=True),
+        ChapelTypedField('parameter', label=l_('Arguments'),
+                         names=('param', 'parameter', 'arg', 'argument'),
+                         typerolename='chplref',
+                         typenames=('paramtype', 'type'),
+                         can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
         Field('yieldvalue', label=l_('Yields'), has_arg=False,
