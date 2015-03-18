@@ -20,6 +20,7 @@ Module 'Foo'
    Vector
    Containers
    foo
+   cpp_test
 
 **Does it work???**
 
