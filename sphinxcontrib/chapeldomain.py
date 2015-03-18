@@ -70,7 +70,7 @@ class ChapelTypedField(TypedField):
     def make_field(self, types, domain, items):
         """Copy+Paste of TypedField.make_field() from Sphinx version 1.2.3. The first
         and second nodes.Text() instance are changed in this implementation to
-        be ' : ' and '' respectively (instead of ' )' and '').
+        be ' : ' and '' respectively (instead of ' (' and ')').
 
         TODO: Ask sphinx devs if there is a better way to support
               this that is less copy+pasty. (thomasvandoren, 2015-03-17)
