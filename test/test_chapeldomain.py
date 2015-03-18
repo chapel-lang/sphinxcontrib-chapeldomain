@@ -4,6 +4,7 @@
 
 from __future__ import print_function, unicode_literals
 
+import docutils.nodes as nodes
 import mock
 import sys
 import unittest
@@ -14,6 +15,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:
 
 from sphinxcontrib.chapeldomain import (
     ChapelDomain, ChapelModuleIndex, ChapelModuleLevel, ChapelObject,
+    ChapelTypedField,
     chpl_sig_pattern, chpl_attr_sig_pattern,
 )
 
@@ -448,6 +450,82 @@ class ChapelObjectTests(ChapelObjectTestCase):
         for objtype in ('attribute', 'data', 'type'):
             obj = self.new_obj(objtype)
             self.assertEqual('config const ', obj._get_sig_prefix('config const x'))
+
+
+class ChapelTypedFieldTests(ChapelObjectTestCase):
+    """Verify ChapelTypedField class."""
+
+    def chpl_args(self, can_collapse=True):
+        """Helper script to make a chapel-like argument field."""
+        return ChapelTypedField(
+            'parameter', label='Arguments',
+            names=('param', 'parameter', 'arg', 'argument'),
+            typerolename='chplref',
+            typenames=('paramtype', 'type'),
+            can_collapse=can_collapse
+        )
+
+    def test_init(self):
+        """Verify ChapelTypedField can be initialized."""
+        self.assertIsNotNone(self.chpl_args())
+
+    def test_make_field__no_items(self):
+        """Verify make_field() when items is empty."""
+        result = self.chpl_args().make_field(mock.Mock(), mock.Mock(), [])
+        self.assertEqual('Arguments\n\n', result.astext())
+
+    def test_make_field__one_items(self):
+        """Verify make_field() when items has one element."""
+        arg = self.chpl_args()
+        result = arg.make_field(
+            {'x': [nodes.Text('X_ARG_TYPE')]},
+            'chpl',
+            [('x', nodes.Text('x is a super important argument'))]
+        )
+        self.assertEqual(
+            'Arguments\n\nx : X_ARG_TYPE -- x is a super important argument',
+            result.astext()
+        )
+
+    def test_make_field__one_items__no_collapse(self):
+        """Verify make_field() when items has one element but is not
+        collapsible.
+        """
+        arg = self.chpl_args(can_collapse=False)
+        result = arg.make_field(
+            {'x': [nodes.Text('X_ARG_TYPE')]},
+            'chpl',
+            [('x', nodes.Text('x is a super important argument'))]
+        )
+        self.assertEqual(
+            ('Arguments\n\n'
+             'x : X_ARG_TYPE -- x is a super important argument'),
+            result.astext()
+        )
+        # Assert that the one argument is in a list by crudely confirming a
+        # bullet list was created.
+        self.assertIn('<bullet_list>', str(result))
+
+    def test_make_field__many_items(self):
+        """Verify make_field() when items has more than one element."""
+        arg = self.chpl_args(can_collapse=False)
+        result = arg.make_field(
+            {'x': [nodes.Text('X_ARG_TYPE')],
+             'z': [nodes.Text('Z1'), nodes.Text('Z2'), nodes.Text('Z3')]},
+            'chpl',
+            [
+                ('x', nodes.Text('x is a super important argument')),
+                ('y', nodes.Text('y is less interesting')),
+                ('z', nodes.Text('ZZZZ')),
+            ]
+        )
+        self.assertEqual(
+            ('Arguments\n\n'
+             'x : X_ARG_TYPE -- x is a super important argument\n\n'
+             'y -- y is less interesting\n\n'
+             'z : Z1Z2Z3 -- ZZZZ'),
+            result.astext()
+        )
 
 
 class PatternTestCase(unittest.TestCase):
