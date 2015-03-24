@@ -41,8 +41,8 @@ chpl_sig_pattern = re.compile(
           ([\w$.]*\.)?                   # class name(s)
           ([\w\+\-/\*$]+)  \s*           # function or method name
           (?:\((.*?)\))?                 # optional: arguments
-          (\s* : \s* [^:]+|              #   or return type
-           \s+ \w+                       #   or ref intent
+          (\s+ \w+|                      #   or ref intent
+           \s* : \s* [^:]+               #   or return type
           )?
           $""", re.VERBOSE)
 
