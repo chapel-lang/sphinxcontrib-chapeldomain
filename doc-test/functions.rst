@@ -106,6 +106,14 @@ Chapel Functions
     :type x: int
     :type x: int(64)
 
+.. function:: proc rcRemote(replicatedVar: [?D] ?MYTYPE, remoteLoc: locale) ref: MYTYPE
+
+    Remote stuff... :proc:`rcLocal`
+
+.. function:: proc rcLocal(replicatedVar: [?D] ?MYTYPE) ref: MYTYPE
+
+    Local stuff... :proc:`rcRemote`
+
 
 Other stuff...
 --------------

@@ -690,6 +690,10 @@ class SigPatternTests(PatternTestCase):
             ('record R', 'record ', None, 'R', None, None),
             ('record MyRec:SuRec', 'record ', None, 'MyRec', None, ':SuRec'),
             ('record N.R : X, Y, Z', 'record ', 'N.', 'R', None, ': X, Y, Z'),
+            ('proc rcRemote(replicatedVar: [?D] ?MYTYPE, remoteLoc: locale) ref: MYTYPE',
+             'proc ', None, 'rcRemote', 'replicatedVar: [?D] ?MYTYPE, remoteLoc: locale', ' ref: MYTYPE'),
+            ('proc rcLocal(replicatedVar: [?D] ?MYTYPE) ref: MYTYPE',
+             'proc ', None, 'rcLocal', 'replicatedVar: [?D] ?MYTYPE', ' ref: MYTYPE'),
          ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
