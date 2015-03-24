@@ -30,7 +30,7 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.11'
+VERSION = '0.0.12'
 
 
 # regex for parsing proc, iter, class, record, etc.
