@@ -40,7 +40,7 @@ echo "Tagging latest sha1 (${sha1}) as version ${version}"
 git tag -a ${version} -m"release ${version}"
 
 echo "Pushing tags to chapel-lang remote..."
-git push chapel-lang --tags
+git push https://github.com/chapel-lang/sphinxcontrib-chapeldomain --tags
 
 echo "Cleaning repo..."
 git clean -dxf
