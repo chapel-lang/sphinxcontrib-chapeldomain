@@ -35,7 +35,7 @@ See the :doc:`Chapel Domain Reference <reference>` for a description of
 directives and roles provided by this domain.
 
 For tips on developing the chapel domain (as opposed to using the directives),
-see the :doc:`developer documenation <developers>`.
+see the :doc:`developer documentation <developers>`.
 
 Contents:
 
