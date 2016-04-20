@@ -681,6 +681,8 @@ class SigPatternTests(PatternTestCase):
             ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', ': Containers.Vector'),
             ('proc MyClass$.lock$(combo$): sync bool', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync bool'),
             ('proc MyClass$.lock$(combo$): sync myBool$', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync myBool$'),
+            ('proc type currentTime(): int(64)', 'proc type ', None, 'currentTime', '', ': int(64)'),
+            ('proc param int.someNum(): int(64)', 'proc param', 'int', 'someNum', '', ': int(64)'),
             ('proc MyRs(seed: int(64)): int(64)', 'proc ', None, 'MyRs', 'seed: int(64)', ': int(64)'),
             ('proc RandomStream(seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true)',
              'proc ', None, 'RandomStream', 'seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true', None),
