@@ -43,6 +43,14 @@ Chapel classes
 
         Instance lock that ensures certain operations are serialized.
 
+    .. method:: proc type currentTime: int(64)
+
+
+        Generate a seed based on the current time in microseconds as
+        reported by :proc:`Time.getCurrentTime`. This seed is not
+        suitable for the NPB RNG since that requires an odd seed.
+
+
     .. method:: ChplVector(type eltType, cap=4, offset=0)
 
         Initialize new generic ChplVector of type eltType. See
