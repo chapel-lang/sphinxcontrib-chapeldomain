@@ -114,6 +114,12 @@ Chapel Functions
 
     Local stuff... :proc:`rcRemote`
 
+.. function:: proc specialArg(const ref x: int)
+
+.. function:: proc specialReturn() const ref
+
+.. function:: proc constRefArgAndReturn(const ref x: int) const ref
+
 
 Other stuff...
 --------------
