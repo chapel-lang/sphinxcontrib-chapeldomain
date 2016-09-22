@@ -35,15 +35,15 @@ VERSION = '0.0.13'
 
 # regex for parsing proc, iter, class, record, etc.
 chpl_sig_pattern = re.compile(
-    r"""^ ((?:\w+\s+)*                     # optional: prefixes
-           (?:proc|iter|class|record)\s+   #   must end with keyword
-           (?:type\s+|param\s+)?           # optional: type or param method
+    r"""^ ((?:\w+\s+)*                        # optional: prefixes
+           (?:proc|iter|class|record)\s+      #   must end with keyword
+           (?:type\s+|param\s+)?              # optional: type or param method
           )?
-          ([\w$.]*\.)?                     # class name(s)
-          ([\w\+\-/\*$]+)  \s*             # function or method name
-          (?:\((.*?)\))?                   # optional: arguments
-          (\s+(?:const\s)? \w+|              #   or return intent
-           \s* : \s* [^:]+|                #   or return type
+          ([\w$.]*\.)?                        # class name(s)
+          ([\w\+\-/\*$]+)  \s*                # function or method name
+          (?:\((.*?)\))?                      # optional: arguments
+          (\s+(?:const\s)? \w+|               #   or return intent
+           \s* : \s* [^:]+|                   #   or return type
            \s+(?:const\s)? \w+\s* : \s* [^:]+ #   or return intent and type
           )?
           $""", re.VERBOSE)
