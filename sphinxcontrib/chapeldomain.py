@@ -30,21 +30,21 @@ from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.13'
+VERSION = '0.0.14'
 
 
 # regex for parsing proc, iter, class, record, etc.
 chpl_sig_pattern = re.compile(
-    r"""^ ((?:\w+\s+)*                   # optional: prefixes
-           (?:proc|iter|class|record)\s+ #   must end with keyword
-           (?:type\s+|param\s+)?         # optional: type or param method
+    r"""^ ((?:\w+\s+)*                        # optional: prefixes
+           (?:proc|iter|class|record)\s+      #   must end with keyword
+           (?:type\s+|param\s+)?              # optional: type or param method
           )?
-          ([\w$.]*\.)?                   # class name(s)
-          ([\w\+\-/\*$]+)  \s*           # function or method name
-          (?:\((.*?)\))?                 # optional: arguments
-          (\s+ \w+|                      #   or return intent
-           \s* : \s* [^:]+|              #   or return type
-           \s+ \w+\s* : \s* [^:]+        #   or return intent and type
+          ([\w$.]*\.)?                        # class name(s)
+          ([\w\+\-/\*$]+)  \s*                # function or method name
+          (?:\((.*?)\))?                      # optional: arguments
+          (\s+(?:const\s)? \w+|               #   or return intent
+           \s* : \s* [^:]+|                   #   or return type
+           \s+(?:const\s)? \w+\s* : \s* [^:]+ #   or return intent and type
           )?
           $""", re.VERBOSE)
 
