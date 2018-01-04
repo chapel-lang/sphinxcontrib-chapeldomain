@@ -25,7 +25,7 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
-from sphinx.util.compat import Directive
+from docutils.parsers.rst import Directive
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
@@ -69,7 +69,7 @@ chpl_attr_sig_pattern = re.compile(
 class ChapelTypedField(TypedField):
     """Override TypedField in order to change output format."""
 
-    def make_field(self, types, domain, items):
+    def make_field(self, types, domain, items, env=None):
         """Copy+Paste of TypedField.make_field() from Sphinx version 1.2.3. The first
         and second nodes.Text() instance are changed in this implementation to
         be ' : ' and '' respectively (instead of ' (' and ')').
@@ -365,7 +365,7 @@ class ChapelObject(ObjectDescription):
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              fullname, ''))
+                                              fullname, '', None))
 
     def before_content(self):
         """Called before parsing content. Set flag to help with class scoping.
@@ -426,7 +426,7 @@ class ChapelModule(Directive):
             ret.append(targetnode)
             indextext = _('%s (module)') % modname
             inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + modname, '')])
+                                             'module-' + modname, '', None)])
             ret.append(inode)
         return ret
 
