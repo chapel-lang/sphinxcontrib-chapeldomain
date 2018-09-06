@@ -40,7 +40,7 @@ chpl_sig_pattern = re.compile(
            (?:type\s+|param\s+)?              # optional: type or param method
           )?
           ([\w$.]*\.)?                        # class name(s)
-          ([\w\+\-/\*$]+)  \s*                # function or method name
+          ([\w\+\-/\*$\<\=\>\!]+)  \s*        # function or method name
           (?:\((.*?)\))?                      # optional: arguments
           (\s+(?:const\s)? \w+|               #   or return intent
            \s* : \s* [^:]+|                   #   or return type
