@@ -120,6 +120,8 @@ Chapel Functions
 
 .. function:: proc constRefArgAndReturn(const ref x: int) const ref
 
+.. function:: proc <(x, y)
+
 
 Other stuff...
 --------------
