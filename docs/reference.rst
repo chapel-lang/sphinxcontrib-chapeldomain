@@ -87,6 +87,7 @@ For example, this would document a module with a ``proc`` and an ``iter``::
         :type n: int
         :rtype: BigNum
         :returns: ``n!``
+        :throw TimeoutError: if the the computation takes too long
 
     .. chpl:iterfunction:: iter fibonacci(): BigNum
 
