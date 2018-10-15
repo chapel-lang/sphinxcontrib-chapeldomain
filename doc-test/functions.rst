@@ -122,6 +122,23 @@ Chapel Functions
 
 .. function:: proc <(x, y)
 
+.. function:: proc throwsAnError() throws
+
+    :throw FileNotFoundError: looks at a file that doesn't exist
+
+.. function:: proc throwsVariousErrors(x: bool) throws
+
+    :arg x: determines whether to check a directory or a file
+    :type x: bool
+    :throw IsADirectoryError: makes a directory and does something dumb
+    :throw NotADirectoryError: makes a file that it treats like a directory
+
+.. function:: proc throwsOrReturns(): string throws
+
+    :return: a message for you!
+    :rtype: string
+    :throw PermissionError: when the message is not for you
+
 
 Other stuff...
 --------------
