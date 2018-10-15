@@ -26,7 +26,7 @@ from sphinx.domains import Domain, Index, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
 from sphinx.util.compat import Directive
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.nodes import make_refnode
 
 
