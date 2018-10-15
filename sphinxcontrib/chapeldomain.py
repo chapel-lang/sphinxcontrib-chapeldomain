@@ -135,6 +135,8 @@ class ChapelObject(ObjectDescription):
               names=('rtype',)),
         Field('yieldtype', label=l_('Yield type'), has_arg=False,
               names=('ytype',)),
+        GroupedField('errorhandling', label=l_('Throws'),
+                     names=('throw', 'throws'), can_collapse=True),
     ]
 
     @staticmethod
