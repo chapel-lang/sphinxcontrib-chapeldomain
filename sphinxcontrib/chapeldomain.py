@@ -26,11 +26,11 @@ from sphinx.domains import Domain, Index, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
 from sphinx.util.compat import Directive
-from sphinx.util.docfields import Field, TypedField
+from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.nodes import make_refnode
 
 
-VERSION = '0.0.14'
+VERSION = '0.0.15'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -135,6 +135,8 @@ class ChapelObject(ObjectDescription):
               names=('rtype',)),
         Field('yieldtype', label=l_('Yield type'), has_arg=False,
               names=('ytype',)),
+        GroupedField('errorhandling', label=l_('Throws'),
+                     names=('throw', 'throws'), can_collapse=True),
     ]
 
     @staticmethod
