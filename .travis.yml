@@ -7,7 +7,7 @@ install:
 script:
   - flake8 sphinxcontrib/
   - nosetests --verbose --with-cov --cov-report xml --cover-package=sphinxcontrib.chapeldomain
-  - ( cd docs/ && make html )
-  - ( cd doc-test/ && make html )
+  - ( export PYTHONPATH=`pwd` && cd docs/ && make html )
+  - ( export PYTHONPATH=`pwd` && cd doc-test/ && make html )
 after_success:
   - coveralls
