@@ -6,7 +6,7 @@ with open('README.rst', 'r') as fp:
     long_desc = fp.read()
 
 # Grab the version from chapeldomain module.
-with open(os.path.join('sphinxcontrib', 'chapeldomain.py'), 'r') as fp:
+with open(os.path.join('sphinxcontrib', 'chapeldomain', '__init__.py'), 'r') as fp:
     version_pattern = re.compile(r'^VERSION\s*=\s*\'(?P<version>\d+\.\d+\.\d+)\'$', re.MULTILINE)
     version = version_pattern.search(fp.read()).group('version')
 
@@ -44,7 +44,7 @@ setup(
     install_requires=[
         'docutils',
         'six',
-        'Sphinx>=1.2.0,<1.2.999',
+        'Sphinx>=1.6.0,<1.6.999',
     ],
     namespace_packages=['sphinxcontrib']
 )
