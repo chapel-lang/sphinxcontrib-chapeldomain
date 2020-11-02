@@ -23,7 +23,7 @@ from six import iteritems
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, ObjType
-from sphinx.locale import l_, _
+from sphinx.locale import _
 from sphinx.roles import XRefRole
 from docutils.parsers.rst import Directive
 from sphinx.util.docfields import Field, GroupedField, TypedField
@@ -122,20 +122,20 @@ class ChapelObject(ObjectDescription):
     }
 
     doc_field_types = [
-        ChapelTypedField('parameter', label=l_('Arguments'),
+        ChapelTypedField('parameter', label=_('Arguments'),
                          names=('param', 'parameter', 'arg', 'argument'),
                          typerolename='chplref',
                          typenames=('paramtype', 'type'),
                          can_collapse=True),
-        Field('returnvalue', label=l_('Returns'), has_arg=False,
+        Field('returnvalue', label=_('Returns'), has_arg=False,
               names=('returns', 'return')),
-        Field('yieldvalue', label=l_('Yields'), has_arg=False,
+        Field('yieldvalue', label=_('Yields'), has_arg=False,
               names=('yields', 'yield')),
-        Field('returntype', label=l_('Return type'), has_arg=False,
+        Field('returntype', label=_('Return type'), has_arg=False,
               names=('rtype',)),
-        Field('yieldtype', label=l_('Yield type'), has_arg=False,
+        Field('yieldtype', label=_('Yield type'), has_arg=False,
               names=('ytype',)),
-        GroupedField('errorhandling', label=l_('Throws'),
+        GroupedField('errorhandling', label=_('Throws'),
                      names=('throw', 'throws'), can_collapse=True),
     ]
 
@@ -631,8 +631,8 @@ class ChapelModuleIndex(Index):
     """Provides Chapel module index based on chpl:module."""
 
     name = 'modindex'
-    localname = l_('Chapel Module Index')
-    shortname = l_('modules')
+    localname = _('Chapel Module Index')
+    shortname = _('modules')
 
     def generate(self, docnames=None):
         """Returns entries for index given by ``name``. If ``docnames`` is given,
@@ -738,17 +738,17 @@ class ChapelDomain(Domain):
     labels = 'Chapel'
 
     object_types = {
-        'data': ObjType(l_('data'), 'data', 'const', 'var', 'param', 'type'),
-        'type': ObjType(l_('type'), 'type', 'data'),
-        'function': ObjType(l_('function'), 'func', 'proc'),
-        'iterfunction': ObjType(l_('iterfunction'), 'func', 'iter', 'proc'),
-        'enum': ObjType(l_('enum'), 'enum'),
-        'class': ObjType(l_('class'), 'class'),
-        'record': ObjType(l_('record'), 'record'),
-        'method': ObjType(l_('method'), 'meth', 'proc'),
-        'itermethod': ObjType(l_('itermethod'), 'meth', 'iter'),
-        'attribute': ObjType(l_('attribute'), 'attr'),
-        'module': ObjType(l_('module'), 'mod'),
+        'data': ObjType(_('data'), 'data', 'const', 'var', 'param', 'type'),
+        'type': ObjType(_('type'), 'type', 'data'),
+        'function': ObjType(_('function'), 'func', 'proc'),
+        'iterfunction': ObjType(_('iterfunction'), 'func', 'iter', 'proc'),
+        'enum': ObjType(_('enum'), 'enum'),
+        'class': ObjType(_('class'), 'class'),
+        'record': ObjType(_('record'), 'record'),
+        'method': ObjType(_('method'), 'meth', 'proc'),
+        'itermethod': ObjType(_('itermethod'), 'meth', 'iter'),
+        'attribute': ObjType(_('attribute'), 'attr'),
+        'module': ObjType(_('module'), 'mod'),
     }
 
     directives = {
@@ -794,7 +794,7 @@ class ChapelDomain(Domain):
         'objects': {},   # fullname -> docname, objtype
         'modules': {},   # modname -> docname, synopsis, platform, deprecated
         'labels': {      # labelname -> docname, labelid, sectionname
-            'chplmodindex': ('chpl-modindex', '', l_('Chapel Module Index')),
+            'chplmodindex': ('chpl-modindex', '', _('Chapel Module Index')),
         },
         'anonlabels': {  # labelname -> docname, labelid
             'chplmodindex': ('chpl-modindex', ''),
