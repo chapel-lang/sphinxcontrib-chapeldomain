@@ -28,6 +28,7 @@ echo "Version number is: ${version}"
 
 echo "Ensuring requirements are up-to-date..."
 python3 -m pip install -r requirements.txt -r test-requirements.txt -r docs-requirements.txt
+python3 -m pip install twine wheel
 
 echo "Ensuring package is installed..."
 python setup.py develop
@@ -46,6 +47,7 @@ echo "Cleaning repo..."
 git clean -dxf
 
 echo "Building and uploading python package to pypi..."
-python3 setup.py sdist upload
+python3 setup.py sdist bdist_wheel
+twine upload dist/*
 
 echo "Version ${version} is released."
