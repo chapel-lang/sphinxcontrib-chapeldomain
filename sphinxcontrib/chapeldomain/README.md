@@ -1,4 +1,4 @@
-`chapel.py` is a module that is a local snapshot of the  Pygments highlighter
+``chapel.py`` is a module that is a local snapshot of the  Pygments highlighter
 that Thomas Van Doren originally developed as a member of the Chapel team and
 contributed to the Pygments project at https://github.com/pygments/pygments.
 
