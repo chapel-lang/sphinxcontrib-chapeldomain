@@ -27,36 +27,36 @@ class ChapelLexer(RegexLexer):
     aliases = ['chapel', 'chpl']
     # mimetypes = ['text/x-chapel']
 
-    known_types = ( 'bool', 'bytes', 'complex', 'locale', 'imag', 'int',
-                    'nothing', 'opaque', 'range', 'real', 'string', 'uint',
-                    'void' )
+    known_types = ('bool', 'bytes', 'complex', 'locale', 'imag', 'int',
+                   'nothing', 'opaque', 'range', 'real', 'string', 'uint',
+                   'void')
 
-    type_modifiers = ( 'atomic', 'single', 'sync',
-                       'borrowed', 'owned', 'shared', 'unmanaged' )
+    type_modifiers = ('atomic', 'single', 'sync',
+                      'borrowed', 'owned', 'shared', 'unmanaged')
 
-    declarations = ( 'config', 'const', 'in', 'inout', 'out', 'param', 'ref',
-                     'type', 'var' )
+    declarations = ('config', 'const', 'in', 'inout', 'out', 'param', 'ref',
+                    'type', 'var')
 
-    constants = ( 'false', 'nil', 'none', 'true' )
+    constants = ('false', 'nil', 'none', 'true')
 
-    other_keywords = ( 'align', 'as',
-                       'begin', 'break', 'by',
-                       'catch', 'cobegin', 'coforall', 'continue',
-                       'defer', 'delete', 'dmapped', 'do', 'domain',
-                       'else', 'enum', 'except', 'export', 'extern',
-                       'for', 'forall', 'forwarding',
-                       'if', 'import', 'index', 'init', 'inline',
-                       'label', 'lambda', 'let', 'lifetime', 'local',
-                       'new', 'noinit',
-                       'on', 'only', 'otherwise', 'override',
-                       'pragma', 'private', 'prototype', 'public',
-                       'reduce', 'require', 'return',
-                       'scan', 'select', 'serial', 'sparse', 'subdomain',
-                       'then', 'this', 'throw', 'throws', 'try',
-                       'use',
-                       'when', 'where', 'while', 'with',
-                       'yield',
-                       'zip' )
+    other_keywords = ('align', 'as',
+                      'begin', 'break', 'by',
+                      'catch', 'cobegin', 'coforall', 'continue',
+                      'defer', 'delete', 'dmapped', 'do', 'domain',
+                      'else', 'enum', 'except', 'export', 'extern',
+                      'for', 'forall', 'forwarding',
+                      'if', 'import', 'index', 'init', 'inline',
+                      'label', 'lambda', 'let', 'lifetime', 'local',
+                      'new', 'noinit',
+                      'on', 'only', 'otherwise', 'override',
+                      'pragma', 'private', 'prototype', 'public',
+                      'reduce', 'require', 'return',
+                      'scan', 'select', 'serial', 'sparse', 'subdomain',
+                      'then', 'this', 'throw', 'throws', 'try',
+                      'use',
+                      'when', 'where', 'while', 'with',
+                      'yield',
+                      'zip')
 
     tokens = {
         'root': [
