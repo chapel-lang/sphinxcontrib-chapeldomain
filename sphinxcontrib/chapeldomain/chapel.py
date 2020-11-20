@@ -27,12 +27,13 @@ class ChapelLexer(RegexLexer):
     aliases = ['chapel', 'chpl']
     # mimetypes = ['text/x-chapel']
 
-    known_types = ('bool', 'bytes', 'complex', 'locale', 'imag', 'int',
+    known_types = ('bool', 'bytes', 'complex', 'imag', 'int', 'locale',
                    'nothing', 'opaque', 'range', 'real', 'string', 'uint',
                    'void')
 
-    type_modifiers = ('atomic', 'single', 'sync',
-                      'borrowed', 'owned', 'shared', 'unmanaged')
+    type_modifiers_par = ('atomic', 'single', 'sync')
+    type_modifiers_mem = ('borrowed', 'owned', 'shared', 'unmanaged')
+    type_modifiers = (*type_modifiers_par, *type_modifiers_mem)
 
     declarations = ('config', 'const', 'in', 'inout', 'out', 'param', 'ref',
                     'type', 'var')
