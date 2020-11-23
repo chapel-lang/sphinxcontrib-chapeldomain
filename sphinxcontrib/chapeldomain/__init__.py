@@ -1029,6 +1029,6 @@ class ChapelDomain(Domain):
 def setup(app):
     """Add Chapel domain to Sphinx app."""
     # First add the in-house lexer to override the pygments one
-    app.add_lexer('chapel', ChapelLexer())
+    app.add_lexer('chapel', ChapelLexer)
     app.add_config_value('chapeldomain_modindex_common_prefix', [], 'html')
     app.add_domain(ChapelDomain)
