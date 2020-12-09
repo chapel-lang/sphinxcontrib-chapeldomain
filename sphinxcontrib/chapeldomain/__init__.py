@@ -808,18 +808,33 @@ class ChapelDomain(Domain):
 
     def clear_doc(self, docname):
         """Remove the data associated with this instance of the domain."""
+        todel = [ ]
         for fullname, (fn, x) in self.data['objects'].items():
             if fn == docname:
-                del self.data['objects'][fullname]
+                todel.append(fullname)
+        for fullname in todel:
+            del self.data['objects'][fullname]
+
+        todel = [ ]
         for modname, (fn, x, x, x) in self.data['modules'].items():
             if fn == docname:
-                del self.data['modules'][modname]
+                todel.append(modname)
+        for modname in todel:
+            del self.data['modules'][modname]
+
+        todel = [ ]
         for labelname, (fn, x, x) in self.data['labels'].items():
             if fn == docname:
-                del self.data['labels'][labelname]
+                todel.append(labelname)
+        for labelname in todel:
+            del self.data['labels'][labelname]
+
+        todel = [ ]
         for anonlabelname, (fn, x) in self.data['anonlabels'].items():
             if fn == docname:
-                del self.data['anonlabels'][anonlabelname]
+                todel.append(anonlabelname)
+        for anonlabelname in todel:
+            del self.data['anonlabels'][anonlabelname]
 
     def find_obj(self, env, modname, classname, name, type_name, searchmode=0):
         """Find a Chapel object for "name", possibly with module or class/record
