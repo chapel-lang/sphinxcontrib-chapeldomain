@@ -808,28 +808,28 @@ class ChapelDomain(Domain):
 
     def clear_doc(self, docname):
         """Remove the data associated with this instance of the domain."""
-        todel = [ ]
+        todel = []
         for fullname, (fn, x) in self.data['objects'].items():
             if fn == docname:
                 todel.append(fullname)
         for fullname in todel:
             del self.data['objects'][fullname]
 
-        todel = [ ]
+        todel = []
         for modname, (fn, x, x, x) in self.data['modules'].items():
             if fn == docname:
                 todel.append(modname)
         for modname in todel:
             del self.data['modules'][modname]
 
-        todel = [ ]
+        todel = []
         for labelname, (fn, x, x) in self.data['labels'].items():
             if fn == docname:
                 todel.append(labelname)
         for labelname in todel:
             del self.data['labels'][labelname]
 
-        todel = [ ]
+        todel = []
         for anonlabelname, (fn, x) in self.data['anonlabels'].items():
             if fn == docname:
                 todel.append(anonlabelname)
