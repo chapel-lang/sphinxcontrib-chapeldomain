@@ -5,7 +5,7 @@
 
     Lexer for the Chapel language.
 
-    :copyright: Copyright 2006-2020 by the Pygments team, Thomas van Doren
+    :copyright: Copyright 2006-2021 by the Pygments team, Thomas van Doren
     :license: BSD, see LICENSE for details.
 """
 
