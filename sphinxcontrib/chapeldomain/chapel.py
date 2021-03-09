@@ -76,8 +76,9 @@ class ChapelLexer(RegexLexer):
             (r'(iter)((?:\s)+)', bygroups(Keyword, Text), 'procname'),
             (r'(proc)((?:\s)+)', bygroups(Keyword, Text), 'procname'),
             (r'(operator)((?:\s)+)', bygroups(Keyword, Text), 'procname'),
-            (r'(class|interface|module|record|union)(\s+)', bygroups(Keyword, Text),
-             'classname'),
+            (r'(class|interface|module|record|union)(\s+)',
+                bygroups(Keyword, Text),
+                'classname'),
 
             # imaginary integers
             (r'\d+i', Number),
