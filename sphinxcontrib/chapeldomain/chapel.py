@@ -50,7 +50,7 @@ class ChapelLexer(RegexLexer):
                       'label', 'lambda', 'let', 'lifetime', 'local',
                       'new', 'noinit',
                       'on', 'only', 'otherwise', 'override',
-                      'pragma', 'private', 'prototype', 'public',
+                      'pragma', 'primitive', 'private', 'prototype', 'public',
                       'reduce', 'require', 'return',
                       'scan', 'select', 'serial', 'sparse', 'subdomain',
                       'then', 'this', 'throw', 'throws', 'try',
