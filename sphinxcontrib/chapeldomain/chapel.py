@@ -45,8 +45,8 @@ class ChapelLexer(RegexLexer):
                       'catch', 'cobegin', 'coforall', 'continue',
                       'defer', 'delete', 'dmapped', 'do', 'domain',
                       'else', 'enum', 'except', 'export', 'extern',
-                      'for', 'forall', 'forwarding',
-                      'if', 'import', 'index', 'init', 'inline',
+                      'for', 'forall', 'foreach', 'forwarding',
+                      'if', 'implements', 'import', 'index', 'init', 'inline',
                       'label', 'lambda', 'let', 'lifetime', 'local',
                       'new', 'noinit',
                       'on', 'only', 'otherwise', 'override',
@@ -75,7 +75,8 @@ class ChapelLexer(RegexLexer):
 
             (r'(iter)((?:\s)+)', bygroups(Keyword, Text), 'procname'),
             (r'(proc)((?:\s)+)', bygroups(Keyword, Text), 'procname'),
-            (r'(class|module|record|union)(\s+)', bygroups(Keyword, Text),
+            (r'(operator)((?:\s)+)', bygroups(Keyword, Text), 'procname'),
+            (r'(class|interface|module|record|union)(\s+)', bygroups(Keyword, Text),
              'classname'),
 
             # imaginary integers
@@ -120,7 +121,7 @@ class ChapelLexer(RegexLexer):
         'procname': [
             (r'([a-zA-Z_][.\w$]*|'    # regular function name, including 2ndary
              r'\~[a-zA-Z_][.\w$]*|'   # support for legacy destructors?
-             r'[+*/!~%<>=&^|\-]{1,2})',  # operators
+             r'[+*/!~%<>=&^|\-:]{1,2})',  # operators
              Name.Function, '#pop'),
 
             # allow `proc (atomic T).foo`
