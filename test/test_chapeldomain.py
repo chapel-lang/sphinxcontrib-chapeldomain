@@ -471,7 +471,8 @@ class ChapelTypedFieldTests(ChapelObjectTestCase):
 
     def test_make_field__no_items(self):
         """Verify make_field() when items is empty."""
-        result = self.chpl_args().make_field(mock.Mock(), mock.Mock(), [])
+        result = self.chpl_args().make_field(mock.Mock(), mock.Mock(), [],
+                                             env=mock.Mock())
         self.assertEqual('Arguments\n\n', result.astext())
 
     def test_make_field__one_items(self):
@@ -480,7 +481,8 @@ class ChapelTypedFieldTests(ChapelObjectTestCase):
         result = arg.make_field(
             {'x': [nodes.Text('X_ARG_TYPE')]},
             'chpl',
-            [('x', nodes.Text('x is a super important argument'))]
+            [('x', nodes.Text('x is a super important argument'))],
+            env=mock.Mock()
         )
         self.assertEqual(
             'Arguments\n\nx : X_ARG_TYPE -- x is a super important argument',
@@ -495,7 +497,8 @@ class ChapelTypedFieldTests(ChapelObjectTestCase):
         result = arg.make_field(
             {'x': [nodes.Text('X_ARG_TYPE')]},
             'chpl',
-            [('x', nodes.Text('x is a super important argument'))]
+            [('x', nodes.Text('x is a super important argument'))],
+            env=mock.Mock()
         )
         self.assertEqual(
             ('Arguments\n\n'
@@ -517,7 +520,8 @@ class ChapelTypedFieldTests(ChapelObjectTestCase):
                 ('x', nodes.Text('x is a super important argument')),
                 ('y', nodes.Text('y is less interesting')),
                 ('z', nodes.Text('ZZZZ')),
-            ]
+            ],
+            env=mock.Mock()
         )
         self.assertEqual(
             ('Arguments\n\n'
