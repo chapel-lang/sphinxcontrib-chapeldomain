@@ -16,11 +16,16 @@
 
 import re
 
+from typing import Dict, List, Tuple
+
 from docutils import nodes
+from docutils.nodes import Node
+from docutils.parsers.rst.states import Inliner
 from docutils.parsers.rst import directives
 from six import iteritems
 
 from sphinx import addnodes
+from sphinx.environment import BuildEnvironment
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.locale import _
@@ -70,28 +75,35 @@ chpl_attr_sig_pattern = re.compile(
 class ChapelTypedField(TypedField):
     """Override TypedField in order to change output format."""
 
-    def make_field(self, types, domain, items, env=None):
-        """Copy+Paste of TypedField.make_field() from Sphinx version 1.2.3. The first
+    def make_field(self, types: Dict[str, List[Node]], domain: str,
+                   items: Tuple, env: BuildEnvironment = None,
+                   inliner: Inliner = None,
+                   location: Node = None) -> nodes.field:
+        """Copy+Paste of TypedField.make_field() from Sphinx version 4.3.2. The first
         and second nodes.Text() instance are changed in this implementation to
         be ' : ' and '' respectively (instead of ' (' and ')').
 
         TODO: Ask sphinx devs if there is a better way to support
               this that is less copy+pasty. (thomasvandoren, 2015-03-17)
         """
-        def handle_item(fieldarg, content):
+        def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
             par = nodes.paragraph()
-            par += self.make_xref(
-                self.rolename, domain, fieldarg, nodes.strong)
+            par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
+                                       addnodes.literal_strong, env=env))
             if fieldarg in types:
                 par += nodes.Text(' : ')
                 # NOTE: using .pop() here to prevent a single type node to be
                 # inserted twice into the doctree, which leads to
                 # inconsistencies later when references are resolved
                 fieldtype = types.pop(fieldarg)
-                if (len(fieldtype) == 1 and
-                        isinstance(fieldtype[0], nodes.Text)):
-                    typename = u''.join(n.astext() for n in fieldtype)
-                    par += self.make_xref(self.typerolename, domain, typename)
+                if len(fieldtype) == 1 and isinstance(fieldtype[0],
+                                                      nodes.Text):
+                    typename = fieldtype[0].astext()
+                    par.extend(self.make_xrefs(self.typerolename, domain,
+                                               typename,
+                                               addnodes.literal_emphasis,
+                                               env=env, inliner=inliner,
+                                               location=location))
                 else:
                     par += fieldtype
                 par += nodes.Text('')
@@ -102,7 +114,7 @@ class ChapelTypedField(TypedField):
         fieldname = nodes.field_name('', self.label)
         if len(items) == 1 and self.can_collapse:
             fieldarg, content = items[0]
-            bodynode = handle_item(fieldarg, content)
+            bodynode: Node = handle_item(fieldarg, content)
         else:
             bodynode = self.list_type()
             for fieldarg, content in items:
