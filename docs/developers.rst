@@ -27,7 +27,7 @@ Overview
 Testing
 -------
 
-Travis_ runs the tests automically and records code coverage in Coveralls_. On
+`Github Actions`_ runs the tests automically and records code coverage in Codecov_. On
 a local workstation, tox_ can be used to run the tests in a similar fashion.
 
 .. code-block:: bash
@@ -38,8 +38,8 @@ a local workstation, tox_ can be used to run the tests in a similar fashion.
     tox -e docs      # verify the docs build
     tox -e doc-test  # verify the acceptance tests build
 
-.. _Travis: https://travis-ci.org/chapel-lang/sphinxcontrib-chapeldomain
-.. _Coveralls: https://coveralls.io/r/chapel-lang/sphinxcontrib-chapeldomain?branch=master
+.. _Github Actions: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/CI.yml
+.. _Codecov: https://codecov.io/gh/chapel-lang/sphinxcontrib-chapeldomain
 .. _tox: https://tox.readthedocs.org/en/latest/
 
 Release

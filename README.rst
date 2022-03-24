@@ -6,11 +6,11 @@ Chapel_ domain for Sphinx_.
 .. _Chapel: http://chapel-lang.org/
 .. _Sphinx: http://sphinx-doc.org/
 
-.. image:: https://travis-ci.org/chapel-lang/sphinxcontrib-chapeldomain.svg?branch=master
-    :target: https://travis-ci.org/chapel-lang/sphinxcontrib-chapeldomain
+.. image:: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/CI.yml/badge.svg
+    :target: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/CI.yml
 
-.. image:: https://coveralls.io/repos/chapel-lang/sphinxcontrib-chapeldomain/badge.svg?branch=master
-    :target: https://coveralls.io/r/chapel-lang/sphinxcontrib-chapeldomain?branch=master
+.. image:: https://codecov.io/gh/chapel-lang/sphinxcontrib-chapeldomain/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/chapel-lang/sphinxcontrib-chapeldomain
 
 `Package documentation`_ is available on readthedocs.org.
 
