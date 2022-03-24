@@ -30,7 +30,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         'Framework :: Sphinx :: Extension',
         'Topic :: Documentation',
@@ -43,7 +42,6 @@ setup(
     include_package_data=True,
     install_requires=[
         'docutils',
-        'six',
         'Sphinx',
     ],
     namespace_packages=['sphinxcontrib']
