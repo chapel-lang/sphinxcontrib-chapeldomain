@@ -32,7 +32,7 @@ a local workstation, tox_ can be used to run the tests in a similar fashion.
 
 .. code-block:: bash
 
-    tox              # run unittests with py27, py34
+    tox              # run unittests with py310
     tox -e flake8    # flake8 source code checker
     tox -e coverage  # run code coverage analysis
     tox -e docs      # verify the docs build

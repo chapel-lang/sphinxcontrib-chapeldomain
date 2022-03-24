@@ -14,18 +14,28 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: "3.6"
+        python-version: "3.10"
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt -r test-requirements.txt -r docs-requirements.txt
+        python3 -m pip install --upgrade pip
+        python3 -m pip install tox
+
     - name: Lint
-      run: flake8 sphinxcontrib/
+      run: |
+        python3 -m tox -e flake8
+
     - name: Test
-      run: nosetests --verbose --with-cov --cov-report xml --cover-package=sphinxcontrib.chapeldomain
+      run: |
+        python3 -m tox -e py
+
     - name: Make docs
       run: |
-        ( export PYTHONPATH=`pwd` && cd docs/ && make html )
-        ( export PYTHONPATH=`pwd` && cd doc-test/ && make html )
-    - name: Codecode
+        python3 -m tox -e docs,doc-test
+
+    - name: Coverage
+      run: |
+        python3 -m tox -e coverage
+
+    - name: Upload codecov
       uses: codecov/codecov-action@v2
