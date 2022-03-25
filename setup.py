@@ -17,7 +17,7 @@ setup(
     download_url='https://pypi.python.org/pypi/sphinxcontrib-chapeldomain',
     license='Apache License v2.0',
     author='Chapel Team',
-    author_email='chapel-developers@lists.sourceforge.net',
+    author_email='chapel+developers@discoursemail.com',
     description='Chapel domain for Sphinx',
     long_description=long_desc,
     zip_safe=False,
