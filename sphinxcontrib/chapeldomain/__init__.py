@@ -22,7 +22,6 @@ from docutils import nodes
 from docutils.nodes import Node
 from docutils.parsers.rst.states import Inliner
 from docutils.parsers.rst import directives
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx.environment import BuildEnvironment
@@ -685,7 +684,7 @@ class ChapelModuleIndex(Index):
         ignores = sorted(ignores, key=len, reverse=True)
 
         # list of all modules, sorted by module name
-        modules = sorted(iteritems(self.domain.data['modules']),
+        modules = sorted(self.domain.data['modules'].items(),
                          key=lambda x: x[0].lower())
 
         # sort out collapsible modules
@@ -739,7 +738,7 @@ class ChapelModuleIndex(Index):
         collapse = len(modules) - num_toplevels < num_toplevels
 
         # sort by first leter
-        content = sorted(iteritems(content))
+        content = sorted(content.items())
 
         return content, collapse
 

@@ -9,10 +9,6 @@ import mock
 import sys
 import unittest
 
-# For python 2.6 and lower, use unittest2.
-if sys.version_info[0] == 2 and sys.version_info[1] < 7:
-    import unittest2 as unittest
-
 from sphinxcontrib.chapeldomain import (
     ChapelDomain, ChapelModuleIndex, ChapelModuleLevel, ChapelObject,
     ChapelTypedField,
