@@ -46,23 +46,23 @@ Release
 -------
 
 To release the latest sources on PyPI_ and tag the repo, update your working
-copy to the latest master, then use the ``util/release.bash`` script:
+copy to the latest main, then use the ``util/release.bash`` script:
 
 .. code-block:: bash
 
-    git checkout master
-    git pull https://github.com/chapel-lang/sphinxcontrib-chapeldomain master
+    git checkout main
+    git pull https://github.com/chapel-lang/sphinxcontrib-chapeldomain main
     ./util/release.bash
 
 The script does the following:
 
-* Ensure the current branch is master.
+* Ensure the current branch is main
 * Ensure it is run inside a virtualenv.
 * Discover the version, using ``python setup.py --version``.
 * Install the regular, docs, and test requirements.
 * Install the package in develop mode.
 * Run tox against several environments.
-* Tag the tip of master with the version number, and push the tag to the
+* Tag the tip of main with the version number, and push the tag to the
   remote.
 * Clean the repo.
 * Run the python package build and upload to PyPI.
