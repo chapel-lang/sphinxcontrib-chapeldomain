@@ -27,8 +27,9 @@ Overview
 Testing
 -------
 
-`Github Actions`_ runs the tests automically and records code coverage in Codecov_. On
-a local workstation, tox_ can be used to run the tests in a similar fashion.
+`Github Actions`_ runs the tests automatically and records code coverage in
+Codecov_. On a local workstation, tox_ can be used to run the tests in a
+similar fashion.
 
 .. code-block:: bash
 
@@ -45,26 +46,12 @@ a local workstation, tox_ can be used to run the tests in a similar fashion.
 Release
 -------
 
-To release the latest sources on PyPI_ and tag the repo, update your working
-copy to the latest main, then use the ``util/release.bash`` script:
+When a new `release on Github`_ is created, a Github Action will automatically
+upload it to PyPI_.
 
-.. code-block:: bash
-
-    git checkout main
-    git pull https://github.com/chapel-lang/sphinxcontrib-chapeldomain main
-    ./util/release.bash
-
-The script does the following:
-
-* Ensure the current branch is main
-* Ensure it is run inside a virtualenv.
-* Discover the version, using ``python setup.py --version``.
-* Install the regular, docs, and test requirements.
-* Install the package in develop mode.
-* Run tox against several environments.
-* Tag the tip of main with the version number, and push the tag to the
-  remote.
-* Clean the repo.
-* Run the python package build and upload to PyPI.
+You can also upload a test release to test.pypi by manually triggering the
+`upload action`_ on the main repository or your fork.
 
 .. _PyPI: https://pypi.python.org/pypi/sphinxcontrib-chapeldomain
+.. _release on Github: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/releases/new
+.. _upload action: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/python-publish.yml
