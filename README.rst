@@ -9,7 +9,7 @@ Chapel_ domain for Sphinx_.
 .. image:: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/CI.yml/badge.svg
     :target: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/CI.yml
 
-.. image:: https://codecov.io/gh/chapel-lang/sphinxcontrib-chapeldomain/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/chapel-lang/sphinxcontrib-chapeldomain/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/chapel-lang/sphinxcontrib-chapeldomain
 
 `Package documentation`_ is available on readthedocs.org.

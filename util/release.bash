@@ -4,8 +4,8 @@ set -e
 
 CWD=$(cd $(dirname $0) ; pwd)
 
-if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ] ; then
-    echo "ERROR: current branch is not master"
+if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ] ; then
+    echo "ERROR: current branch is not main"
     exit 1
 fi
 
