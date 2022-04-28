@@ -106,12 +106,12 @@ class ChapelLexer(RegexLexer):
             (r"'(\\\\|\\'|[^'])*'", String),
 
             # tokens
-            (r'(=|\+=|-=|\*=|/=|\*\*=|%=|&=|\|=|\^=|&&=|\|\|=|<<=|>>=|'
-             r'<=>|<~>|\.\.|by|#|\.\.\.|'
-             r'&&|\|\||!|&|\||\^|~|<<|>>|'
+            (r'(=|\+=|-=|\*=|/=|\*\*=|\%=|\&=|\|=|\^=|&&=|\|\|=|<<=|>>=|'
+             r'<=>|<\~>|\.\.|by|#|\.\.\.|'
+             r'\&\&|\|\||!|\&|\||\^|~|<<|>>|'
              r'==|!=|<=|>=|<|>|'
              r'[+\-*/%]|\*\*)', Operator),
-            (r'[:;,.?()\[\]{}]', Punctuation),
+            (r'[\:;,.?()\[\]{}]', Punctuation),
 
             # identifiers
             (r'[a-zA-Z_][\w$]*', Name.Other),
@@ -122,7 +122,7 @@ class ChapelLexer(RegexLexer):
         'procname': [
             (r'([a-zA-Z_][.\w$]*|'    # regular function name, including 2ndary
              r'\~[a-zA-Z_][.\w$]*|'   # support for legacy destructors?
-             r'[+*/!~%<>=&^|\-:]{1,2})',  # operators
+             r'[+*/!\~\%<>=\&\^\|\-\:]{1,2})',  # operators
              Name.Function, '#pop'),
 
             # allow `proc (atomic T).foo`
