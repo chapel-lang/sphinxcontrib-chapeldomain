@@ -78,9 +78,10 @@ class ChapelTypedField(TypedField):
                    items: Tuple, env: BuildEnvironment = None,
                    inliner: Inliner = None,
                    location: Node = None) -> nodes.field:
-        """Copy+Paste of TypedField.make_field() from Sphinx version 4.3.2. The first
-        and second nodes.Text() instance are changed in this implementation to
-        be ' : ' and '' respectively (instead of ' (' and ')').
+        """Copy+Paste of TypedField.make_field() from Sphinx version 4.3.2. The
+        first and second nodes.Text() instance are changed in this
+        implementation to be ' : ' and '' respectively (instead of ' (' and
+        ')').
 
         TODO: Ask sphinx devs if there is a better way to support
               this that is less copy+pasty. (thomasvandoren, 2015-03-17)
@@ -123,8 +124,8 @@ class ChapelTypedField(TypedField):
 
 
 class ChapelObject(ObjectDescription):
-    """Base class for Chapel directives. It has methods for parsing signatures of
-    any form, and generating target and index text.
+    """Base class for Chapel directives. It has methods for parsing signatures
+    of any form, and generating target and index text.
     """
 
     option_spec = {
@@ -239,9 +240,10 @@ class ChapelObject(ObjectDescription):
                 ('function', 'iterfunction', 'method', 'itermethod'))
 
     def _get_sig_prefix(self, sig):
-        """Return signature prefix text. For attribute, data, and proc/iter directives
-        this might be part of the signature. E.g. `type myNewType` will return
-        a prefix of 'type' and `inline proc foo()` will return 'inline proc'.
+        """Return signature prefix text. For attribute, data, and proc/iter
+        directives this might be part of the signature. E.g. `type myNewType`
+        will return a prefix of 'type' and `inline proc foo()` will return
+        'inline proc'.
         """
         if self._is_proc_like():
             return self._get_proc_like_prefix(sig)
@@ -257,15 +259,15 @@ class ChapelObject(ObjectDescription):
         return ''
 
     def needs_arglist(self):
-        """May return True if an empty argument list is to be generated even if the
-        document contains none.
+        """May return True if an empty argument list is to be generated even if
+        the document contains none.
         """
         return False
 
     def handle_signature(self, sig, signode):
-        """Parse the signature *sig* into individual nodes and append them to the
-        *signode*. If ValueError is raises, parsing is aborted and the whole
-        *sig* string is put into a single desc_name node.
+        """Parse the signature *sig* into individual nodes and append them to
+        the *signode*. If ValueError is raises, parsing is aborted and the
+        whole *sig* string is put into a single desc_name node.
 
         The return value is the value that identifies the object. IOW, it is
         the identifier that will be used to reference this object, datum,
@@ -409,10 +411,10 @@ class ChapelModule(Directive):
     }
 
     def run(self):
-        """Custom execution for chapel module directive. This class is instantiated by
-        the directive implementation and then this method is called. It parses
-        the options on the module directive, updates the environment according,
-        and creates an index entry for the module.
+        """Custom execution for chapel module directive. This class is
+        instantiated by the directive implementation and then this method is
+        called. It parses the options on the module directive, updates the
+        environment according, and creates an index entry for the module.
 
         Based on the python domain module directive.
         """
@@ -446,8 +448,8 @@ class ChapelModule(Directive):
 
 
 class ChapelCurrentModule(Directive):
-    """this directive is just to tell Sphinx that we're documenting stuff in module
-    foo, but links to module foo won't lead here.
+    """this directive is just to tell Sphinx that we're documenting stuff in
+    module foo, but links to module foo won't lead here.
     """
 
     has_content = False
@@ -485,8 +487,8 @@ class ChapelClassMember(ChapelObject):
             return ''
 
     def get_signature_prefix(self, sig):
-        """Return signature prefix based on sig. May include portion of the sig text,
-        if relevant (e.g. `proc foo()` will return 'proc' here.
+        """Return signature prefix based on sig. May include portion of the sig
+        text, if relevant (e.g. `proc foo()` will return 'proc' here.
         """
         return self._get_sig_prefix(sig)
 
@@ -545,8 +547,8 @@ class ChapelClassObject(ChapelObject):
             return ''
 
     def before_content(self):
-        """Called before parsing content. Push the class name onto the class name
-        stack. Used to construct the full name for members.
+        """Called before parsing content. Push the class name onto the class
+        name stack. Used to construct the full name for members.
         """
         ChapelObject.before_content(self)
         if self.names:
@@ -555,8 +557,8 @@ class ChapelClassObject(ChapelObject):
 
 
 class ChapelModuleLevel(ChapelObject):
-    """Chapel module level functions, types, and variables (i.e. data directives)
-    descriptions.
+    """Chapel module level functions, types, and variables (i.e. data
+    directives) descriptions.
     """
 
     @property
@@ -576,8 +578,8 @@ class ChapelModuleLevel(ChapelObject):
             return ''
 
     def get_signature_prefix(self, sig):
-        """Return signature prefix based on sig. May include portion of the sig text,
-        if relevant (e.g. `proc foo()` will return `proc` here.
+        """Return signature prefix based on sig. May include portion of the sig
+        text, if relevant (e.g. `proc foo()` will return `proc` here.
         """
         return self._get_sig_prefix(sig)
 
@@ -611,9 +613,9 @@ class ChapelXRefRole(XRefRole):
     """
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        """Called after parsing title and target text, and creating the reference
-        node. Alter the reference node and return it with chapel module and
-        class information, if relevant.
+        """Called after parsing title and target text, and creating the
+        reference node. Alter the reference node and return it with chapel
+        module and class information, if relevant.
         """
         refnode['chpl:module'] = env.temp_data.get('chpl:module')
         refnode['chpl:class'] = env.temp_data.get('chpl:class')
@@ -647,8 +649,8 @@ class ChapelModuleIndex(Index):
     shortname = _('modules')
 
     def generate(self, docnames=None):
-        """Returns entries for index given by ``name``. If ``docnames`` is given,
-        restrict to entries referring to these docnames.
+        """Returns entries for index given by ``name``. If ``docnames`` is
+        given, restrict to entries referring to these docnames.
 
         Retunrs tuple of ``(content, collapse)``. ``collapse`` is bool. When
         True, sub-entries should start collapsed for output formats that
@@ -848,8 +850,8 @@ class ChapelDomain(Domain):
             del self.data['anonlabels'][anonlabelname]
 
     def find_obj(self, env, modname, classname, name, type_name, searchmode=0):
-        """Find a Chapel object for "name", possibly with module or class/record
-        name. Returns a list of (name, object entry) tuples.
+        """Find a Chapel object for "name", possibly with module or
+        class/record name. Returns a list of (name, object entry) tuples.
 
         :arg int searchmode: If 1, search more specific names first. Otherwise,
             search built-ins first and then get more specific.
@@ -908,9 +910,9 @@ class ChapelDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      type_name, target, node, contnode):
-        """Resolve the pending_xref *node* with give *type_name* and *target*. Returns
-        None if xref node can not be resolved. If xref can be resolved, returns
-        new node containing the *contnode*.
+        """Resolve the pending_xref *node* with give *type_name* and *target*.
+        Returns None if xref node can not be resolved. If xref can be resolved,
+        returns new node containing the *contnode*.
         """
         # Special case the :chpl:chplref:`chplmodindex` instances.
         if type_name == 'chplref':
@@ -956,9 +958,9 @@ class ChapelDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
-        """Similar to :py:meth:`ChapelDomain.resolve_xref`, but applies to *any* or
-        similar role where type is not known. This returns a list of tuples
-        with ("domain:role", newnode).
+        """Similar to :py:meth:`ChapelDomain.resolve_xref`, but applies to
+        *any* or similar role where type is not known. This returns a list of
+        tuples with ("domain:role", newnode).
         """
         modname = node.get('chpl:module')
         clsname = node.get('chpl:class')
@@ -1016,8 +1018,8 @@ class ChapelDomain(Domain):
                             'module-' + name, contnode, title)
 
     def merge_domaindata(self, docnames, otherdata):
-        """Merge in data regarding *docnames* from a different domaindata inventory
-        (coming froma subprocess in a parallel build).
+        """Merge in data regarding *docnames* from a different domaindata
+        inventory (coming from a subprocess in a parallel build).
         """
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
@@ -1033,7 +1035,8 @@ class ChapelDomain(Domain):
                 self.data['anonlabels'][anonlabelname] = data
 
     def get_objects(self):
-        """Return iterable of "object descriptions", which are tuple with these items:
+        """Return iterable of "object descriptions", which are tuple with these
+        items:
 
         * `name`
         * `dispname`
