@@ -494,7 +494,7 @@ class ChapelClassMember(ChapelObject):
 
     def get_signature_prefix(self, sig):
         """Return signature prefix based on sig. May include portion of the sig
-        text, if relevant (e.g. `proc foo()` will return 'proc' here.
+        text, if relevant (e.g. `proc foo()` will return 'proc' here).
         """
         return self._get_sig_prefix(sig)
 
@@ -599,7 +599,7 @@ class ChapelModuleLevel(ChapelObject):
 
     def get_signature_prefix(self, sig):
         """Return signature prefix based on sig. May include portion of the sig
-        text, if relevant (e.g. `proc foo()` will return `proc` here.
+        text, if relevant (e.g. `proc foo()` will return `proc` here).
         """
         return self._get_sig_prefix(sig)
 
@@ -677,7 +677,7 @@ class ChapelModuleIndex(Index):
         """Returns entries for index given by ``name``. If ``docnames`` is
         given, restrict to entries referring to these docnames.
 
-        Retunrs tuple of ``(content, collapse)``. ``collapse`` is bool. When
+        Returns tuple of ``(content, collapse)``. ``collapse`` is bool. When
         True, sub-entries should start collapsed for output formats that
         support collapsing.
 
