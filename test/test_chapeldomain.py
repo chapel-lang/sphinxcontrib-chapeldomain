@@ -6,12 +6,11 @@ from __future__ import print_function, unicode_literals
 
 import docutils.nodes as nodes
 import mock
-import sys
 import unittest
 
 from sphinxcontrib.chapeldomain import (
     ChapelDomain, ChapelModuleIndex, ChapelModuleLevel, ChapelObject,
-    ChapelTypedField,
+    ChapelTypedField, ChapelClassMember,
     chpl_sig_pattern, chpl_attr_sig_pattern,
 )
 
@@ -263,6 +262,8 @@ class ChapelModuleLevelTests(ChapelObjectTestCase):
             ('data', ''),
             ('method', ''),
             ('itermethod', ''),
+            ('opfunction', 'operator'),
+            ('opmethod', ''),
         ]
         for objtype, expected_type in test_cases:
             mod = self.new_obj(objtype)
@@ -277,6 +278,32 @@ class ChapelModuleLevelTests(ChapelObjectTestCase):
             ('data', False),
             ('method', False),
             ('itermethod', False),
+            ('opfunction', True),
+            ('opmethod', False),
+        ]
+        for objtype, expected in test_cases:
+            mod = self.new_obj(objtype)
+            self.assertEqual(expected, mod.needs_arglist())
+
+
+class ChapelClassMemberTests(ChapelObjectTestCase):
+    """ChapelClassMember tests."""
+    object_cls = ChapelClassMember
+
+    def test_init(self):
+        self.assertIsNotNone(self.new_obj("neo"))
+
+    def test_needs_arglist(self):
+        """Verify needs_arglist()."""
+        test_cases = [
+            ('function', False),
+            ('iterfunction', False),
+            ('type', False),
+            ('data', False),
+            ('method', True),
+            ('itermethod', True),
+            ('opfunction', False),
+            ('opmethod', True),
         ]
         for objtype, expected in test_cases:
             mod = self.new_obj(objtype)
@@ -297,6 +324,22 @@ class ChapelObjectTests(ChapelObjectTestCase):
         for objtype in ('data', 'attribute', 'type', 'enum'):
             self.assertTrue(self.new_obj(objtype)._is_attr_like())
 
+    def test_needs_arglist(self):
+        """Verify needs_arglist()."""
+        test_cases = [
+            ('function', False),
+            ('iterfunction', False),
+            ('type', False),
+            ('data', False),
+            ('method', False),
+            ('itermethod', False),
+            ('opfunction', False),
+            ('opmethod', False),
+        ]
+        for objtype, expected in test_cases:
+            mod = self.new_obj(objtype)
+            self.assertEqual(expected, mod.needs_arglist())
+
     def test_is_attr_like__false(self):
         """Verify _is_attr_like return False for non-attr like directive."""
         bad_dirs = [
@@ -308,6 +351,8 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'record',
             'module',
             'random',
+            'opmethod',
+            'opfunction',
             '',
         ]
         for objtype in bad_dirs:
@@ -320,12 +365,14 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'iterfunction',
             'method',
             'itermethod',
+            'opfunction',
+            'opmethod',
         ]
         for objtype in good_dirs:
             self.assertTrue(self.new_obj(objtype)._is_proc_like())
 
     def test_is_proc_like__false(self):
-        """Verify _is_proc_like returns False for proc-like directives."""
+        """Verify _is_proc_like returns False for non proc-like directives."""
         bad_dirs = [
             'data',
             'attribute',
@@ -425,6 +472,31 @@ class ChapelObjectTests(ChapelObjectTestCase):
                 actual_prefix = obj._get_proc_like_prefix(sig)
                 self.assertEqual(prefix, actual_prefix)
 
+    def test_get_proc_like_prefix__op(self):
+        """Verify _get_proc_like_prefix return correct value for
+        several operator signatures.
+        """
+        test_cases = [
+            ('', ''),
+            ('_', 'operator '),
+            ('operator foo', 'operator '),
+            ('operator foo()', 'operator '),
+            ('operator foo', 'operator '),
+            ('inline operator foo', 'inline operator '),
+            ('operator foo() ref', 'operator '),
+            ('operator foo() ref', 'operator '),
+            ('inline operator foo(x, y): int(32)', 'inline operator '),
+            ('operator operator operator operator operator operator',
+             'operator operator operator operator operator '),
+            ('operator +=(other:T)', 'operator '),
+            ('operator --(other:T)', 'operator '),
+        ]
+        for objtype in ('opmethod', 'opfunction'):
+            obj = self.new_obj(objtype)
+            for sig, prefix in test_cases:
+                actual_prefix = obj._get_proc_like_prefix(sig)
+                self.assertEqual(prefix, actual_prefix)
+
     def test_get_proc_like_prefix__bad_objtype(self):
         """Verify weird case where sig matches, but objtype is incorrect."""
         actual_prefix = self.new_obj('bogus')._get_proc_like_prefix('foo')
@@ -440,6 +512,13 @@ class ChapelObjectTests(ChapelObjectTestCase):
         for objtype in ('function', 'iterfunction', 'method', 'itermethod'):
             obj = self.new_obj(objtype)
             self.assertEqual('inline proc ', obj._get_sig_prefix('inline proc x'))
+
+    def test_get_sig_prefix__op_like(self):
+        """Verify return proc prefix for operator objtype."""
+        for objtype in ('opfunction', 'opmethod'):
+            obj = self.new_obj(objtype)
+            self.assertEqual('inline operator ',
+                             obj._get_sig_prefix('inline operator +'))
 
     def test_get_sig_prefix__attr_like(self):
         """Verify returns attr prefix for attr-like objtype."""
@@ -661,8 +740,9 @@ class SigPatternTests(PatternTestCase):
         test_cases = [
             ('proc foo()', 'proc ', 'foo', ''),
             ('inline proc foo()', 'inline proc ', 'foo', ''),
-            ('inline proc +()', 'inline proc ', '+', ''),
+            ('inline operator +()', 'inline operator ', '+', ''),
             ('inline iter basic()', 'inline iter ', 'basic', ''),
+            ('inline operator +', 'inline operator ', '+', None),
         ]
         for sig, prefix, name, arglist in test_cases:
             self.check_sig(sig, prefix, None, name, arglist, None)
@@ -699,6 +779,13 @@ class SigPatternTests(PatternTestCase):
             ('proc specialArg(const ref x: int)', 'proc ', None, 'specialArg', 'const ref x: int', None),
             ('proc specialReturn() const ref', 'proc ', None, 'specialReturn', '', ' const ref'),
             ('proc constRefArgAndReturn(const ref x: int) const ref', 'proc ', None, 'constRefArgAndReturn', 'const ref x: int', ' const ref'),
+            ('operator string.+(s0: string, s1: string) : string', 'operator ', 'string.', '+', 's0: string, s1: string', ' : string'),
+            ('operator *(s: string, n: integral) : string', 'operator ', None, '*', 's: string, n: integral', ' : string'),
+            ('inline operator string.==(param s0: string, param s1: string) param', 'inline operator ', 'string.', '==', 'param s0: string, param s1: string', ' param'),
+            ('operator bytes.=(ref lhs: bytes, rhs: bytes) : void ', 'operator ', 'bytes.', '=', 'ref lhs: bytes, rhs: bytes', ' : void '),
+            # can't handle this pattern, ":" is set as punctuation, and casts don't seem to be doc'd anyway
+            # ('operator :(x: bytes)', 'operator ', None, ':', 'x: bytes', None),
+
          ]
         for sig, prefix, class_name, name, arglist, retann in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann)
