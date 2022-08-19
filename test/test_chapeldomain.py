@@ -309,6 +309,23 @@ class ChapelClassMemberTests(ChapelObjectTestCase):
             mod = self.new_obj(objtype)
             self.assertEqual(expected, mod.needs_arglist())
 
+    def test_chpl_type_name(self):
+        """Verify chpl_type_name property for different objtypes."""
+        test_cases = [
+            ('function', ''),
+            ('iterfunction', ''),
+            ('type', ''),
+            ('data', ''),
+            ('attribute', ''),
+            ('method', 'method'),
+            ('itermethod', 'iterator'),
+            ('opfunction', ''),
+            ('opmethod', 'operator'),
+        ]
+        for objtype, expected_type in test_cases:
+            mod = self.new_obj(objtype)
+            self.assertEqual(expected_type, mod.chpl_type_name)
+
 
 class ChapelObjectTests(ChapelObjectTestCase):
     """ChapelObject tests."""
