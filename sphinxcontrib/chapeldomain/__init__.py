@@ -40,16 +40,16 @@ VERSION = '0.0.23'
 
 # regex for parsing proc, iter, class, record, etc.
 chpl_sig_pattern = re.compile(
-    r"""^ ((?:\w+\s+)*                        # optional: prefixes
-           (?:proc|iter|class|record)\s+      #   must end with keyword
-           (?:type\s+|param\s+)?              # optional: type or param method
+    r"""^ ((?:\w+\s+)*                             # opt: prefixes
+           (?:proc|iter|class|record|operator)\s+  # must end with keyword
+           (?:type\s+|param\s+)?                   # opt: type or param method
           )?
-          ([\w$.]*\.)?                        # class name(s)
-          ([\w\+\-/\*$\<\=\>\!]+)  \s*        # function or method name
-          (?:\((.*?)\))?                      # optional: arguments
-          (\s+(?:const\s)? \w+|               #   or return intent
-           \s* : \s* [^:]+|                   #   or return type
-           \s+(?:const\s)? \w+\s* : \s* [^:]+ #   or return intent and type
+          ([\w$.]*\.)?                             # class name(s)
+          ([\w\+\-/\*$\<\=\>\!]+)  \s*             # function or method name
+          (?:\((.*?)\))?                           # opt: arguments
+          (\s+(?:const\s)? \w+|                    #  or return intent
+           \s* : \s* [^:]+|                        #  or return type
+           \s+(?:const\s)? \w+\s* : \s* [^:]+      #  or return intent and type
           )?
           $""", re.VERBOSE)
 
@@ -227,6 +227,8 @@ class ChapelObject(ObjectDescription):
             return 'iter' + ' '
         elif self.objtype in ('method', 'function'):
             return 'proc' + ' '
+        elif self.objtype in ('opfunction', 'opmethod'):
+            return 'operator' + ' '
         else:
             return ChapelObject.get_signature_prefix(self, sig)
 
@@ -237,7 +239,9 @@ class ChapelObject(ObjectDescription):
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
         return (self.objtype in
-                ('function', 'iterfunction', 'method', 'itermethod'))
+                ('function', 'iterfunction',
+                 'method', 'itermethod',
+                 'opfunction', 'opmethod'))
 
     def _get_sig_prefix(self, sig):
         """Return signature prefix text. For attribute, data, and proc/iter
@@ -483,12 +487,14 @@ class ChapelClassMember(ChapelObject):
             return 'iterator'
         elif self.objtype == 'method':
             return 'method'
+        elif self.objtype == 'opmethod':
+            return 'operator'
         else:
             return ''
 
     def get_signature_prefix(self, sig):
         """Return signature prefix based on sig. May include portion of the sig
-        text, if relevant (e.g. `proc foo()` will return 'proc' here.
+        text, if relevant (e.g. `proc foo()` will return 'proc' here).
         """
         return self._get_sig_prefix(sig)
 
@@ -574,12 +580,14 @@ class ChapelModuleLevel(ChapelObject):
             return 'iterator'
         elif self.objtype == 'function':
             return 'procedure'
+        elif self.objtype == 'opfunction':
+            return 'operator'
         else:
             return ''
 
     def get_signature_prefix(self, sig):
         """Return signature prefix based on sig. May include portion of the sig
-        text, if relevant (e.g. `proc foo()` will return `proc` here.
+        text, if relevant (e.g. `proc foo()` will return `proc` here).
         """
         return self._get_sig_prefix(sig)
 
@@ -652,7 +660,7 @@ class ChapelModuleIndex(Index):
         """Returns entries for index given by ``name``. If ``docnames`` is
         given, restrict to entries referring to these docnames.
 
-        Retunrs tuple of ``(content, collapse)``. ``collapse`` is bool. When
+        Returns tuple of ``(content, collapse)``. ``collapse`` is bool. When
         True, sub-entries should start collapsed for output formats that
         support collapsing.
 
@@ -763,6 +771,8 @@ class ChapelDomain(Domain):
         'itermethod': ObjType(_('itermethod'), 'meth', 'iter'),
         'attribute': ObjType(_('attribute'), 'attr'),
         'module': ObjType(_('module'), 'mod'),
+        'opmethod': ObjType(_('opmethod'), 'op'),
+        'opfunction': ObjType(_('opfunction'), 'op'),
     }
 
     directives = {
@@ -770,6 +780,7 @@ class ChapelDomain(Domain):
         'type': ChapelModuleLevel,
         'function': ChapelModuleLevel,
         'iterfunction': ChapelModuleLevel,
+        'opfunction': ChapelModuleLevel,
 
         # TODO: Consider making enums ChapelClassObject, then each constant
         #       becomes an attribute on the class. Then xrefs to each constant
@@ -780,6 +791,7 @@ class ChapelDomain(Domain):
         'class': ChapelClassObject,
         'record': ChapelClassObject,
         'method': ChapelClassMember,
+        'opmethod': ChapelClassMember,
         'itermethod': ChapelClassMember,
         'attribute': ChapelClassMember,
         'module': ChapelModule,
@@ -802,6 +814,7 @@ class ChapelDomain(Domain):
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),
         'chplref': ChapelXRefRole(),
+        'op': ChapelXRefRole(),
     }
 
     initial_data = {
