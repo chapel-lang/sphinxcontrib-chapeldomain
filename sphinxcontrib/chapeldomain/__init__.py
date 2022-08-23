@@ -506,19 +506,7 @@ class ChapelClassMember(ChapelObject):
         """Return text for index entry based on object type."""
         name, cls = name_cls
         add_modules = self.env.config.add_module_names
-        if self.objtype == 'opmethod':
-            try:
-                clsname, attrname = name.rsplit('.', 1)
-            except ValueError:
-                if modname:
-                    return _('%s (in module %s)') % (name, modname)
-                else:
-                    return name
-            if modname and add_modules:
-                return _('%s (%s.%s opmethod)') % (attrname, modname, clsname)
-            else:
-                return _('%s (%s opmethod)') % (attrname, clsname)
-        elif self.objtype.endswith('method'):
+        if self.objtype.endswith('method'):
             try:
                 clsname, methname = name.rsplit('.', 1)
             except ValueError:
@@ -609,12 +597,7 @@ class ChapelModuleLevel(ChapelObject):
 
     def get_index_text(self, modname, name_cls):
         """Return text for index entry based on object type."""
-        if self.objtype == 'opfunction':
-            if not modname:
-                return _('%s() (opfunction %s)') % \
-                    (name_cls[0], self.chpl_type_name)
-            return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype.endswith('function'):
+        if self.objtype.endswith('function'):
             if not modname:
                 return _('%s() (built-in %s)') % \
                     (name_cls[0], self.chpl_type_name)
