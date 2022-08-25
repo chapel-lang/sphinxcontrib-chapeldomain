@@ -1,5 +1,5 @@
 flake8==5.0.4
 mock
-pytest
+pytest==7.1.1
 pytest-cov
 tox
