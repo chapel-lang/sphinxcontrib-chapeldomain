@@ -42,7 +42,8 @@ VERSION = '0.0.24'
 chpl_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*                             # opt: prefixes
            (?:proc|iter|class|record|operator)\s+  # must end with keyword
-           (?:type\s+|param\s+)?                   # opt: type or param method
+           (?:type\s+|param\s+|ref\s+)?            # opt: 'this' intent
+                                                   #  (type, param, ref)
           )?
           ([\w$.]*\.)?                             # class name(s)
           ([\w\+\-/\*$\<\=\>\!]+)  \s*             # function or method name
