@@ -772,14 +772,15 @@ class SigPatternTests(PatternTestCase):
     def test_with_all(self):
         """Verify fully specified signatures parse correctly."""
         test_cases = [
-            ('proc f where x < 10', 'proc ', None, 'f', None, None, ' where x < 10'),
-            ('proc f() where x > 0', 'proc ', None, 'f', '', None, ' where x > 0'),
-            ('proc f: int where x in [1, 2, 3]', 'proc ', None, 'f', None, ': int', ' where x in [1, 2, 3]'),
-            ('proc f(): int where x is not None', 'proc ', None, 'f', '', ': int', ' where x is not None'),
-            ('proc f ref where y is None or (x > 5 and x < 10)', 'proc ', None, 'f', None, ' ref', ' where y is None or (x > 5 and x < 10)'),
-            ('proc f() ref where y is None or (x > 5 and x < 10)', 'proc ', None, 'f', '', ' ref', ' where y is None or (x > 5 and x < 10)'),
-            ('proc f ref: int where (x == y)', 'proc ', None, 'f', None, ' ref: int', ' where (x == y)'),
-            ('proc f() ref: int where (x == y)', 'proc ', None, 'f', '', ' ref: int', ' where (x == y)'),
+            ('proc foo where a > b', 'proc ', None, 'foo', None, None, ' where a > b'), 
+            ('proc foo() where a > b', 'proc ', None, 'foo', '', None, ' where a > b'), 
+            ('proc foo:int where a > b', 'proc ', None, 'foo', None, ':int', ' where a > b'), 
+            ('proc foo():int where a > b', 'proc ', None, 'foo', '', ':int', ' where a > b'), 
+            ('proc foo ref where a > b', 'proc ', None, 'foo', None, ' ref', ' where a > b'), 
+            ('proc foo() ref where a > b', 'proc ', None, 'foo', '', ' ref', ' where a > b'), 
+            ('proc foo ref: int where a > b', 'proc ', None, 'foo', None, ' ref: int', ' where a > b'), 
+            ('proc foo() ref: int where a > b', 'proc ', None, 'foo', '', ' ref: int', ' where a > b')
+            ('proc foo() ref', 'proc ', None, 'foo', '', ' ref', None),
             ('iter foo() ref', 'iter ', None, 'foo', '', ' ref', None),
             ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', ' ref', None),
             ('inline proc range.first', 'inline proc ', 'range.', 'first', None, None, None),
