@@ -643,19 +643,20 @@ class SigPatternTests(PatternTestCase):
     longMessage = True
     pattern = chpl_sig_pattern
 
-    def check_sig(self, sig, func_prefix, name_prefix, name, arglist, retann):
+    def check_sig(self, sig, func_prefix, name_prefix, name, arglist, retann, where_clause):
         """Verify signature results in appropriate matches."""
         fail_msg = 'sig: {0}'.format(sig)
 
         match = self.pattern.match(sig)
         self.assertIsNotNone(match, msg=fail_msg)
 
-        (actual_func_prefix, actual_name_prefix, actual_name, actual_arglist, actual_retann) = match.groups()
+        (actual_func_prefix, actual_name_prefix, actual_name, actual_arglist, actual_retann, actual_where_clause) = match.groups()
         self.assertEqual(func_prefix, actual_func_prefix, msg=fail_msg)
         self.assertEqual(name_prefix, actual_name_prefix, msg=fail_msg)
         self.assertEqual(name, actual_name, msg=fail_msg)
         self.assertEqual(arglist, actual_arglist, msg=fail_msg)
         self.assertEqual(retann, actual_retann, msg=fail_msg)
+        self.assertEqual(where_clause, actual_where_clause, msg=fail_msg)
 
     def test_does_not_match(self):
         """Verify various signatures that should not match."""
@@ -685,7 +686,7 @@ class SigPatternTests(PatternTestCase):
             '**',
         ]
         for sig in test_cases:
-            self.check_sig(sig, None, None, sig, None, None)
+            self.check_sig(sig, None, None, sig, None, None, None)
 
     def test_no_args(self):
         """Verify various functions with no args parse correctly."""
@@ -704,7 +705,7 @@ class SigPatternTests(PatternTestCase):
             ('x ()', 'x'),
         ]
         for sig, name in test_cases:
-            self.check_sig(sig, None, None, name, '', None)
+            self.check_sig(sig, None, None, name, '', None, None)
 
     def test_with_args(self):
         """Verify function signatures with arguments parse correctly."""
@@ -720,26 +721,26 @@ class SigPatternTests(PatternTestCase):
             ('++++++++++++++++++++ ( +++ )', '++++++++++++++++++++', ' +++ '),
         ]
         for sig, name, arglist in test_cases:
-            self.check_sig(sig, None, None, name, arglist, None)
+            self.check_sig(sig, None, None, name, arglist, None, None)
 
     def test_with_return_type(self):
         """Verify function signatures with return types parse correctly."""
         test_cases = [
-            ('x(): int', 'x', '', ': int'),
-            ('x(): MyMod.MyClass', 'x', '', ': MyMod.MyClass'),
-            ('x(): int(32)', 'x', '', ': int(32)'),
-            ('x():int(32)', 'x', '', ':int(32)'),
-            ('x(y:int(64)):int(32)', 'x', 'y:int(64)', ':int(32)'),
-            ('x(y:int(64), d: domain(r=2, i=int, s=true)): [{1..5}] real', 'x', 'y:int(64), d: domain(r=2, i=int, s=true)', ': [{1..5}] real'),
-            ('x(): domain(1)', 'x', '', ': domain(1)'),
-            ('x(): [{1..n}] BigNum', 'x', '', ': [{1..n}] BigNum'),
-            ('x(): nil', 'x', '', ': nil'),
-            ('x() ref', 'x', '', ' ref'),
-            ('x() const', 'x', '', ' const'),
-            ('x(ref x:int(32)) const', 'x', 'ref x:int(32)', ' const'),
+            ('x(): int', 'x', '', ': int', None),
+            ('x(): MyMod.MyClass', 'x', '', ': MyMod.MyClass', None),
+            ('x(): int(32)', 'x', '', ': int(32)', None),
+            ('x():int(32)', 'x', '', ':int(32)', None),
+            ('x(y:int(64)):int(32)', 'x', 'y:int(64)', ':int(32)', None),
+            ('x(y:int(64), d: domain(r=2, i=int, s=true)): [{1..5}] real', 'x', 'y:int(64), d: domain(r=2, i=int, s=true)', ': [{1..5}] real', None),
+            ('x(): domain(1)', 'x', '', ': domain(1)', None),
+            ('x(): [{1..n}] BigNum', 'x', '', ': [{1..n}] BigNum', None),
+            ('x(): nil', 'x', '', ': nil', None),
+            ('x() ref', 'x', '', ' ref', None),
+            ('x() const', 'x', '', ' const', None),
+            ('x(ref x:int(32)) const', 'x', 'ref x:int(32)', ' const', None),
         ]
-        for sig, name, arglist, retann in test_cases:
-            self.check_sig(sig, None, None, name, arglist, retann)
+        for sig, name, arglist, retann, where_clause in test_cases:
+            self.check_sig(sig, None, None, name, arglist, retann, where_clause)
 
     def test_with_class_names(self):
         """Verify function signatures with class names parse correctly."""
@@ -754,7 +755,7 @@ class SigPatternTests(PatternTestCase):
             ('MyMod.MyClass.foo()', 'MyMod.MyClass.', 'foo', ''),
         ]
         for sig, class_name, name, arglist in test_cases:
-            self.check_sig(sig, None, class_name, name, arglist, None)
+            self.check_sig(sig, None, class_name, name, arglist, None, None)
 
     def test_with_prefixes(self):
         """Verify functions with prefixes parse correctly."""
@@ -766,51 +767,55 @@ class SigPatternTests(PatternTestCase):
             ('inline operator +', 'inline operator ', '+', None),
         ]
         for sig, prefix, name, arglist in test_cases:
-            self.check_sig(sig, prefix, None, name, arglist, None)
+            self.check_sig(sig, prefix, None, name, arglist, None, None)
 
     def test_with_all(self):
         """Verify fully specified signatures parse correctly."""
         test_cases = [
-            ('proc foo() ref', 'proc ', None, 'foo', '', ' ref'),
-            ('iter foo() ref', 'iter ', None, 'foo', '', ' ref'),
-            ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', ' ref'),
-            ('inline proc range.first', 'inline proc ', 'range.', 'first', None, None),
-            ('iter Math.fib(n: int(64)): GMP.BigInt', 'iter ', 'Math.', 'fib', 'n: int(64)', ': GMP.BigInt'),
-            ('proc My.Mod.With.Deep.NameSpace.1.2.3.432.foo()', 'proc ', 'My.Mod.With.Deep.NameSpace.1.2.3.432.', 'foo', '', None),
-            ('these() ref', None, None, 'these', '', ' ref'),
-            ('size', None, None, 'size', None, None),
-            ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', ': Containers.Vector'),
-            ('proc MyClass$.lock$(combo$): sync bool', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync bool'),
-            ('proc MyClass$.lock$(combo$): sync myBool$', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync myBool$'),
-            ('proc type currentTime(): int(64)', 'proc type ', None, 'currentTime', '', ': int(64)'),
-            ('proc param int.someNum(): int(64)', 'proc param ', 'int.', 'someNum', '', ': int(64)'),
-            ('proc MyRs(seed: int(64)): int(64)', 'proc ', None, 'MyRs', 'seed: int(64)', ': int(64)'),
+            ('proc f where x < 10', 'proc ', None, 'f', None, None, ' where x < 10'),
+            ('proc f() where x > 0', 'proc ', None, 'f', '', None, ' where x > 0'),
+            ('proc f: int where x in [1, 2, 3]', 'proc ', None, 'f', None, ': int', ' where x in [1, 2, 3]'),
+            ('proc f(): int where x is not None', 'proc ', None, 'f', '', ': int', ' where x is not None'),
+            ('proc f ref where y is None or (x > 5 and x < 10)', 'proc ', None, 'f', None, ' ref', ' where y is None or (x > 5 and x < 10)'),
+            ('proc f() ref where y is None or (x > 5 and x < 10)', 'proc ', None, 'f', '', ' ref', ' where y is None or (x > 5 and x < 10)'),
+            ('proc f ref: int where (x == y)', 'proc ', None, 'f', None, ' ref: int', ' where (x == y)'),
+            ('proc f() ref: int where (x == y)', 'proc ', None, 'f', '', ' ref: int', ' where (x == y)'),
+            ('iter foo() ref', 'iter ', None, 'foo', '', ' ref', None),
+            ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', ' ref', None),
+            ('inline proc range.first', 'inline proc ', 'range.', 'first', None, None, None),
+            ('proc My.Mod.With.Deep.NameSpace.1.2.3.432.foo()', 'proc ', 'My.Mod.With.Deep.NameSpace.1.2.3.432.', 'foo', '', None, None),
+            ('these() ref', None, None, 'these', '', ' ref', None),
+            ('size', None, None, 'size', None, None, None),
+            ('proc Util.toVector(type eltType, cap=4, offset=0): Containers.Vector', 'proc ', 'Util.', 'toVector', 'type eltType, cap=4, offset=0', ': Containers.Vector', None),
+            ('proc MyClass$.lock$(combo$): sync bool', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync bool', None),
+            ('proc MyClass$.lock$(combo$): sync myBool$', 'proc ', 'MyClass$.', 'lock$', 'combo$', ': sync myBool$', None),
+            ('proc type currentTime(): int(64)', 'proc type ', None, 'currentTime', '', ': int(64)', None),
+            ('proc param int.someNum(): int(64)', 'proc param ', 'int.', 'someNum', '', ': int(64)', None),
+            ('proc MyRs(seed: int(64)): int(64)', 'proc ', None, 'MyRs', 'seed: int(64)', ': int(64)', None),
             ('proc RandomStream(seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true)',
-             'proc ', None, 'RandomStream', 'seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true', None),
-            ('class X', 'class ', None, 'X', None, None),
-            ('class MyClass:YourClass', 'class ', None, 'MyClass', None, ':YourClass'),
-            ('class M.C : A, B, C', 'class ', 'M.', 'C', None, ': A, B, C'),
-            ('record R', 'record ', None, 'R', None, None),
-            ('record MyRec:SuRec', 'record ', None, 'MyRec', None, ':SuRec'),
-            ('record N.R : X, Y, Z', 'record ', 'N.', 'R', None, ': X, Y, Z'),
+             'proc ', None, 'RandomStream', 'seed: int(64) = SeedGenerator.currentTime, param parSafe: bool = true', None, None),
+            ('class X', 'class ', None, 'X', None, None, None),
+            ('class MyClass:YourClass', 'class ', None, 'MyClass', None, ':YourClass', None),
+            ('class M.C : A, B, C', 'class ', 'M.', 'C', None, ': A, B, C', None),
+            ('record R', 'record ', None, 'R', None, None, None),
+            ('record MyRec:SuRec', 'record ', None, 'MyRec', None, ':SuRec', None),
+            ('record N.R : X, Y, Z', 'record ', 'N.', 'R', None, ': X, Y, Z', None),
             ('proc rcRemote(replicatedVar: [?D] ?MYTYPE, remoteLoc: locale) ref: MYTYPE',
-             'proc ', None, 'rcRemote', 'replicatedVar: [?D] ?MYTYPE, remoteLoc: locale', ' ref: MYTYPE'),
+             'proc ', None, 'rcRemote', 'replicatedVar: [?D] ?MYTYPE, remoteLoc: locale', ' ref: MYTYPE', None),
             ('proc rcLocal(replicatedVar: [?D] ?MYTYPE) ref: MYTYPE',
-             'proc ', None, 'rcLocal', 'replicatedVar: [?D] ?MYTYPE', ' ref: MYTYPE'),
-            ('proc specialArg(const ref x: int)', 'proc ', None, 'specialArg', 'const ref x: int', None),
-            ('proc specialReturn() const ref', 'proc ', None, 'specialReturn', '', ' const ref'),
-            ('proc constRefArgAndReturn(const ref x: int) const ref', 'proc ', None, 'constRefArgAndReturn', 'const ref x: int', ' const ref'),
-            ('operator string.+(s0: string, s1: string) : string', 'operator ', 'string.', '+', 's0: string, s1: string', ' : string'),
-            ('operator *(s: string, n: integral) : string', 'operator ', None, '*', 's: string, n: integral', ' : string'),
-            ('inline operator string.==(param s0: string, param s1: string) param', 'inline operator ', 'string.', '==', 'param s0: string, param s1: string', ' param'),
-            ('operator bytes.=(ref lhs: bytes, rhs: bytes) : void ', 'operator ', 'bytes.', '=', 'ref lhs: bytes, rhs: bytes', ' : void '),
+             'proc ', None, 'rcLocal', 'replicatedVar: [?D] ?MYTYPE', ' ref: MYTYPE', None),
+            ('proc specialArg(const ref x: int)', 'proc ', None, 'specialArg', 'const ref x: int', None, None),
+            ('proc specialReturn() const ref', 'proc ', None, 'specialReturn', '', ' const ref', None),
+            ('proc constRefArgAndReturn(const ref x: int) const ref', 'proc ', None, 'constRefArgAndReturn', 'const ref x: int', ' const ref', None),
+            ('operator string.+(s0: string, s1: string) : string', 'operator ', 'string.', '+', 's0: string, s1: string', ' : string', None),
+            ('operator *(s: string, n: integral) : string', 'operator ', None, '*', 's: string, n: integral', ' : string', None),
+            ('inline operator string.==(param s0: string, param s1: string) param', 'inline operator ', 'string.', '==', 'param s0: string, param s1: string', ' param', None),
+            ('operator bytes.=(ref lhs: bytes, rhs: bytes) : void ', 'operator ', 'bytes.', '=', 'ref lhs: bytes, rhs: bytes', ' : void ', None),
             # can't handle this pattern, ":" is set as punctuation, and casts don't seem to be doc'd anyway
             # ('operator :(x: bytes)', 'operator ', None, ':', 'x: bytes', None),
-
          ]
-        for sig, prefix, class_name, name, arglist, retann in test_cases:
-            self.check_sig(sig, prefix, class_name, name, arglist, retann)
-
+        for sig, prefix, class_name, name, arglist, retann, where_clause in test_cases:
+            self.check_sig(sig, prefix, class_name, name, arglist, retann, where_clause)
 
 class AttrSigPatternTests(PatternTestCase):
     """Verify chpl_attr_sig_pattern regex."""
