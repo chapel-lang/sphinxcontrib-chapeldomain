@@ -351,7 +351,7 @@ class ChapelObject(ObjectDescription):
                 signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
             if where_clause:
                 signode += addnodes.desc_annotation(' ' + where_clause,
-                ' ' + where_clause)
+                                                    ' ' + where_clause)
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
@@ -361,7 +361,7 @@ class ChapelObject(ObjectDescription):
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
         if where_clause:
             signode += addnodes.desc_annotation(' ' + where_clause,
-            ' ' + where_clause)
+                                                ' ' + where_clause)
         return fullname, name_prefix
 
     def get_index_text(self, modname, name):
