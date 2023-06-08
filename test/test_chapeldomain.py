@@ -779,7 +779,7 @@ class SigPatternTests(PatternTestCase):
             ('proc foo ref where a > b', 'proc ', None, 'foo', None, ' ref', ' where a > b'), 
             ('proc foo() ref where a > b', 'proc ', None, 'foo', '', ' ref', ' where a > b'), 
             ('proc foo ref: int where a > b', 'proc ', None, 'foo', None, ' ref: int', ' where a > b'), 
-            ('proc foo() ref: int where a > b', 'proc ', None, 'foo', '', ' ref: int', ' where a > b')
+            ('proc foo() ref: int where a > b', 'proc ', None, 'foo', '', ' ref: int', ' where a > b'),
             ('proc foo() ref', 'proc ', None, 'foo', '', ' ref', None),
             ('iter foo() ref', 'iter ', None, 'foo', '', ' ref', None),
             ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', ' ref', None),
