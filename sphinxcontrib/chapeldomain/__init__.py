@@ -296,6 +296,11 @@ class ChapelObject(ObjectDescription):
             func_prefix, name_prefix, name, arglist, retann, where_clause = \
                 sig_match.groups()
 
+            # check if where clause is valid
+            if where_clause is not None and not self._is_proc_like():
+                raise ValueError('A where clause has been used on'
+                                 ' a non-proc-like directive.')
+
         modname = self.options.get(
             'module', self.env.temp_data.get('chpl:module'))
         classname = self.env.temp_data.get('chpl:class')
