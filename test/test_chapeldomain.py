@@ -769,6 +769,20 @@ class SigPatternTests(PatternTestCase):
         for sig, prefix, name, arglist in test_cases:
             self.check_sig(sig, prefix, None, name, arglist, None, None)
 
+    def test_with_where_clause(self):
+        """Verify functions with where clauses parse correctly."""
+        test_cases = [
+            ('proc processArr(arr: [1..n] int, f: proc (int) int) where n > 0', 'proc ', 'processArr', 'arr: [1..n] int, f: proc (int) int', None, ' where n > 0'),
+            ('proc processArr(arr: []) where arr.elemType == int', 'proc ', 'processArr', 'arr: []', None, ' where arr.elemType == int'),
+            ('proc processDom(dom: domain) where dom.rank == 2', 'proc ', 'processDom', 'dom: domain', None, ' where dom.rank == 2'),
+            ('proc processRec(r: MyRecord) where r.x > 0', 'proc ', 'processRec', 'r: MyRecord', None, ' where r.x > 0'),
+            ('proc processRange(r: [1..n] int) where n > 0', 'proc ', 'processRange', 'r: [1..n] int', None, ' where n > 0'),
+            ('proc processRange(r: range) where r.low > 1', 'proc ', 'processRange', 'r: range', None, ' where r.low > 1'),
+            ('operator + (a: int, b: int) where a > 0', 'operator ', '+', 'a: int, b: int', None, ' where a > 0'),
+        ]
+        for sig, prefix, name, arglist, retann, where_clause in test_cases:
+            self.check_sig(sig, prefix, None, name, arglist, retann, where_clause)
+
     def test_with_all(self):
         """Verify fully specified signatures parse correctly."""
         test_cases = [
@@ -784,6 +798,7 @@ class SigPatternTests(PatternTestCase):
             ('iter foo() ref', 'iter ', None, 'foo', '', ' ref', None),
             ('inline proc Vector.pop() ref', 'inline proc ', 'Vector.', 'pop', '', ' ref', None),
             ('inline proc range.first', 'inline proc ', 'range.', 'first', None, None, None),
+            ('iter Math.fib(n: int(64)): GMP.BigInt', 'iter ', 'Math.', 'fib', 'n: int(64)', ': GMP.BigInt', None),
             ('proc My.Mod.With.Deep.NameSpace.1.2.3.432.foo()', 'proc ', 'My.Mod.With.Deep.NameSpace.1.2.3.432.', 'foo', '', None, None),
             ('these() ref', None, None, 'these', '', ' ref', None),
             ('size', None, None, 'size', None, None, None),
