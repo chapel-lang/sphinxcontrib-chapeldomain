@@ -48,9 +48,11 @@ chpl_sig_pattern = re.compile(
           ([\w$.]*\.)?                             # class name(s)
           ([\w\+\-/\*$\<\=\>\!]+)  \s*             # function or method name
           (?:\((.*?)\))?                           # opt: arguments
-          (\s+(?:const\s)? \w+|                    #  or return intent
-           \s* : \s* [^:]+|                        #  or return type
-           \s+(?:const\s)? \w+\s* : \s* [^:]+      #  or return intent and type
+          (\s+(?:const\s)? (?:\w+?)|               #  or return intent
+           \s* : \s* (?:[^:]+?)|                   #  or return type
+           \s+(?:const\s)? \w+\s* : \s* (?:[^:]+?) #  or return intent and type
+          )?
+          (\s+where\s+.*                           # Where clause
           )?
           $""", re.VERBOSE)
 
@@ -221,7 +223,7 @@ class ChapelObject(ObjectDescription):
         if sig_match is None:
             return ChapelObject.get_signature_prefix(self, sig)
 
-        prefixes, _, _, _, _ = sig_match.groups()
+        prefixes, _, _, _, _, _ = sig_match.groups()
         if prefixes:
             return prefixes.strip() + ' '
         elif self.objtype.startswith('iter'):
@@ -285,13 +287,19 @@ class ChapelObject(ObjectDescription):
                 raise ValueError('Signature does not parse: {0}'.format(sig))
             func_prefix, name_prefix, name, retann = sig_match.groups()
             arglist = None
+            where_clause = None
         else:
             sig_match = chpl_sig_pattern.match(sig)
             if sig_match is None:
                 raise ValueError('Signature does not parse: {0}'.format(sig))
 
-            func_prefix, name_prefix, name, arglist, retann = \
+            func_prefix, name_prefix, name, arglist, retann, where_clause = \
                 sig_match.groups()
+
+            # check if where clause is valid
+            if where_clause is not None and not self._is_proc_like():
+                raise ValueError('A where clause has been used on'
+                                 ' a non-proc-like directive.')
 
         modname = self.options.get(
             'module', self.env.temp_data.get('chpl:module'))
@@ -346,6 +354,9 @@ class ChapelObject(ObjectDescription):
                 signode += addnodes.desc_type(retann, retann)
             if anno:
                 signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
+            if where_clause:
+                signode += addnodes.desc_annotation(' ' + where_clause,
+                                                    ' ' + where_clause)
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
@@ -353,6 +364,9 @@ class ChapelObject(ObjectDescription):
             signode += addnodes.desc_type(retann, retann)
         if anno:
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
+        if where_clause:
+            signode += addnodes.desc_annotation(' ' + where_clause,
+                                                ' ' + where_clause)
         return fullname, name_prefix
 
     def get_index_text(self, modname, name):
