@@ -800,15 +800,10 @@ class ChapelDomain(Domain):
         'iterfunction': ChapelModuleLevel,
         'opfunction': ChapelModuleLevel,
 
-        # TODO: Consider making enums ChapelClassObject, then each constant
-        #       becomes an attribute on the class. Then xrefs to each constant
-        #       would be possible, plus it would scale to large numbers of
-        #       constants. (thomasvandoren, 2015-03-12)
-        'enum': ChapelClassObject,
-        'enumelement': ChapelClassMember,
-
         'class': ChapelClassObject,
         'record': ChapelClassObject,
+        'enum': ChapelClassObject,
+        'enumelement': ChapelClassMember,
         'method': ChapelClassMember,
         'opmethod': ChapelClassMember,
         'itermethod': ChapelClassMember,
