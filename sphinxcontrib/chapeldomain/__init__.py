@@ -35,7 +35,7 @@ from sphinx.util.nodes import make_refnode
 
 from sphinxcontrib.chapeldomain.chapel import ChapelLexer
 
-VERSION = '0.0.28'
+VERSION = '0.0.27'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -562,7 +562,7 @@ class ChapelClassObject(ChapelObject):
 
     def get_index_text(self, modname, name_cls):
         """Return index entry text based on object type."""
-        if self.objtype in ('class', 'record'):
+        if self.objtype in ('class', 'record', 'enum'):
             if not modname:
                 return _('%s (built-in %s)') % (name_cls[0], self.objtype)
             return _('%s (%s in %s)') % (name_cls[0], self.objtype, modname)
@@ -619,7 +619,7 @@ class ChapelModuleLevel(ChapelObject):
                 return _('%s() (built-in %s)') % \
                     (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype in ('data', 'type', 'enum'):
+        elif self.objtype in ('data', 'type'):
             if not modname:
                 type_name = self.objtype
                 if type_name == 'data':
