@@ -35,7 +35,7 @@ from sphinx.util.nodes import make_refnode
 
 from sphinxcontrib.chapeldomain.chapel import ChapelLexer
 
-VERSION = '0.0.27'
+VERSION = '0.0.28'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -237,7 +237,7 @@ class ChapelObject(ObjectDescription):
 
     def _is_attr_like(self):
         """Returns True when objtype is attribute or data."""
-        return self.objtype in ('attribute', 'data', 'type', 'enum')
+        return self.objtype in ('attribute', 'data', 'type', 'enum', 'enumelement')
 
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
@@ -504,6 +504,8 @@ class ChapelClassMember(ChapelObject):
             return 'method'
         elif self.objtype == 'opmethod':
             return 'operator'
+        elif self.objtype == 'enum-element':
+            return 'enum element'
         else:
             return ''
 
@@ -780,6 +782,7 @@ class ChapelDomain(Domain):
         'function': ObjType(_('function'), 'func', 'proc'),
         'iterfunction': ObjType(_('iterfunction'), 'func', 'iter', 'proc'),
         'enum': ObjType(_('enum'), 'enum'),
+        'enumelement': ObjType(_('enumelement'), 'enumelement'),
         'class': ObjType(_('class'), 'class'),
         'record': ObjType(_('record'), 'record'),
         'method': ObjType(_('method'), 'meth', 'proc'),
@@ -801,7 +804,8 @@ class ChapelDomain(Domain):
         #       becomes an attribute on the class. Then xrefs to each constant
         #       would be possible, plus it would scale to large numbers of
         #       constants. (thomasvandoren, 2015-03-12)
-        'enum': ChapelModuleLevel,
+        'enum': ChapelClassObject,
+        'enumelement': ChapelClassMember,
 
         'class': ChapelClassObject,
         'record': ChapelClassObject,
@@ -825,6 +829,7 @@ class ChapelDomain(Domain):
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
         'enum': ChapelXRefRole(),
+        'enumelement': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),
