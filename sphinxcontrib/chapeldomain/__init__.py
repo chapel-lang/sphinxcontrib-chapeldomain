@@ -237,7 +237,8 @@ class ChapelObject(ObjectDescription):
 
     def _is_attr_like(self):
         """Returns True when objtype is attribute or data."""
-        return self.objtype in ('attribute', 'data', 'type', 'enum', 'enumelement')
+        return self.objtype in ('attribute', 'data',
+                                'type', 'enum', 'enumelement')
 
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
