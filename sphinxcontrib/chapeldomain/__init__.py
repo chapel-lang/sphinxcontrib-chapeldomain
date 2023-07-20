@@ -505,7 +505,7 @@ class ChapelClassMember(ChapelObject):
             return 'method'
         elif self.objtype == 'opmethod':
             return 'operator'
-        elif self.objtype == 'enum-constant':
+        elif self.objtype == 'enumconstant':
             return 'enum constant'
         else:
             return ''
