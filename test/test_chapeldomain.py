@@ -338,7 +338,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
         """Verify _is_attr_like return True for data and
         attribute directives.
         """
-        for objtype in ('data', 'attribute', 'type', 'enum'):
+        for objtype in ('data', 'attribute', 'type', 'enum','enumconstant'):
             self.assertTrue(self.new_obj(objtype)._is_attr_like())
 
     def test_needs_arglist(self):
@@ -399,6 +399,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'module',
             'random',
             'enum',
+            'enumconstant',
             '',
         ]
         for objtype in bad_dirs:
@@ -416,6 +417,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             ('config const n', 'config const '),
             ('blah blah blah blah blah', 'blah blah blah blah '),
             ('enum Color', 'enum '),
+            ('enum constant USA', 'enum constant '),
         ]
         for objtype in ('attribute', 'data'):
             obj = self.new_obj(objtype)
@@ -933,6 +935,10 @@ class AttrSigPatternTests(PatternTestCase):
             ('enum Color { Red, Yellow, Blue }', 'enum ', None, 'Color', ' { Red, Yellow, Blue }'),
             ('enum Month { January=1, February }', 'enum ', None, 'Month', ' { January=1, February }'),
             ('enum One { Neo }', 'enum ', None, 'One', ' { Neo }'),
+            ('enum constant Pink', 'enum constant ', None, 'Pink', None),
+            ('enum constant December', 'enum constant ', None, 'December', None),
+            ('enum constant Hibiscus', 'enum constant ', None, 'Hibiscus', None),
+            ('enum constant Aquarius', 'enum constant ', None, 'Aquarius', None)
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)

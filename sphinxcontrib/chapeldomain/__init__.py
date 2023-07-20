@@ -238,7 +238,7 @@ class ChapelObject(ObjectDescription):
     def _is_attr_like(self):
         """Returns True when objtype is attribute or data."""
         return self.objtype in ('attribute', 'data',
-                                'type', 'enum', 'enumelement')
+                                'type', 'enum', 'enumconstant')
 
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
@@ -505,8 +505,8 @@ class ChapelClassMember(ChapelObject):
             return 'method'
         elif self.objtype == 'opmethod':
             return 'operator'
-        elif self.objtype == 'enum-element':
-            return 'enum element'
+        elif self.objtype == 'enum-constant':
+            return 'enum constant'
         else:
             return ''
 
@@ -783,7 +783,7 @@ class ChapelDomain(Domain):
         'function': ObjType(_('function'), 'func', 'proc'),
         'iterfunction': ObjType(_('iterfunction'), 'func', 'iter', 'proc'),
         'enum': ObjType(_('enum'), 'enum'),
-        'enumelement': ObjType(_('enumelement'), 'enumelement'),
+        'enumconstant': ObjType(_('enumconstant'), 'enumconstant'),
         'class': ObjType(_('class'), 'class'),
         'record': ObjType(_('record'), 'record'),
         'method': ObjType(_('method'), 'meth', 'proc'),
@@ -804,7 +804,7 @@ class ChapelDomain(Domain):
         'class': ChapelClassObject,
         'record': ChapelClassObject,
         'enum': ChapelClassObject,
-        'enumelement': ChapelClassMember,
+        'enumconstant': ChapelClassMember,
         'method': ChapelClassMember,
         'opmethod': ChapelClassMember,
         'itermethod': ChapelClassMember,
@@ -825,7 +825,7 @@ class ChapelDomain(Domain):
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
         'enum': ChapelXRefRole(),
-        'enumelement': ChapelXRefRole(),
+        'enumconstant': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),
