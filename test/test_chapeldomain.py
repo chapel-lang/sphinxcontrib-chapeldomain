@@ -9,7 +9,7 @@ import mock
 import unittest
 
 from sphinxcontrib.chapeldomain import (
-    ChapelDomain, ChapelModuleIndex, ChapelModuleLevel, ChapelObject,
+    ChapelDomain, ChapelModuleIndex, ChapelClassObject, ChapelModuleLevel, ChapelObject,
     ChapelTypedField, ChapelClassMember,
     chpl_sig_pattern, chpl_attr_sig_pattern,
 )
@@ -183,6 +183,17 @@ class ChapelObjectTestCase(unittest.TestCase):
         o.objtype = objtype
         return o
 
+class ChapelModuleLevelTests(ChapelObjectTestCase):
+    """ChapelClassObject tests."""
+
+    object_cls = ChapelClassObject
+
+    def test_get_index_test__enum__mod(self):
+        """Verify get_index_test() for enum with module."""
+        mod = self.new_obj('enum')
+        expected_text = 'Color (enum in MyMod)'
+        actual_text = mod.get_index_text('MyMod', ('Color',))
+        self.assertEqual(expected_text, actual_text)
 
 class ChapelModuleLevelTests(ChapelObjectTestCase):
     """ChapelModuleLevel tests."""
