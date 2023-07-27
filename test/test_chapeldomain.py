@@ -9,7 +9,7 @@ import mock
 import unittest
 
 from sphinxcontrib.chapeldomain import (
-    ChapelDomain, ChapelModuleIndex, ChapelModuleLevel, ChapelObject,
+    ChapelDomain, ChapelModuleIndex, ChapelClassObject, ChapelModuleLevel, ChapelObject,
     ChapelTypedField, ChapelClassMember,
     chpl_sig_pattern, chpl_attr_sig_pattern,
 )
@@ -183,6 +183,17 @@ class ChapelObjectTestCase(unittest.TestCase):
         o.objtype = objtype
         return o
 
+class ChapelModuleLevelTests(ChapelObjectTestCase):
+    """ChapelClassObject tests."""
+
+    object_cls = ChapelClassObject
+
+    def test_get_index_test__enum__mod(self):
+        """Verify get_index_test() for enum with module."""
+        mod = self.new_obj('enum')
+        expected_text = 'Color (enum in MyMod)'
+        actual_text = mod.get_index_text('MyMod', ('Color',))
+        self.assertEqual(expected_text, actual_text)
 
 class ChapelModuleLevelTests(ChapelObjectTestCase):
     """ChapelModuleLevel tests."""
@@ -338,7 +349,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
         """Verify _is_attr_like return True for data and
         attribute directives.
         """
-        for objtype in ('data', 'attribute', 'type', 'enum'):
+        for objtype in ('data', 'attribute', 'type', 'enum','enumconstant'):
             self.assertTrue(self.new_obj(objtype)._is_attr_like())
 
     def test_needs_arglist(self):
@@ -399,6 +410,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'module',
             'random',
             'enum',
+            'enumconstant',
             '',
         ]
         for objtype in bad_dirs:
@@ -416,6 +428,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             ('config const n', 'config const '),
             ('blah blah blah blah blah', 'blah blah blah blah '),
             ('enum Color', 'enum '),
+            ('enum constant USA', 'enum constant '),
         ]
         for objtype in ('attribute', 'data'):
             obj = self.new_obj(objtype)
@@ -933,6 +946,10 @@ class AttrSigPatternTests(PatternTestCase):
             ('enum Color { Red, Yellow, Blue }', 'enum ', None, 'Color', ' { Red, Yellow, Blue }'),
             ('enum Month { January=1, February }', 'enum ', None, 'Month', ' { January=1, February }'),
             ('enum One { Neo }', 'enum ', None, 'One', ' { Neo }'),
+            ('enum constant Pink', 'enum constant ', None, 'Pink', None),
+            ('enum constant December', 'enum constant ', None, 'December', None),
+            ('enum constant Hibiscus', 'enum constant ', None, 'Hibiscus', None),
+            ('enum constant Aquarius', 'enum constant ', None, 'Aquarius', None)
         ]
         for sig, prefix, class_name, attr, type_name in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name)

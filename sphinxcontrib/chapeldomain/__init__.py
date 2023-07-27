@@ -237,7 +237,8 @@ class ChapelObject(ObjectDescription):
 
     def _is_attr_like(self):
         """Returns True when objtype is attribute or data."""
-        return self.objtype in ('attribute', 'data', 'type', 'enum')
+        return self.objtype in ('attribute', 'data',
+                                'type', 'enum', 'enumconstant')
 
     def _is_proc_like(self):
         """Returns True when objtype is *function or *method."""
@@ -504,6 +505,8 @@ class ChapelClassMember(ChapelObject):
             return 'method'
         elif self.objtype == 'opmethod':
             return 'operator'
+        elif self.objtype == 'enumconstant':
+            return 'enum constant'
         else:
             return ''
 
@@ -560,7 +563,7 @@ class ChapelClassObject(ChapelObject):
 
     def get_index_text(self, modname, name_cls):
         """Return index entry text based on object type."""
-        if self.objtype in ('class', 'record'):
+        if self.objtype in ('class', 'record', 'enum'):
             if not modname:
                 return _('%s (built-in %s)') % (name_cls[0], self.objtype)
             return _('%s (%s in %s)') % (name_cls[0], self.objtype, modname)
@@ -617,7 +620,7 @@ class ChapelModuleLevel(ChapelObject):
                 return _('%s() (built-in %s)') % \
                     (name_cls[0], self.chpl_type_name)
             return _('%s() (in module %s)') % (name_cls[0], modname)
-        elif self.objtype in ('data', 'type', 'enum'):
+        elif self.objtype in ('data', 'type'):
             if not modname:
                 type_name = self.objtype
                 if type_name == 'data':
@@ -780,6 +783,7 @@ class ChapelDomain(Domain):
         'function': ObjType(_('function'), 'func', 'proc'),
         'iterfunction': ObjType(_('iterfunction'), 'func', 'iter', 'proc'),
         'enum': ObjType(_('enum'), 'enum'),
+        'enumconstant': ObjType(_('enumconstant'), 'enumconstant'),
         'class': ObjType(_('class'), 'class'),
         'record': ObjType(_('record'), 'record'),
         'method': ObjType(_('method'), 'meth', 'proc'),
@@ -797,14 +801,10 @@ class ChapelDomain(Domain):
         'iterfunction': ChapelModuleLevel,
         'opfunction': ChapelModuleLevel,
 
-        # TODO: Consider making enums ChapelClassObject, then each constant
-        #       becomes an attribute on the class. Then xrefs to each constant
-        #       would be possible, plus it would scale to large numbers of
-        #       constants. (thomasvandoren, 2015-03-12)
-        'enum': ChapelModuleLevel,
-
         'class': ChapelClassObject,
         'record': ChapelClassObject,
+        'enum': ChapelClassObject,
+        'enumconstant': ChapelClassMember,
         'method': ChapelClassMember,
         'opmethod': ChapelClassMember,
         'itermethod': ChapelClassMember,
@@ -825,6 +825,7 @@ class ChapelDomain(Domain):
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
         'enum': ChapelXRefRole(),
+        'enumconstant': ChapelXRefRole(),
         'meth': ChapelXRefRole(),
         'attr': ChapelXRefRole(),
         'mod': ChapelXRefRole(),
