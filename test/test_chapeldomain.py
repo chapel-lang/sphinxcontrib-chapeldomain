@@ -840,8 +840,11 @@ class SigPatternTests(PatternTestCase):
             ('operator *(s: string, n: integral) : string', 'operator ', None, '*', 's: string, n: integral', ' : string', None),
             ('inline operator string.==(param s0: string, param s1: string) param', 'inline operator ', 'string.', '==', 'param s0: string, param s1: string', ' param', None),
             ('operator bytes.=(ref lhs: bytes, rhs: bytes) : void ', 'operator ', 'bytes.', '=', 'ref lhs: bytes, rhs: bytes', ' : void ', None),
-            # can't handle this pattern, ":" is set as punctuation, and casts don't seem to be doc'd anyway
-            # ('operator :(x: bytes)', 'operator ', None, ':', 'x: bytes', None),
+            ('operator :(x: bytes)', 'operator ', None, ':', 'x: bytes', None, None),
+            ('proc x: int', 'proc ', None, 'x', None, ': int', None),
+            ('proc x ref: int', 'proc ', None, 'x', None, ' ref: int', None),
+            ('proc foo.bar: int', 'proc ', 'foo.', 'bar', None, ': int', None),
+            ('proc foo.bar ref: int', 'proc ', 'foo.', 'bar', None, ' ref: int', None),
          ]
         for sig, prefix, class_name, name, arglist, retann, where_clause in test_cases:
             self.check_sig(sig, prefix, class_name, name, arglist, retann, where_clause)
