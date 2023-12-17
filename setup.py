@@ -31,6 +31,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Framework :: Sphinx :: Domain',
         'Framework :: Sphinx :: Extension',
         'Topic :: Documentation',
         'Topic :: Documentation :: Sphinx',
