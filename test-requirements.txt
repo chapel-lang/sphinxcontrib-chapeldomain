@@ -1,4 +1,4 @@
-flake8==5.0.4
+flake8==7.0.0
 mock
 pytest==7.1.2
 pytest-cov
