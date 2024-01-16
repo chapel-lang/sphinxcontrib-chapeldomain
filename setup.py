@@ -42,7 +42,7 @@ setup(
     packages=find_packages(exclude=('test',)),
     include_package_data=True,
     install_requires=[
-        'docutils==0.16',
+        'docutils==0.19',
         'Sphinx==5.3.0',
     ],
     namespace_packages=['sphinxcontrib']
