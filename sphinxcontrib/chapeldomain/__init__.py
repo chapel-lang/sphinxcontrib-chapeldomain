@@ -205,6 +205,27 @@ class ChapelObject(ObjectDescription):
         else:
             signode += paramlist
 
+    @staticmethod
+    def _handle_signature_suffix(signode, retann, anno, where_clause):
+        """handle the signature suffix items like return intent, return type, where clause, annotation, etc."""
+        if retann:
+            if ':' in retann:
+                retintent, _, rettype = retann.partition(':')
+                rettype.strip()
+            else:
+                retintent, rettype = retann, None
+            retintent = retintent.strip()
+            if retintent:
+                signode += addnodes.desc_sig_space(' ', ' ')
+                signode += addnodes.desc_annotation(' ' + retintent, ' ' + retintent)
+            if rettype:
+                signode += addnodes.desc_annotation(' : ' + rettype, ' : ' + rettype)
+        if anno:
+            signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
+        if where_clause:
+            signode += addnodes.desc_annotation(' ' + where_clause,
+                                                ' ' + where_clause)
+
     def _get_attr_like_prefix(self, sig):
         """Return prefix text for attribute or data directive."""
         sig_match = chpl_attr_sig_pattern.match(sig)
@@ -355,23 +376,12 @@ class ChapelObject(ObjectDescription):
             if self.needs_arglist() and arglist is not None:
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
-            if retann:
-                signode += addnodes.desc_type(retann, retann)
-            if anno:
-                signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
-            if where_clause:
-                signode += addnodes.desc_annotation(' ' + where_clause,
-                                                    ' ' + where_clause)
+            self._handle_signature_suffix(signode, retann, anno, where_clause)
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
-        if retann:
-            signode += addnodes.desc_type(retann, retann)
-        if anno:
-            signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
-        if where_clause:
-            signode += addnodes.desc_annotation(' ' + where_clause,
-                                                ' ' + where_clause)
+        self._handle_signature_suffix(signode, retann, anno, where_clause)
+
         return fullname, name_prefix
 
     def get_index_text(self, modname, name):
