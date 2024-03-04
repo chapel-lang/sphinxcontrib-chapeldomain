@@ -217,9 +217,11 @@ class ChapelObject(ObjectDescription):
             retintent = retintent.strip()
             if retintent:
                 signode += addnodes.desc_sig_space(' ', ' ')
-                signode += addnodes.desc_annotation(' ' + retintent, ' ' + retintent)
+                signode += addnodes.desc_annotation(' ' + retintent,
+                                                    ' ' + retintent)
             if rettype:
-                signode += addnodes.desc_annotation(' : ' + rettype, ' : ' + rettype)
+                signode += addnodes.desc_annotation(' : ' + rettype,
+                                                    ' : ' + rettype)
         if anno:
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
         if where_clause:
