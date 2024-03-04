@@ -211,7 +211,7 @@ class ChapelObject(ObjectDescription):
         if retann:
             if ':' in retann:
                 retintent, _, rettype = retann.partition(':')
-                rettype.strip()
+                rettype = rettype.strip()
             else:
                 retintent, rettype = retann, None
             retintent = retintent.strip()
