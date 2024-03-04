@@ -207,7 +207,10 @@ class ChapelObject(ObjectDescription):
 
     @staticmethod
     def _handle_signature_suffix(signode, retann, anno, where_clause):
-        """handle the signature suffix items like return intent, return type, where clause, annotation, etc."""
+        """
+        handle the signature suffix items like return intent, return type,
+        where clause, annotation, etc.
+        """
         if retann:
             if ':' in retann:
                 retintent, _, rettype = retann.partition(':')
