@@ -422,18 +422,6 @@ class ChapelObject(ObjectDescription):
             self.indexnode['entries'].append(('single', indextext,
                                               fullname, '', None))
 
-    def before_content(self):
-        """Called before parsing content. Set flag to help with class scoping.
-        """
-        self.clsname_set = False
-
-    def after_content(self):
-        """Called after parsing content. If any classes were added to the env
-        temp_data, make sure they are removed.
-        """
-        if self.clsname_set:
-            self.env.temp_data.pop('chpl:class', None)
-
 
 class ChapelModule(Directive):
     """Directive to make description of a new module."""
@@ -596,7 +584,20 @@ class ChapelClassObject(ChapelObject):
         ChapelObject.before_content(self)
         if self.names:
             self.env.temp_data['chpl:class'] = self.names[0][0]
-            self.clsname_set = True
+            if not hasattr(self, 'clsname_set'):
+                self.clsname_set = 0
+            self.clsname_set += 1
+
+    def after_content(self):
+        """Called after parsing content. Pop the class name from the longer
+        class name
+        """
+        if self.clsname_set > 0:
+            val = self.env.temp_data.pop('chpl:class', None)
+            if val:
+                elms = val.split('.')[:-1]
+                self.env.temp_data['chpl:class'] = '.'.join(elms)
+            self.clsname_set -= 1
 
 
 class ChapelModuleLevel(ChapelObject):

@@ -21,6 +21,7 @@ Module 'Foo'
    Containers
    foo
    cpp_test
+   nested
 
 **Does it work???**
 
