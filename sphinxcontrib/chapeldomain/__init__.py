@@ -588,7 +588,9 @@ class ChapelClassObject(ChapelObject):
             self.clsname_set += 1
 
     def after_content(self):
-        """Called after parsing content. Pop the class name from the class name"""
+        """Called after parsing content. Pop the class name from the class
+        name
+        """
         if self.clsname_set > 0:
             val = self.env.temp_data.pop('chpl:class', None)
             if val:
