@@ -422,6 +422,7 @@ class ChapelObject(ObjectDescription):
             self.indexnode['entries'].append(('single', indextext,
                                               fullname, '', None))
 
+
 class ChapelModule(Directive):
     """Directive to make description of a new module."""
 
@@ -595,9 +596,8 @@ class ChapelClassObject(ChapelObject):
             val = self.env.temp_data.pop('chpl:class', None)
             if val:
                 elms = val.split('.')[:-1]
-                self.env.temp_data['chpl:class'] ='.'.join(elms)
+                self.env.temp_data['chpl:class'] = '.'.join(elms)
             self.clsname_set -= 1
-
 
 
 class ChapelModuleLevel(ChapelObject):
