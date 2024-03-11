@@ -1,5 +1,8 @@
 .. default-domain:: chpl
 
+Module: MyMod
+==============
+
 .. module:: MyMod
 
 .. record:: TopLevel
