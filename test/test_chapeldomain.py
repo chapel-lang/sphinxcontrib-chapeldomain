@@ -169,14 +169,14 @@ class ChapelObjectTestCase(unittest.TestCase):
         """Return new mocked out ChapelObject"""
         default_args = {
             'name': 'my-chpl',
-            'arguments': mock.Mock('arguments'),
-            'options': mock.Mock('options'),
-            'content': mock.Mock('content'),
-            'lineno': mock.Mock('lineno'),
-            'content_offset': mock.Mock('content_offset'),
-            'block_text': mock.Mock('block_text'),
-            'state': mock.Mock('state'),
-            'state_machine': mock.Mock('state_machine'),
+            'arguments': mock.Mock(name='arguments'),
+            'options': mock.Mock(name='options'),
+            'content': mock.Mock(name='content'),
+            'lineno': mock.Mock(name='lineno'),
+            'content_offset': mock.Mock(name='content_offset'),
+            'block_text': mock.Mock(name='block_text'),
+            'state': mock.Mock(name='state'),
+            'state_machine': mock.Mock(name='state_machine', spec=["reporter",]),
         }
         default_args.update(kwargs)
         o = self.object_cls(**default_args)
