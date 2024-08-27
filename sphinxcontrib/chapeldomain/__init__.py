@@ -41,7 +41,9 @@ VERSION = '0.0.34'
 # regex for parsing proc, iter, class, record, etc.
 chpl_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*                             # opt: prefixes
-           (?:proc|iter|class|record|interface|operator)\s+  # must end with keyword
+           (?:
+            proc|iter|class|record|interface|operator # must end with keyword
+           )\s+
            (?:type\s+|param\s+|ref\s+)?            # opt: 'this' intent
                                                    #  (type, param, ref)
           )?
