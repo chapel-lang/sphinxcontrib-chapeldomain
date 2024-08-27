@@ -41,7 +41,7 @@ VERSION = '0.0.34'
 # regex for parsing proc, iter, class, record, etc.
 chpl_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*                             # opt: prefixes
-           (?:proc|iter|class|record|operator)\s+  # must end with keyword
+           (?:proc|iter|class|record|interface|operator)\s+  # must end with keyword
            (?:type\s+|param\s+|ref\s+)?            # opt: 'this' intent
                                                    #  (type, param, ref)
           )?
@@ -570,7 +570,7 @@ class ChapelClassObject(ChapelObject):
 
     def get_index_text(self, modname, name_cls):
         """Return index entry text based on object type."""
-        if self.objtype in ('class', 'record', 'enum'):
+        if self.objtype in ('class', 'record', 'interface', 'enum'):
             if not modname:
                 return _('%s (built-in %s)') % (name_cls[0], self.objtype)
             return _('%s (%s in %s)') % (name_cls[0], self.objtype, modname)
@@ -806,6 +806,7 @@ class ChapelDomain(Domain):
         'enumconstant': ObjType(_('enumconstant'), 'enumconstant'),
         'class': ObjType(_('class'), 'class'),
         'record': ObjType(_('record'), 'record'),
+        'interface': ObjType(_('interface'), 'interface'),
         'method': ObjType(_('method'), 'meth', 'proc'),
         'itermethod': ObjType(_('itermethod'), 'meth', 'iter'),
         'attribute': ObjType(_('attribute'), 'attr'),
@@ -823,6 +824,7 @@ class ChapelDomain(Domain):
 
         'class': ChapelClassObject,
         'record': ChapelClassObject,
+        'interface': ChapelClassObject,
         'enum': ChapelClassObject,
         'enumconstant': ChapelClassMember,
         'method': ChapelClassMember,
@@ -844,6 +846,7 @@ class ChapelDomain(Domain):
         'iter': ChapelXRefRole(),
         'class': ChapelXRefRole(),
         'record': ChapelXRefRole(),
+        'interface': ChapelXRefRole(),
         'enum': ChapelXRefRole(),
         'enumconstant': ChapelXRefRole(),
         'meth': ChapelXRefRole(),

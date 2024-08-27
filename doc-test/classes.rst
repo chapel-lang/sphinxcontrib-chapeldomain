@@ -13,7 +13,7 @@ Chapel classes
 
 .. class:: ChplVector
 
-    See also :chpl:record:`ChplBigNum`. The :chpl:iter:`these` iterator can be
+    See also :chpl:record:`ChplBigNum` and :chpl:interface:`ChplInterface`. The :chpl:iter:`these` iterator can be
     used to iterate over the elements of the vector.
 
     .. attribute:: type eltType
@@ -101,6 +101,14 @@ Chapel classes
         :rtype: bool
         :returns: True if read was successful.
 
+
+.. interface:: ChplInterface
+
+    Some text goes here
+
+    .. method:: proc Self.foo()
+
+        Some method that does something.
 
 Python classes
 --------------
