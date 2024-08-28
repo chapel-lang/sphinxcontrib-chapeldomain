@@ -377,6 +377,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'itermethod',
             'class',
             'record',
+            'interface',
             'module',
             'random',
             'opmethod',
@@ -407,6 +408,7 @@ class ChapelObjectTests(ChapelObjectTestCase):
             'type',
             'class',
             'record',
+            'interface',
             'module',
             'random',
             'enum',
@@ -799,7 +801,7 @@ class SigPatternTests(PatternTestCase):
     def test_with_all(self):
         """Verify fully specified signatures parse correctly."""
         test_cases = [
-            ('proc foo where a > b', 'proc ', None, 'foo', None, None, ' where a > b'), 
+            ('proc foo where a > b', 'proc ', None, 'foo', None, None, ' where a > b'),
             ('proc foo() where a > b', 'proc ', None, 'foo', '', None, ' where a > b'), 
             ('proc foo:int where a > b', 'proc ', None, 'foo', None, ':int', ' where a > b'), 
             ('proc foo():int where a > b', 'proc ', None, 'foo', '', ':int', ' where a > b'), 
@@ -829,6 +831,7 @@ class SigPatternTests(PatternTestCase):
             ('record R', 'record ', None, 'R', None, None, None),
             ('record MyRec:SuRec', 'record ', None, 'MyRec', None, ':SuRec', None),
             ('record N.R : X, Y, Z', 'record ', 'N.', 'R', None, ': X, Y, Z', None),
+            ('interface I', 'interface ', None, 'I', None, None, None),
             ('proc rcRemote(replicatedVar: [?D] ?MYTYPE, remoteLoc: locale) ref: MYTYPE',
              'proc ', None, 'rcRemote', 'replicatedVar: [?D] ?MYTYPE, remoteLoc: locale', ' ref: MYTYPE', None),
             ('proc rcLocal(replicatedVar: [?D] ?MYTYPE) ref: MYTYPE',

@@ -157,6 +157,11 @@ For example, this would document a module with a ``proc`` and an ``iter``::
 
     Records work the same as :rst:dir:`chpl:class`.
 
+
+.. directive:: .. chpl:interface:: signature
+
+    Interfaces work the same as :rst:dir:`chpl:class`.
+
 .. directive:: .. chpl:attribute:: signature
 
     Describes an object data attribute. This can be a ``param``, ``const``,
