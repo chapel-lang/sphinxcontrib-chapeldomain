@@ -477,6 +477,10 @@ class ChapelObjectTests(ChapelObjectTestCase):
             ('iter foo() ref', 'iter '),
             ('inline iter foo(x, y): int(32)', 'inline iter '),
             ('proc proc proc proc proc proc', 'proc proc proc proc proc '),
+            ('attribute @foo', 'attribute '),
+            ('attribute @foo()', 'attribute '),
+            ('attribute @namespace.foo', 'attribute '),
+            ('attribute @namespace.foo()', 'attribute '),
         ]
         for objtype in ('function', 'method'):
             obj = self.new_obj(objtype)
