@@ -42,7 +42,7 @@ VERSION = '0.0.35'
 chpl_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*                             # opt: prefixes
            (?:
-            proc|iter|class|record|interface|operator # must end with keyword
+            proc|iter|class|record|interface|operator|attribute # must end with keyword
            )\s+
            (?:type\s+|param\s+|ref\s+)?            # opt: 'this' intent
                                                    #  (type, param, ref)
@@ -51,6 +51,7 @@ chpl_sig_pattern = re.compile(
           \s*?
           (
            (?:[\w$][\w$=]*)|                       # function or method name
+           (?:@[\w$][\w$=\.]*)|                    #  or @attribute name
            (?:[+*/!~%<>=&^|\-:]+)                  #  or operator name
           )  \s*
           (?:\((.*?)\))?                           # opt: arguments
@@ -277,7 +278,8 @@ class ChapelObject(ObjectDescription):
         return (self.objtype in
                 ('function', 'iterfunction',
                  'method', 'itermethod',
-                 'opfunction', 'opmethod'))
+                 'opfunction', 'opmethod',
+                 'annotation'))
 
     def _get_sig_prefix(self, sig):
         """Return signature prefix text. For attribute, data, and proc/iter
@@ -815,6 +817,7 @@ class ChapelDomain(Domain):
         'module': ObjType(_('module'), 'mod'),
         'opmethod': ObjType(_('opmethod'), 'op'),
         'opfunction': ObjType(_('opfunction'), 'op'),
+        'annotation': ObjType(_('annotation'), 'annotation'),
     }
 
     directives = {
@@ -823,6 +826,7 @@ class ChapelDomain(Domain):
         'function': ChapelModuleLevel,
         'iterfunction': ChapelModuleLevel,
         'opfunction': ChapelModuleLevel,
+        'annotation': ChapelModuleLevel,
 
         'class': ChapelClassObject,
         'record': ChapelClassObject,
@@ -838,6 +842,7 @@ class ChapelDomain(Domain):
     }
 
     roles = {
+        'annotation': ChapelXRefRole(),
         'data': ChapelXRefRole(),
         'const': ChapelXRefRole(),
         'var': ChapelXRefRole(),
