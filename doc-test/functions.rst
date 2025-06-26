@@ -140,6 +140,12 @@ Chapel Functions
     :throw PermissionError: when the message is not for you
 
 
+.. function:: proc throwsWithIntent() const ref throws
+
+.. function:: proc throwsWithIntent2() const throws
+
+.. function:: proc throwsWithIntentAndReturn() ref : int throws
+
 Other stuff...
 --------------
 
