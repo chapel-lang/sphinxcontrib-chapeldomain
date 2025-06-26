@@ -258,7 +258,9 @@ class ChapelObject(ObjectDescription):
             signode += paramlist
 
     @staticmethod
-    def _handle_signature_suffix(signode, return_intent, return_type, throws, anno, where_clause):
+    def _handle_signature_suffix(
+        signode, return_intent, return_type, throws, anno, where_clause
+    ):
         """
         handle the signature suffix items like return intent, return type,
         where clause, annotation, etc.
@@ -442,11 +444,15 @@ class ChapelObject(ObjectDescription):
             if self.needs_arglist() and arglist is not None:
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
-            self._handle_signature_suffix(signode, return_intent, return_type, throws, anno, where_clause)
+            self._handle_signature_suffix(
+                signode, return_intent, return_type, throws, anno, where_clause
+            )
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
-        self._handle_signature_suffix(signode, return_intent, return_type, throws, anno, where_clause)
+        self._handle_signature_suffix(
+            signode, return_intent, return_type, throws, anno, where_clause
+        )
 
         return fullname, name_prefix
 
