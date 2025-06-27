@@ -72,6 +72,14 @@ def match_chpl_sig_pattern(sig: str):
     Match a Chapel signature against the regex pattern defined in
     chpl_sig_pattern. chpl_sig_pattern cannot be used directly because we need
     to fix some things up
+
+    For example, `const throws` will be treated by the regex as a return intent,
+    when really it is a `const` return intent and a `throws`. This function splits
+    them apart
+
+    Additionally, this function cleans up the whitspace on the return type
+    (and removes ':'!), return intent, and any captured throws to make testing
+    more consistent.
     """
     sig_match = chpl_sig_pattern.match(sig)
     if not sig_match:
