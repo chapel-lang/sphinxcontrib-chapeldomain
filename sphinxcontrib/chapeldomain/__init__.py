@@ -129,6 +129,7 @@ chpl_attr_sig_pattern = re.compile(
           (\s*[={]\s*.+)?         # optional: value
           $""", re.VERBOSE)
 
+
 def match_chpl_attr_sig_pattern(sig: str):
     """
     Match a Chapel signature against the regex pattern defined in
@@ -154,6 +155,7 @@ def match_chpl_attr_sig_pattern(sig: str):
         default_value = default_value.strip()
 
     return (func_prefix, name_prefix, name, return_type, default_value)
+
 
 # This would be the ideal way to create a chapelerific desc_returns similar to
 # addnodes.desc_returns. However, due to some update issue, the
