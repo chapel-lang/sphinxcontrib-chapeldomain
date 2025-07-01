@@ -22,6 +22,7 @@ Module 'Foo'
    foo
    cpp_test
    nested
+   variables
 
 **Does it work???**
 

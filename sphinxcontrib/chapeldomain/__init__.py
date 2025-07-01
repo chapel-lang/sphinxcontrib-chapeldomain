@@ -125,9 +125,35 @@ chpl_attr_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*)?          # optional: prefixes
           ([\w$.]*\.)?            # class name(s)
           ([\w$]+)                # const, var, param, etc name
-          (\s* [:={] \s* .+)?     # optional: type, default value
+          (\s*:\s*[^=]+)?         # optional: return type
+          (\s*[={]\s*.+)?         # optional: value
           $""", re.VERBOSE)
 
+def match_chpl_attr_sig_pattern(sig: str):
+    """
+    Match a Chapel signature against the regex pattern defined in
+    chpl_attr_sig_pattern.
+
+    This function cleans up the whitespace on the type (and removes ':'!)
+    and default value to make testing more consistent.
+    """
+    sig_match = chpl_attr_sig_pattern.match(sig)
+    if not sig_match:
+        return None
+    (
+        func_prefix,
+        name_prefix,
+        name,
+        return_type,
+        default_value,
+    ) = sig_match.groups()
+
+    if return_type:
+        return_type = return_type.strip().removeprefix(':').lstrip()
+    if default_value:
+        default_value = default_value.strip()
+
+    return (func_prefix, name_prefix, name, return_type, default_value)
 
 # This would be the ideal way to create a chapelerific desc_returns similar to
 # addnodes.desc_returns. However, due to some update issue, the
@@ -267,7 +293,13 @@ class ChapelObject(ObjectDescription):
 
     @staticmethod
     def _handle_signature_suffix(
-        signode, return_intent, return_type, throws, anno, where_clause
+        signode,
+        return_intent,
+        return_type,
+        default_value,
+        throws,
+        anno,
+        where_clause,
     ):
         """
         handle the signature suffix items like return intent, return type,
@@ -282,6 +314,10 @@ class ChapelObject(ObjectDescription):
             signode += addnodes.desc_sig_space(' ', ' ')
             signode += addnodes.desc_annotation(' : ' + return_type,
                                                 ' : ' + return_type)
+        if default_value:
+            signode += addnodes.desc_sig_space(' ', ' ')
+            signode += addnodes.desc_annotation(default_value,
+                                                default_value)
         if throws:
             signode += addnodes.desc_sig_space(' ', ' ')
             signode += addnodes.desc_annotation(' throws', ' throws')
@@ -293,11 +329,11 @@ class ChapelObject(ObjectDescription):
 
     def _get_attr_like_prefix(self, sig):
         """Return prefix text for attribute or data directive."""
-        sig_match = chpl_attr_sig_pattern.match(sig)
+        sig_match = match_chpl_attr_sig_pattern(sig)
         if sig_match is None:
             return ChapelObject.get_signature_prefix(self, sig)
 
-        prefixes, _, _, _ = sig_match.groups()
+        prefixes = sig_match[0]
         if prefixes:
             return prefixes.strip() + ' '
         elif self.objtype == 'type':
@@ -374,10 +410,17 @@ class ChapelObject(ObjectDescription):
         class(es)) and the classes. See also :py:meth:`add_target_and_index`.
         """
         if self._is_attr_like():
-            sig_match = chpl_attr_sig_pattern.match(sig)
+            sig_match = match_chpl_attr_sig_pattern(sig)
             if sig_match is None:
                 raise ValueError('Signature does not parse: {0}'.format(sig))
-            func_prefix, name_prefix, name, return_type = sig_match.groups()
+            (
+                func_prefix,
+                name_prefix,
+                name,
+                return_type,
+                default_value,
+            ) = sig_match
+
             return_intent = None
             throws = None
             arglist = None
@@ -397,6 +440,7 @@ class ChapelObject(ObjectDescription):
                 throws,
                 where_clause,
             ) = sig_match
+            default_value = None
 
             # check if where clause is valid
             if where_clause is not None and not self._is_proc_like():
@@ -453,13 +497,25 @@ class ChapelObject(ObjectDescription):
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             self._handle_signature_suffix(
-                signode, return_intent, return_type, throws, anno, where_clause
+                signode,
+                return_intent,
+                return_type,
+                default_value,
+                throws,
+                anno,
+                where_clause,
             )
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
         self._handle_signature_suffix(
-            signode, return_intent, return_type, throws, anno, where_clause
+            signode,
+            return_intent,
+            return_type,
+            default_value,
+            throws,
+            anno,
+            where_clause,
         )
 
         return fullname, name_prefix

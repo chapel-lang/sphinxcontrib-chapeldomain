@@ -11,7 +11,8 @@ import unittest
 from sphinxcontrib.chapeldomain import (
     ChapelDomain, ChapelModuleIndex, ChapelClassObject, ChapelModuleLevel, ChapelObject,
     ChapelTypedField, ChapelClassMember,
-    chpl_sig_pattern, match_chpl_sig_pattern, chpl_attr_sig_pattern,
+    chpl_sig_pattern, match_chpl_sig_pattern,
+    chpl_attr_sig_pattern, match_chpl_attr_sig_pattern
 )
 
 
@@ -892,16 +893,23 @@ class AttrSigPatternTests(PatternTestCase):
 
     pattern = chpl_attr_sig_pattern
 
-    def check_sig(self, sig, func_prefix, name_prefix, name, retann):
+    def check_sig(self, sig, func_prefix, name_prefix, name, type_, default_value):
         """Verify signature results in appropriate matches."""
-        match = self.pattern.match(sig)
+        match = match_chpl_attr_sig_pattern(sig)
         self.assertIsNotNone(match)
 
-        (actual_func_prefix, actual_name_prefix, actual_name, actual_retann) = match.groups()
+        (
+            actual_func_prefix,
+            actual_name_prefix,
+            actual_name,
+            actual_type,
+            actual_default_value,
+        ) = match
         self.assertEqual(func_prefix, actual_func_prefix)
         self.assertEqual(name_prefix, actual_name_prefix)
         self.assertEqual(name, actual_name)
-        self.assertEqual(retann, actual_retann)
+        self.assertEqual(type_, actual_type)
+        self.assertEqual(default_value, actual_default_value)
 
     def test_does_not_match(self):
         """Verify various signatures that should not match."""
@@ -927,7 +935,7 @@ class AttrSigPatternTests(PatternTestCase):
             '1',
         ]
         for sig in test_cases:
-            self.check_sig(sig, '', None, sig, None)
+            self.check_sig(sig, '', None, sig, None, None)
 
     def test_with_class_names(self):
         """Verify symbols with class names match pattern."""
@@ -937,7 +945,7 @@ class AttrSigPatternTests(PatternTestCase):
             ('BigNum.fromInt', 'BigNum.', 'fromInt'),
         ]
         for sig, class_name, attr in test_cases:
-            self.check_sig(sig, '', class_name, attr, None)
+            self.check_sig(sig, '', class_name, attr, None, None)
 
     def test_with_prefixes(self):
         """Verify type, config, etc prefixes work."""
@@ -949,51 +957,62 @@ class AttrSigPatternTests(PatternTestCase):
             ('const baz', 'const ', 'baz'),
         ]
         for sig, prefix, attr in test_cases:
-            self.check_sig(sig, prefix, None, attr, None)
+            self.check_sig(sig, prefix, None, attr, None, None)
 
     def test_with_types(self):
         """Verify types parse correctly."""
         test_cases = [
-            ('foo: int', 'foo', ': int'),
-            ('bar: real', 'bar', ': real'),
-            ('baz: int(32)', 'baz', ': int(32)'),
-            ('D: domain(9)', 'D', ': domain(9)'),
-            ('A: [{1..n}] BigNum', 'A', ': [{1..n}] BigNum'),
-            ('x: MyModule.MyClass', 'x', ': MyModule.MyClass'),
-            ('x  :  sync real', 'x', '  :  sync real'),
+            ('foo: int', 'foo', 'int', None),
+            ('bar: real', 'bar', 'real', None),
+            ('baz: int(32)', 'baz', 'int(32)', None),
+            ('D: domain(9)', 'D', 'domain(9)', None),
+            ('A: [{1..n}] BigNum', 'A', '[{1..n}] BigNum', None),
+            ('x: MyModule.MyClass', 'x', 'MyModule.MyClass', None),
+            ('x  :  sync real', 'x', 'sync real', None),
         ]
-        for sig, attr, type_name in test_cases:
-            self.check_sig(sig, '', None, attr, type_name)
+        for sig, attr, type_name, default_val in test_cases:
+            self.check_sig(sig, '', None, attr, type_name, default_val)
+
+    def test_with_defaults(self):
+        """Verify default values parse correctly."""
+        test_cases = [
+            ('x = 5', 'x', None, '= 5'),
+            ('y = [i in 1..10] i == 1', 'y', None, '= [i in 1..10] i == 1'),
+            ('z { A=1, B}', 'z', None, '{ A=1, B}'),
+        ]
+        for sig, attr, type_name, default_val in test_cases:
+            self.check_sig(sig, '', None, attr, type_name, default_val)
 
     def test_with_all(self):
         """Verify full specified signatures parse correctly."""
         test_cases = [
-            ('config const MyModule.MyClass.n: int', 'config const ', 'MyModule.MyClass.', 'n', ': int'),
-            ('var X.n: MyMod.MyClass', 'var ', 'X.', 'n', ': MyMod.MyClass'),
-            ('config param debugAdvancedIters:bool', 'config param ', None, 'debugAdvancedIters', ':bool'),
-            ('config param MyMod.DEBUG: bool', 'config param ', 'MyMod.', 'DEBUG', ': bool'),
-            ('var RandomStreamPrivate_lock$: _syncvar(bool)', 'var ', None, 'RandomStreamPrivate_lock$', ': _syncvar(bool)'),
-            ('var RandomStreamPrivate_lock$: sync bool', 'var ', None, 'RandomStreamPrivate_lock$', ': sync bool'),
-            ('const RS$.lock$: sync MyMod$.MyClass$.bool', 'const ', 'RS$.', 'lock$', ': sync MyMod$.MyClass$.bool'),
-            ('type commDiagnostics = chpl_commDiagnostics', 'type ', None, 'commDiagnostics', ' = chpl_commDiagnostics'),
-            ('type age = int(64)', 'type ', None, 'age', ' = int(64)'),
-            ('type MyMod.BigAge=BigNum.BigInt', 'type ', 'MyMod.', 'BigAge', '=BigNum.BigInt'),
-            ('const x = false', 'const ', None, 'x', ' = false'),
-            ('config const MyC.x: int(64) = 5', 'config const ', 'MyC.', 'x', ': int(64) = 5'),
-            ('config param n: uint(64) = 5: uint(64)', 'config param ', None, 'n', ': uint(64) = 5: uint(64)'),
-            ('var MyM.MyC.x = 4: uint(64)', 'var ', 'MyM.MyC.', 'x', ' = 4: uint(64)'),
-            ('type MyT = 2*real(64)', 'type ', None, 'MyT', ' = 2*real(64)'),
-            ('type myFloats = 2*(real(64))', 'type ', None, 'myFloats', ' = 2*(real(64))'),
-            ('enum Color { Red, Yellow, Blue }', 'enum ', None, 'Color', ' { Red, Yellow, Blue }'),
-            ('enum Month { January=1, February }', 'enum ', None, 'Month', ' { January=1, February }'),
-            ('enum One { Neo }', 'enum ', None, 'One', ' { Neo }'),
-            ('enum constant Pink', 'enum constant ', None, 'Pink', None),
-            ('enum constant December', 'enum constant ', None, 'December', None),
-            ('enum constant Hibiscus', 'enum constant ', None, 'Hibiscus', None),
-            ('enum constant Aquarius', 'enum constant ', None, 'Aquarius', None)
+            ('config const MyModule.MyClass.n: int', 'config const ', 'MyModule.MyClass.', 'n', 'int', None),
+            ('var X.n: MyMod.MyClass', 'var ', 'X.', 'n', 'MyMod.MyClass', None),
+            ('config param debugAdvancedIters:bool', 'config param ', None, 'debugAdvancedIters', 'bool', None),
+            ('config param MyMod.DEBUG: bool', 'config param ', 'MyMod.', 'DEBUG', 'bool', None),
+            ('var RandomStreamPrivate_lock$: _syncvar(bool)', 'var ', None, 'RandomStreamPrivate_lock$', '_syncvar(bool)', None),
+            ('var RandomStreamPrivate_lock$: sync bool', 'var ', None, 'RandomStreamPrivate_lock$', 'sync bool', None),
+            ('const RS$.lock$: sync MyMod$.MyClass$.bool', 'const ', 'RS$.', 'lock$', 'sync MyMod$.MyClass$.bool', None),
+            ('var arr: [{1..10}] real(64) = [i in 1..10] i:real(64)', 'var ', None, 'arr', '[{1..10}] real(64)', '= [i in 1..10] i:real(64)'),
+            ('type commDiagnostics = chpl_commDiagnostics', 'type ', None, 'commDiagnostics', None, '= chpl_commDiagnostics'),
+            ('type age = int(64)', 'type ', None, 'age', None, '= int(64)'),
+            ('type MyMod.BigAge=BigNum.BigInt', 'type ', 'MyMod.', 'BigAge', None, '=BigNum.BigInt'),
+            ('const x = false', 'const ', None, 'x', None, '= false'),
+            ('config const MyC.x: int(64) = 5', 'config const ', 'MyC.', 'x', 'int(64)', '= 5'),
+            ('config param n: uint(64) = 5: uint(64)', 'config param ', None, 'n', 'uint(64)', '= 5: uint(64)'),
+            ('var MyM.MyC.x = 4: uint(64)', 'var ', 'MyM.MyC.', 'x', None, '= 4: uint(64)'),
+            ('type MyT = 2*real(64)', 'type ', None, 'MyT', None, '= 2*real(64)'),
+            ('type myFloats = 2*(real(64))', 'type ', None, 'myFloats', None, '= 2*(real(64))'),
+            ('enum Color { Red, Yellow, Blue }', 'enum ', None, 'Color', None, '{ Red, Yellow, Blue }'),
+            ('enum Month { January=1, February }', 'enum ', None, 'Month', None, '{ January=1, February }'),
+            ('enum One { Neo }', 'enum ', None, 'One', None, '{ Neo }'),
+            ('enum constant Pink', 'enum constant ', None, 'Pink', None, None),
+            ('enum constant December', 'enum constant ', None, 'December', None, None),
+            ('enum constant Hibiscus', 'enum constant ', None, 'Hibiscus', None, None),
+            ('enum constant Aquarius', 'enum constant ', None, 'Aquarius', None, None)
         ]
-        for sig, prefix, class_name, attr, type_name in test_cases:
-            self.check_sig(sig, prefix, class_name, attr, type_name)
+        for sig, prefix, class_name, attr, type_name, default_value in test_cases:
+            self.check_sig(sig, prefix, class_name, attr, type_name, default_value)
 
 
 if __name__ == '__main__':
