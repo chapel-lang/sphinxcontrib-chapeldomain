@@ -110,6 +110,8 @@ Chapel classes
 
         Some method that does something.
 
+.. class:: ClassA:ClassB,ClassC
+
 Python classes
 --------------
 

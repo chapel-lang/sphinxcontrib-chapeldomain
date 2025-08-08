@@ -35,7 +35,7 @@ from sphinx.util.nodes import make_refnode
 
 from sphinxcontrib.chapeldomain.chapel import ChapelLexer
 
-VERSION = '0.0.36'
+VERSION = '0.0.39'
 
 
 # regex for parsing proc, iter, class, record, etc.
@@ -56,21 +56,105 @@ chpl_sig_pattern = re.compile(
            (?:[+*/!~%<>=&^|\-:]+)                  #  or operator name
           )  \s*
           (?:\((.*?)\))?                           # opt: arguments
-          (\s+(?:const\s)? (?:\w+?)|               #  or return intent
-           \s* : \s* (?:[^:]+?)|                   #  or return type
-           \s+(?:const\s)? \w+\s* : \s* (?:[^:]+?) #  or return intent and type
+          (\s+(?:const\s)? (?:\w+?)                # opt: return intent
+          )?
+          (\s*:\s*(?:[^:]+?)                       # opt: return type
+          )?
+          (\s+throws                               # opt: throws
           )?
           (\s+where\s+.*                           # Where clause
           )?
           $""", re.VERBOSE)
+
+
+def match_chpl_sig_pattern(sig: str):
+    """
+    Match a Chapel signature against the regex pattern defined in
+    chpl_sig_pattern. chpl_sig_pattern cannot be used directly because we need
+    to fix some things up
+
+    For example, `const throws` will be treated by the regex as a return
+    intent, when really it is a `const` return intent and a `throws`. This
+    function splits them apart
+
+    Additionally, this function cleans up the whitespace on the return type
+    (and removes ':'!), return intent, and any captured throws to make testing
+    more consistent.
+    """
+    sig_match = chpl_sig_pattern.match(sig)
+    if not sig_match:
+        return None
+    (
+        func_prefix,
+        name_prefix,
+        name,
+        arglist,
+        return_intent,
+        return_type,
+        throws,
+        where_clause,
+    ) = sig_match.groups()
+
+    if return_type:
+        return_type = return_type.strip().removeprefix(':').lstrip()
+    if return_intent:
+        return_intent = return_intent.strip()
+    if throws:
+        throws = throws.strip()
+
+    if return_intent and "throws" in return_intent:
+        return_intent = return_intent.replace("throws", "").strip()
+        if not return_intent:
+            return_intent = None
+        throws = "throws"
+
+    return (
+        func_prefix,
+        name_prefix,
+        name,
+        arglist,
+        return_intent,
+        return_type,
+        throws,
+        where_clause,
+    )
+
 
 # regex for parsing attribute and data directives.
 chpl_attr_sig_pattern = re.compile(
     r"""^ ((?:\w+\s+)*)?          # optional: prefixes
           ([\w$.]*\.)?            # class name(s)
           ([\w$]+)                # const, var, param, etc name
-          (\s* [:={] \s* .+)?     # optional: type, default value
+          (\s*:\s*[^=]+)?         # optional: return type
+          (\s*[={]\s*.+)?         # optional: value
           $""", re.VERBOSE)
+
+
+def match_chpl_attr_sig_pattern(sig: str):
+    """
+    Match a Chapel signature against the regex pattern defined in
+    chpl_attr_sig_pattern.
+
+    This function cleans up the whitespace on the type (and removes ':'!)
+    and default value to make testing more consistent.
+    """
+    sig_match = chpl_attr_sig_pattern.match(sig)
+    if not sig_match:
+        return None
+    (
+        func_prefix,
+        name_prefix,
+        name,
+        return_type,
+        default_value,
+    ) = sig_match.groups()
+
+    if return_type:
+        return_type = return_type.strip().removeprefix(':').lstrip()
+    if default_value:
+        default_value = default_value.strip()
+
+    return (func_prefix, name_prefix, name, return_type, default_value)
 
 
 # This would be the ideal way to create a chapelerific desc_returns similar to
@@ -210,25 +294,35 @@ class ChapelObject(ObjectDescription):
             signode += paramlist
 
     @staticmethod
-    def _handle_signature_suffix(signode, retann, anno, where_clause):
+    def _handle_signature_suffix(
+        signode,
+        return_intent,
+        return_type,
+        default_value,
+        throws,
+        anno,
+        where_clause,
+    ):
         """
         handle the signature suffix items like return intent, return type,
         where clause, annotation, etc.
         """
-        if retann:
-            if ':' in retann:
-                retintent, _, rettype = retann.partition(':')
-                rettype = rettype.strip()
-            else:
-                retintent, rettype = retann, None
-            retintent = retintent.strip()
-            if retintent:
-                signode += addnodes.desc_sig_space(' ', ' ')
-                signode += addnodes.desc_annotation(' ' + retintent,
-                                                    ' ' + retintent)
-            if rettype:
-                signode += addnodes.desc_annotation(' : ' + rettype,
-                                                    ' : ' + rettype)
+
+        if return_intent:
+            signode += addnodes.desc_sig_space(' ', ' ')
+            signode += addnodes.desc_annotation(' ' + return_intent,
+                                                ' ' + return_intent)
+        if return_type:
+            signode += addnodes.desc_sig_space(' ', ' ')
+            signode += addnodes.desc_annotation(' : ' + return_type,
+                                                ' : ' + return_type)
+        if default_value:
+            signode += addnodes.desc_sig_space(' ', ' ')
+            signode += addnodes.desc_annotation(default_value,
+                                                default_value)
+        if throws:
+            signode += addnodes.desc_sig_space(' ', ' ')
+            signode += addnodes.desc_annotation(' throws', ' throws')
         if anno:
             signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
         if where_clause:
@@ -237,11 +331,11 @@ class ChapelObject(ObjectDescription):
 
     def _get_attr_like_prefix(self, sig):
         """Return prefix text for attribute or data directive."""
-        sig_match = chpl_attr_sig_pattern.match(sig)
+        sig_match = match_chpl_attr_sig_pattern(sig)
         if sig_match is None:
             return ChapelObject.get_signature_prefix(self, sig)
 
-        prefixes, _, _, _ = sig_match.groups()
+        prefixes = sig_match[0]
         if prefixes:
             return prefixes.strip() + ' '
         elif self.objtype == 'type':
@@ -253,11 +347,11 @@ class ChapelObject(ObjectDescription):
         """Return prefix text for function or method directive
         (and similar).
         """
-        sig_match = chpl_sig_pattern.match(sig)
+        sig_match = match_chpl_sig_pattern(sig)
         if sig_match is None:
             return ChapelObject.get_signature_prefix(self, sig)
 
-        prefixes, _, _, _, _, _ = sig_match.groups()
+        prefixes = sig_match[0]
         if prefixes:
             return prefixes.strip() + ' '
         elif self.objtype.startswith('iter'):
@@ -318,19 +412,37 @@ class ChapelObject(ObjectDescription):
         class(es)) and the classes. See also :py:meth:`add_target_and_index`.
         """
         if self._is_attr_like():
-            sig_match = chpl_attr_sig_pattern.match(sig)
+            sig_match = match_chpl_attr_sig_pattern(sig)
             if sig_match is None:
                 raise ValueError('Signature does not parse: {0}'.format(sig))
-            func_prefix, name_prefix, name, retann = sig_match.groups()
+            (
+                func_prefix,
+                name_prefix,
+                name,
+                return_type,
+                default_value,
+            ) = sig_match
+
+            return_intent = None
+            throws = None
             arglist = None
             where_clause = None
         else:
-            sig_match = chpl_sig_pattern.match(sig)
+            sig_match = match_chpl_sig_pattern(sig)
             if sig_match is None:
                 raise ValueError('Signature does not parse: {0}'.format(sig))
 
-            func_prefix, name_prefix, name, arglist, retann, where_clause = \
-                sig_match.groups()
+            (
+                func_prefix,
+                name_prefix,
+                name,
+                arglist,
+                return_intent,
+                return_type,
+                throws,
+                where_clause,
+            ) = sig_match
+            default_value = None
 
             # check if where clause is valid
             if where_clause is not None and not self._is_proc_like():
@@ -386,11 +498,27 @@ class ChapelObject(ObjectDescription):
             if self.needs_arglist() and arglist is not None:
                 # for callables, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
-            self._handle_signature_suffix(signode, retann, anno, where_clause)
+            self._handle_signature_suffix(
+                signode,
+                return_intent,
+                return_type,
+                default_value,
+                throws,
+                anno,
+                where_clause,
+            )
             return fullname, name_prefix
 
         self._pseudo_parse_arglist(signode, arglist)
-        self._handle_signature_suffix(signode, retann, anno, where_clause)
+        self._handle_signature_suffix(
+            signode,
+            return_intent,
+            return_type,
+            default_value,
+            throws,
+            anno,
+            where_clause,
+        )
 
         return fullname, name_prefix
 
