@@ -34,20 +34,20 @@ To install from source on github_::
 Release
 -------
 
-x. Test and commit changes
-x. Merge your changes
-x. Go to main page for repo
-x. Click “Releases” on right side of screen
-x. Click “Draft a new release” button on top of screen
-x. For the tag, make a new tag with the new version number
-x. You can generate the release notes via the “generate release notes” button,
+#. Test and commit changes
+#. Merge your changes
+#. Go to main page for repo
+#. Click “Releases” on right side of screen
+#. Click “Draft a new release” button on top of screen
+#. For the tag, make a new tag with the new version number
+#. You can generate the release notes via the “generate release notes” button,
    comparing against the most recent release.  This will autofill in the details
    for you
-x. Click “Publish release”
+#. Click “Publish release”
     - This will trigger the workflow to push a new release to PyPI, assuming no
       problems have snuck into our release procedure since the last time it was
       run
-x. Open a PR bumping the version to the next version number so that we’re ready
+#. Open a PR bumping the version to the next version number so that we’re ready
    for the next change.  This should always be the first PR in a new release
    (otherwise we’ll have build issues), so it should be straight-forward to
    figure out how to do this
