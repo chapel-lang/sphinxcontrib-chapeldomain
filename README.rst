@@ -31,11 +31,16 @@ To install from source on github_::
 
 .. _github: https://github.com/chapel-lang/sphinxcontrib-chapeldomain
 
-Release
--------
+Making Changes
+--------------
 
 #. Test and commit changes
 #. Merge your changes
+#. Generate a new PyPI release
+
+Making a Release
+----------------
+
 #. Go to main page for repo
 #. Click “Releases” on right side of screen
 #. Click “Draft a new release” button on top of screen
@@ -52,15 +57,16 @@ Release
    (otherwise we’ll have build issues), so it should be straight-forward to
    figure out how to do this
 
-IF SOMETHING GOES WRONG
+.. note::
 
-The release pushing job is in .github/workflows/python-publish.yml
+   In case of issues, the release pushing job is in
+   .github/workflows/python-publish.yml
 
-You can modify it to try and get things to work. If the issue has something to
-do with what was pushed to PyPI, you can adjust it to send to
-https://test.pypi.org/ instead and download from there. You’ll want to remove
-the bad version from PyPI in that case, which will require access to a user
-account associated with the repository on PyPI.
+   You can modify it to try and get things to work. If the issue has something
+   to do with what was pushed to PyPI, you can adjust it to send to
+   https://test.pypi.org/ instead and download from there. You’ll want to remove
+   the bad version from PyPI in that case, which will require access to a user
+   account associated with the repository on PyPI.
 
 Getting Started
 ---------------
