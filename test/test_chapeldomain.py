@@ -5,8 +5,8 @@
 from __future__ import print_function, unicode_literals
 
 import docutils.nodes as nodes
-import mock
 import unittest
+from unittest import mock
 
 from sphinxcontrib.chapeldomain import (
     ChapelDomain, ChapelModuleIndex, ChapelClassObject, ChapelModuleLevel, ChapelObject,
