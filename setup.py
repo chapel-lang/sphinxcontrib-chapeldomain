@@ -15,7 +15,7 @@ setup(
     version=version,
     url='https://github.com/chapel-lang/sphinxcontrib-chapeldomain',
     download_url='https://pypi.python.org/pypi/sphinxcontrib-chapeldomain',
-    license='Apache-2.0',
+    license='Apache-2.0 AND BSD-2-Clause',
     license_files=['LICENSE'],
     author='Chapel Team',
     author_email='chapel+developers@discoursemail.com',
