@@ -1,0 +1,23 @@
+diff -ruN sphinxcontrib-chapeldomain-0.0.39/requirements.txt sphinxcontrib-chapeldomain-0.0.39-mod/requirements.txt
+--- sphinxcontrib-chapeldomain-0.0.39/requirements.txt	2025-08-11 21:26:12.000000000 +0300
++++ sphinxcontrib-chapeldomain-0.0.39-mod/requirements.txt	2025-09-21 09:57:18.461907810 +0300
+@@ -1,3 +1,3 @@
+ # Note: DON'T UPDATE THIS WITHOUT ALSO UPDATING SETUP.PY
+-docutils==0.21.2
+-Sphinx==8.1.3
++docutils
++Sphinx
+diff -ruN sphinxcontrib-chapeldomain-0.0.39/setup.py sphinxcontrib-chapeldomain-0.0.39-mod/setup.py
+--- sphinxcontrib-chapeldomain-0.0.39/setup.py	2025-08-11 21:26:12.000000000 +0300
++++ sphinxcontrib-chapeldomain-0.0.39-mod/setup.py	2025-09-21 09:57:58.366269630 +0300
+@@ -42,8 +42,8 @@
+     packages=find_packages(exclude=('test',)),
+     include_package_data=True,
+     install_requires=[
+-        'docutils==0.21.2',
+-        'Sphinx==8.1.3',
++        'docutils',
++        'Sphinx',
+     ],
+     namespace_packages=['sphinxcontrib']
+ )
