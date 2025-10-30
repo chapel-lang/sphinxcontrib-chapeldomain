@@ -18,5 +18,5 @@ echo "New version: $new_version"
 
 # update the version file
 set -x
-sed -E "s|(VERSION[[:space:]]*=[[:space:]]*)'[^']+'|\1'${new_version}'|" "$version_file" > "${version_file}.tmp"
+sed -E "s|^(VERSION[[:space:]]*=[[:space:]]*)'[^']+'$|\1'${new_version}'|" "$version_file" > "${version_file}.tmp"
 mv "${version_file}.tmp" "$version_file"
