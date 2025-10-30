@@ -27,6 +27,8 @@ var/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+# spec files are used for rpm packaging and are included in version control
+!packaging/rpm/fedora/*.spec
 
 # Installer logs
 pip-log.txt
