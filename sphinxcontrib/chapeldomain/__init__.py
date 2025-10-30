@@ -35,7 +35,7 @@ from sphinx.util.nodes import make_refnode
 
 from sphinxcontrib.chapeldomain.chapel import ChapelLexer
 
-VERSION = '0.0.40'
+VERSION = '0.0.41'
 
 
 # regex for parsing proc, iter, class, record, etc.
