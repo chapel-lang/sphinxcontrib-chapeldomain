@@ -46,16 +46,16 @@ Making a Release
 #. Click “Draft a new release” button on top of screen
 #. For the tag, make a new tag with the new version number
 #. You can generate the release notes via the “generate release notes” button,
-   comparing against the most recent release.  This will autofill in the details
+   comparing against the most recent release. This will autofill in the details
    for you
-#. Click “Publish release”
+#. Click "Publish release"
     - This will trigger the workflow to push a new release to PyPI, assuming no
       problems have snuck into our release procedure since the last time it was
       run
-#. Open a PR bumping the version to the next version number so that we’re ready
-   for the next change.  This should always be the first PR in a new release
-   (otherwise we’ll have build issues), so it should be straight-forward to
-   figure out how to do this
+#. Open a PR bumping the version to the next version number so that we're ready
+   for the next change. This should always be the first PR in a new release
+   (otherwise we'll have build issues). This can be done by running the
+   'bump-version' GitHub Action, which will create the PR for you.
 
 In case of issues, the release pushing job is in
 .github/workflows/python-publish.yml
