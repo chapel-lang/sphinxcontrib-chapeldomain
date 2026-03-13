@@ -8,6 +8,8 @@ import docutils.nodes as nodes
 import unittest
 from unittest import mock
 
+from pathlib import Path
+
 from sphinxcontrib.chapeldomain import (
     ChapelDomain, ChapelModuleIndex, ChapelClassObject, ChapelModuleLevel, ChapelObject,
     ChapelTypedField, ChapelClassMember,
@@ -586,7 +588,7 @@ class AddTargetAndIndexTests(ChapelObjectTestCase):
         env.temp_data = {}
         env.domaindata = {'chpl': {'objects': dict(existing_objects or {})}}
         env.docname = 'testdoc'
-        env.doc2path = mock.Mock(side_effect=lambda x: '/docs/' + x + '.rst')
+        env.doc2path = mock.Mock(side_effect=lambda x: Path('/docs/' + x + '.rst'))
         env.config.add_module_names = True
 
         document = mock.Mock(name='document')
