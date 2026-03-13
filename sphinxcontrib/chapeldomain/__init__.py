@@ -543,11 +543,11 @@ class ChapelObject(ObjectDescription):
             objects = self.env.domaindata['chpl']['objects']
             if fullname in objects:
                 self.state_machine.reporter.warning(
-                    'duplicate object description of %s, ' % fullname +
-                    'other instance in ' +
-                    self.env.doc2path(objects[fullname][0]) +
-                    ', use :noindex: for one of them',
-                    line=self.lineno)
+                    f"duplicate object description of {str(fullname)}, "
+                    + f"other instance in {str( self.env.doc2path(objects[fullname][0]))}, "
+                    + "use :noindex: for one of them",
+                    line=self.lineno,
+                )
             objects[fullname] = (self.env.docname, self.objtype)
 
         indextext = self.get_index_text(modname, name_cls)
