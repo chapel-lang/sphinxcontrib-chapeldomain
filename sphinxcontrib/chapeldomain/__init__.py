@@ -542,10 +542,10 @@ class ChapelObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
             objects = self.env.domaindata['chpl']['objects']
             if fullname in objects:
+                docpath = str(self.env.doc2path(objects[fullname][0]))
                 self.state_machine.reporter.warning(
-                    f"duplicate object description of {str(fullname)}, "
-                    + f"other instance in {str( self.env.doc2path(objects[fullname][0]))}, "
-                    + "use :noindex: for one of them",
+                    f"duplicate object description of {fullname}, other "
+                    + f"instance in {docpath}, use :noindex: for one of them",
                     line=self.lineno,
                 )
             objects[fullname] = (self.env.docname, self.objtype)
