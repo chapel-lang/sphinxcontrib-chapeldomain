@@ -568,6 +568,215 @@ class ChapelObjectTests(ChapelObjectTestCase):
             self.assertEqual('config const ', obj._get_sig_prefix('config const x'))
 
 
+class AddTargetAndIndexTests(ChapelObjectTestCase):
+    """Tests for ChapelObject.add_target_and_index()."""
+
+    object_cls = ChapelModuleLevel
+
+    def _make_obj_and_signode(self, objtype, modname=None, names=None,
+                              existing_objects=None, existing_ids=None):
+        """Helper to create a ChapelModuleLevel with mocked internals
+        suitable for calling add_target_and_index().
+        """
+        options = {}
+        if modname is not None:
+            options['module'] = modname
+
+        env = mock.Mock(name='env')
+        env.temp_data = {}
+        env.domaindata = {'chpl': {'objects': dict(existing_objects or {})}}
+        env.docname = 'testdoc'
+        env.doc2path = mock.Mock(side_effect=lambda x: '/docs/' + x + '.rst')
+        env.config.add_module_names = True
+
+        document = mock.Mock(name='document')
+        document.ids = dict.fromkeys(existing_ids or [])
+        document.settings.env = env
+
+        state = mock.Mock(name='state')
+        state.document = document
+
+        state_machine = mock.Mock(name='state_machine',
+                                  spec=['reporter'])
+
+        obj = self.new_obj(
+            objtype,
+            options=options,
+            state=state,
+            state_machine=state_machine,
+        )
+        obj.names = list(names or [])
+        obj.indexnode = {'entries': []}
+
+        signode = {'names': [], 'ids': []}
+        return obj, signode
+
+    def test_simple_function_no_module(self):
+        """Verify add_target_and_index for a simple function without module."""
+        obj, signode = self._make_obj_and_signode('function')
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('myProc', ''), 'myProc()', signode)
+
+        self.assertIn('myProc', signode['names'])
+        self.assertIn('myProc', signode['ids'])
+        self.assertTrue(signode['first'])
+        self.assertEqual(
+            ('testdoc', 'function'),
+            obj.env.domaindata['chpl']['objects']['myProc'],
+        )
+        obj.state.document.note_explicit_target.assert_called_once_with(signode)
+        # function with no module → 'myProc() (built-in procedure)'
+        self.assertEqual(1, len(obj.indexnode['entries']))
+        self.assertEqual('myProc', obj.indexnode['entries'][0][2])
+
+    def test_function_with_module_option(self):
+        """Verify fullname includes module from options."""
+        obj, signode = self._make_obj_and_signode('function', modname='MyMod')
+
+        obj.add_target_and_index(('myProc', ''), 'myProc()', signode)
+
+        fullname = 'MyMod.myProc'
+        self.assertIn(fullname, signode['names'])
+        self.assertIn(fullname, signode['ids'])
+        self.assertEqual(
+            ('testdoc', 'function'),
+            obj.env.domaindata['chpl']['objects'][fullname],
+        )
+        # index entry text: 'myProc() (in module MyMod)'
+        entry = obj.indexnode['entries'][0]
+        self.assertEqual(fullname, entry[2])
+        self.assertIn('MyMod', entry[1])
+
+    def test_function_with_module_from_temp_data(self):
+        """Verify module falls back to env.temp_data['chpl:module']."""
+        obj, signode = self._make_obj_and_signode('function')
+        obj.env.temp_data['chpl:module'] = 'TempMod'
+
+        obj.add_target_and_index(('foo', ''), 'foo()', signode)
+
+        fullname = 'TempMod.foo'
+        self.assertIn(fullname, signode['names'])
+        self.assertEqual(
+            ('testdoc', 'function'),
+            obj.env.domaindata['chpl']['objects'][fullname],
+        )
+
+    def test_module_option_overrides_temp_data(self):
+        """Verify options['module'] takes precedence over temp_data."""
+        obj, signode = self._make_obj_and_signode('function', modname='OptMod')
+        obj.env.temp_data['chpl:module'] = 'TempMod'
+
+        obj.add_target_and_index(('bar', ''), 'bar()', signode)
+
+        self.assertIn('OptMod.bar', signode['names'])
+        self.assertNotIn('TempMod.bar', signode['names'])
+
+    def test_first_flag_true_when_names_empty(self):
+        """Verify signode['first'] is True when self.names is empty."""
+        obj, signode = self._make_obj_and_signode('data', names=[])
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('x', ''), 'x', signode)
+
+        self.assertTrue(signode['first'])
+
+    def test_first_flag_false_when_names_nonempty(self):
+        """Verify signode['first'] is False when self.names is not empty."""
+        obj, signode = self._make_obj_and_signode(
+            'data', names=[('prev', '')])
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('x', ''), 'x', signode)
+
+        self.assertFalse(signode['first'])
+
+    def test_skip_if_already_in_document_ids(self):
+        """Verify no target is added when fullname is already in document.ids."""
+        obj, signode = self._make_obj_and_signode(
+            'function', existing_ids=['myProc'])
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('myProc', ''), 'myProc()', signode)
+
+        self.assertEqual([], signode['names'])
+        self.assertEqual([], signode['ids'])
+        obj.state.document.note_explicit_target.assert_not_called()
+
+    def test_duplicate_object_warning(self):
+        """Verify a warning is emitted for duplicate objects."""
+        existing = {'MyMod.dup': ('other_doc', 'function')}
+        obj, signode = self._make_obj_and_signode(
+            'function', modname='MyMod', existing_objects=existing)
+
+        obj.add_target_and_index(('dup', ''), 'dup()', signode)
+
+        obj.state_machine.reporter.warning.assert_called_once()
+        warning_msg = obj.state_machine.reporter.warning.call_args[0][0]
+        self.assertIn('duplicate object description', warning_msg)
+        self.assertIn('MyMod.dup', warning_msg)
+        # Object should still be overwritten with new location
+        self.assertEqual(
+            ('testdoc', 'function'),
+            obj.env.domaindata['chpl']['objects']['MyMod.dup'],
+        )
+
+    def test_no_warning_for_new_object(self):
+        """Verify no warning when object is new."""
+        obj, signode = self._make_obj_and_signode('function')
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('newFunc', ''), 'newFunc()', signode)
+
+        obj.state_machine.reporter.warning.assert_not_called()
+
+    def test_no_index_entry_when_index_text_empty(self):
+        """Verify no index entry is added when get_index_text returns ''."""
+        # 'attribute' on ChapelModuleLevel returns '' from get_index_text
+        obj, signode = self._make_obj_and_signode('attribute')
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('x', ''), 'x', signode)
+
+        self.assertEqual([], obj.indexnode['entries'])
+
+    def test_index_entry_for_data(self):
+        """Verify index entry is created for data objects."""
+        obj, signode = self._make_obj_and_signode('data', modname='M')
+
+        obj.add_target_and_index(('myVar', ''), 'var myVar', signode)
+
+        self.assertEqual(1, len(obj.indexnode['entries']))
+        entry = obj.indexnode['entries'][0]
+        self.assertEqual('single', entry[0])
+        self.assertEqual('M.myVar', entry[2])
+
+    def test_index_entry_for_type(self):
+        """Verify index entry is created for type objects."""
+        obj, signode = self._make_obj_and_signode('type')
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('MyType', ''), 'type MyType', signode)
+
+        self.assertEqual(1, len(obj.indexnode['entries']))
+        entry = obj.indexnode['entries'][0]
+        self.assertIn('MyType', entry[1])
+        self.assertIn('built-in type', entry[1])
+
+    def test_still_adds_index_when_already_in_ids(self):
+        """Verify index entry is still added even if fullname is in
+        document.ids (the target is skipped but the index is not).
+        """
+        obj, signode = self._make_obj_and_signode(
+            'function', existing_ids=['myFunc'])
+        obj.env.temp_data['chpl:module'] = None
+
+        obj.add_target_and_index(('myFunc', ''), 'myFunc()', signode)
+
+        # index entry should still be added
+        self.assertEqual(1, len(obj.indexnode['entries']))
+
+
 class ChapelTypedFieldTests(ChapelObjectTestCase):
     """Verify ChapelTypedField class."""
 
@@ -1013,6 +1222,8 @@ class AttrSigPatternTests(PatternTestCase):
         ]
         for sig, prefix, class_name, attr, type_name, default_value in test_cases:
             self.check_sig(sig, prefix, class_name, attr, type_name, default_value)
+
+
 
 
 if __name__ == '__main__':
