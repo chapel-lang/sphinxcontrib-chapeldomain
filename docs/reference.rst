@@ -11,7 +11,7 @@ The Chapel domain is strongly influenced by the `Python domain`_ that comes
 with Sphinx. In addition, this documentation takes cues from the documentation
 on Sphinx domain support, including Python domains.
 
-.. _Python domain: http://sphinx-doc.org/domains.html#the-python-domain
+.. _Python domain: https://sphinx-doc.org/domains.html#the-python-domain
 
 Module Directives
 -----------------
