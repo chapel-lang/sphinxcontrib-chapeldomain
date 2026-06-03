@@ -10,7 +10,7 @@
     :license: Apache v2.0, see LICENSE for details.
 
     Chapel website: https://chapel-lang.org/
-    Chapel spec:    https://chapel-lang.org/language.html
+    Chapel spec:    https://chapel-lang.org/docs/language/spec/
 
 """
 
