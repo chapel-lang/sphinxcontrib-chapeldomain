@@ -3,8 +3,8 @@ Chapel Domain for Sphinx
 
 Chapel_ domain for Sphinx_.
 
-.. _Chapel: http://chapel-lang.org/
-.. _Sphinx: http://sphinx-doc.org/
+.. _Chapel: https://chapel-lang.org/
+.. _Sphinx: https://sphinx-doc.org/
 
 .. image:: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/CI.yml/badge.svg
     :target: https://github.com/chapel-lang/sphinxcontrib-chapeldomain/actions/workflows/CI.yml

@@ -6,8 +6,8 @@ Chapel Domain for Sphinx
 Chapel_ domain for Sphinx_! Document Chapel modules and APIs using the Sphinx
 tool suite.
 
-.. _Chapel: http://chapel-lang.org/
-.. _Sphinx: http://sphinx-doc.org/
+.. _Chapel: https://chapel-lang.org/
+.. _Sphinx: https://sphinx-doc.org/
 
 `Package documentation`_ is available on readthedocs.org.
 
