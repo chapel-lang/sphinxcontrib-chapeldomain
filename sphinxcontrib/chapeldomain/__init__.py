@@ -9,8 +9,8 @@
     :copyright: Copyright 2015 by Chapel Team
     :license: Apache v2.0, see LICENSE for details.
 
-    Chapel website: https://chapel.cray.com/
-    Chapel spec:    https://chapel.cray.com/language.html
+    Chapel website: https://chapel-lang.org/
+    Chapel spec:    https://chapel-lang.org/language.html
 
 """
 
